@@ -1,0 +1,446 @@
+  /* General Events Page Styling */
+  .events-page {
+    display: flex;
+    flex-direction: column; /* Stack tabs, calendar, and events */
+    align-items: center; /* Center horizontally */
+    padding: 20px;
+    gap: 20px;
+    background-color: #f8f9fa;
+  }
+
+  /* Tabs Container */
+  .tabs {
+    display: flex;
+    justify-content: center; /* Center the tabs horizontally */
+    gap: 20px; /* Space between the tabs */
+    margin-bottom: 20px; /* Space between tabs and other content */
+  }
+
+  /* Tab Button Styles */
+  .tab-button {
+    padding: 10px 20px;
+    border: none;
+    background: #f0f0f0;
+    cursor: pointer;
+    transition: background 0.3s, color 0.3s;
+    border-radius: 5px;
+    font-size: 16px;
+  }
+
+  .tab-button:hover {
+    background: #e0e0e0;
+  }
+
+  .tab-button.active {
+    background: #12283c;
+    color: #fff;
+    font-weight: bold;
+  }
+
+  /* Content Container */
+  .content-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+    gap: 40px;
+  }
+
+  /* Calendar Container */
+  .calendar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    background-color: #fff;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 300px;
+  }
+
+  /* Button Group */
+  .button-group {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .apply-button,
+  .clear-button {
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .apply-button {
+    background-color: #12283c;
+    color: #fff;
+  }
+
+  .apply-button:hover {
+    background-color: #0056b3;
+  }
+
+  .clear-button {
+    background-color: #12283c;
+    color: #fff;
+  }
+
+  .clear-button:hover {
+    background-color: #c62828;
+  }
+
+  /* Events Container */
+  .events-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start; /* Left-align the event cards */
+    gap: 20px;
+    width: 100%;
+    max-width: 800px; /* Limit maximum width for responsiveness */
+  }
+
+  /* Event Card */
+  .event-card {
+    width: 220px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .event-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .event-card img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 5px;
+    margin-bottom: 10px;
+  }
+
+  .event-date {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 10px;
+    font-weight: bold;
+  }
+
+  .event-card h3 {
+    font-size: 16px;
+    color: #333;
+    margin: 5px 0;
+  }
+
+  /* Selected Date Styling */
+  .selected-date {
+    background-color: #12283c !important;
+    color: #fff !important;
+    border-radius: 50%;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  /* React Calendar Navigation */
+  .react-calendar__navigation {
+    background-color: #12283c;
+    color: #fff;
+    border-radius: 0px;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    font-size: 16px;
+  }
+
+  .react-calendar__navigation button {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .react-calendar__navigation button:hover {
+    color: #f06a2c;
+  }
+
+  /* Event Status Indicators */
+  .event-indicator {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    border: 2px solid #fff;
+  }
+
+  .event-indicator.expired {
+    background-color: red;
+  }
+
+  .event-indicator.available {
+    background-color: green;
+  }
+
+  .tab-button:hover {
+    background: #e0e0e0;
+    color: #f06a2c; /* Change text color when hovering */
+  }
+  .outreach-image {
+    max-width: 100%;
+    height: auto;
+    margin: 20px auto;
+    display: block;
+    border-radius: 8px;
+  }
+
+  .program-pillars {
+    margin-top: 40px;
+    padding: 20px;
+    background-color: #12283c;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+
+  .program-pillars h3 {
+    font-size: 24px;
+    color: #fff;
+    margin-bottom: 20px;
+  }
+
+  .pillars-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    gap: 20px;
+  }
+
+  .pillar-box {
+    width: 200px;
+    padding: 15px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .pillar-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .pillar-icon {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 10px;
+  }
+
+  .pillar-box h4 {
+    font-size: 18px;
+    color: #444;
+    margin-bottom: 8px;
+  }
+
+  .pillar-box p {
+    font-size: 14px;
+    color: #666;
+  }
+
+  .program-pedagogy {
+    margin-top: 40px;
+    padding: 20px;
+    background-color: #12283c;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  .program-pedagogy h3 {
+    font-size: 24px;
+    color: #fff;
+    margin-bottom: 20px;
+  }
+  
+  .pedagogy-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    gap: 20px;
+  }
+  
+  .pedagogy-tile {
+    width: 150px;
+    padding: 15px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.5s ease forwards;
+  }
+  
+  .pedagogy-icon {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 10px;
+  }
+  
+  .pedagogy-tile h4 {
+    font-size: 16px;
+    color: #444;
+  }
+  
+  @keyframes fadeInUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  
+  
+  @keyframes fadeInUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* General Mobile Styles */
+  @media (max-width: 768px) {
+    .events-page {
+      padding: 10px; /* Reduce padding */
+      gap: 15px; /* Decrease spacing */
+    }
+
+    /* Tabs */
+    .tabs {
+      flex-direction: column; /* Stack tabs vertically */
+      gap: 10px; /* Reduce gap between tabs */
+    }
+
+    .tab-button {
+      font-size: 14px; /* Reduce font size for buttons */
+      padding: 8px 15px; /* Adjust padding */
+    }
+
+    /* Content Container */
+    .content-container {
+      flex-direction: column; /* Stack calendar and events */
+      gap: 20px; /* Add space between sections */
+      align-items: center; /* Center content */
+    }
+
+    /* Calendar Container */
+    .calendar-container {
+      max-width: 100%; /* Allow full width */
+      width: 100%; /* Fill available space */
+    }
+
+    /* Events Container */
+    .events-container {
+      justify-content: center; /* Center align event cards */
+      gap: 15px; /* Reduce gap between cards */
+    }
+
+    /* Event Card */
+    .event-card {
+      width: 100%; /* Take full width */
+      max-width: 300px; /* Limit the maximum width */
+    }
+
+    .event-card img {
+      height: 120px; /* Adjust image height */
+    }
+
+    .event-date {
+      font-size: 12px; /* Reduce font size */
+    }
+
+    .event-card h3 {
+      font-size: 14px; /* Reduce font size */
+    }
+
+    /* Button Group */
+    .button-group {
+      flex-direction: column; /* Stack buttons vertically */
+      gap: 10px; /* Add space between buttons */
+      width: 100%; /* Full width */
+    }
+
+    .apply-button,
+    .clear-button {
+      font-size: 14px; /* Adjust font size */
+      padding: 8px 10px; /* Adjust padding */
+    }
+
+    /* React Calendar Navigation */
+    .react-calendar__navigation {
+      font-size: 14px; /* Reduce font size */
+      padding: 8px; /* Adjust padding */
+    }
+
+    .react-calendar__navigation button {
+      font-size: 12px; /* Smaller font for buttons */
+    }
+  }
+
+  /* Extra Small Devices (max-width: 480px) */
+  @media (max-width: 480px) {
+    .tabs {
+      gap: 5px; /* Minimize gap between tabs */
+    }
+
+    .tab-button {
+      font-size: 12px; /* Smaller font size */
+      padding: 6px 10px; /* Smaller padding */
+    }
+
+    .calendar-container {
+      padding: 10px; /* Adjust padding */
+    }
+
+    .event-card {
+      padding: 10px; /* Adjust card padding */
+    }
+
+    .event-card img {
+      height: 100px; /* Further reduce image height */
+    }
+
+    .apply-button,
+    .clear-button {
+      font-size: 12px; /* Smaller font for buttons */
+      padding: 6px 8px; /* Smaller padding */
+    }
+
+    .react-calendar__navigation {
+      font-size: 12px; /* Smaller font */
+    }
+
+    .react-calendar__navigation button {
+      font-size: 10px; /* Smallest font for navigation buttons */
+    }
+  }

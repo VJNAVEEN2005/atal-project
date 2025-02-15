@@ -1,0 +1,134 @@
+/* General Styles */
+.items {
+    display: flex;
+    gap: 15px;
+    position: relative;
+    background: white;
+    justify-content: center;
+    padding: 10px;
+    transition: all 0.3s ease-in-out; /* Smooth transition for visibility */
+    z-index: 1;
+}
+
+.hamburger {
+    display: none;
+    font-size: 24px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+/* Main Item and Dropdown Styling */
+.mainitem, .wrap {
+    position: relative;
+    border-radius: 10px;
+    cursor: pointer;
+    background-color: transparent;
+    border: 2px solid white;
+    font-size: medium;
+    text-decoration: none;
+    color: black;
+    padding: 5px;
+    transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+.mainitem:hover {
+    color: orange;
+}
+
+/* Dropdown Menu */
+.dropitem {
+    display: none;
+    position: absolute;
+    top: 100%; /* Align dropdown below the main item */
+    left: 0%; /* Place it to the right of the menu item */
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    padding: 10px 0;
+    border-radius: 5px;
+    transition: all 0.3s ease-in-out;
+}
+
+/* Show dropdown on hover */
+.wrap:hover .dropitem {
+    display: block;
+}
+
+/* Dropdown Links */
+.dropitem a {
+    color: #333;
+    padding: 10px 20px;
+    display: block;
+    white-space: nowrap;
+    transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+.dropitem a:hover {
+    color: orange;
+    background-color: #f0f0f0;
+}
+
+/* Mobile Styles */
+@media (max-width: 720px) {
+    .dropitem{
+        left: 100%;
+    }
+    .hamburger {
+        display: block;
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 10;
+        color: black;
+    }
+
+    .items {
+        display: none; /* Hide the menu initially */
+        flex-direction: column;
+        gap: 0;
+        position: absolute;
+        top: 50px;
+        left: 0;
+        width: 100%; /* Full width in mobile */
+        background-color: white;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .items.show {
+        display: flex; /* Show menu when toggled */
+    }
+
+    .mainitem {
+        width: 100%; /* Full width buttons */
+        text-align: left;
+        padding: 15px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    /* Mobile Dropdown Styling */
+    .dropitem {
+        position: relative; /* Make dropdown stack below */
+        left: auto;
+        top: auto;
+        margin-left: 20px; /* Slight indentation */
+        width: calc(100% - 40px); /* Adjust dropdown width */
+    }
+
+    .dropitem a {
+        padding: 10px 20px;
+    }
+}
+
+/* Menu Item Styling */
+.menuitem {
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+.menuitem:hover {
+    color: orange;
+}
