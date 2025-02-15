@@ -20,7 +20,7 @@ const Home = () => {
       <Focus/>
       <Choose_Us/>
       <Partner />
-      <EcoSystem/>
+      {/* <EcoSystem/> */}
       <Stats />
       <SocialMedia />
     </Container>

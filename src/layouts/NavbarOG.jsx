@@ -171,14 +171,14 @@ const NavbarOG = () => {
             />
           </div>
         </div>
-        <div>
+        {/* <div>
           <button
             className="ml-4 px-6 py-2 rounded-lg bg-[#12283c] text-white font-semibold hover:bg-opacity-90 transition"
             onClick={toggleLoginPopup}
           >
             Login
           </button>
-        </div>
+        </div> */}
       </div>
 
       {/* Login Popup */}

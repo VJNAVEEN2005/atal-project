@@ -25,6 +25,8 @@ import Network from "./components/Partners/Network.jsx";
 import NavbarOG from "./layouts/NavbarOG.jsx";
 import Programs from "./pages/Programs.jsx";
 import Team from "./pages/Teams.jsx";
+import CoreTeam from './components/Teams/CoreTeam.tsx'
+import Executive_Committee from './components/Teams/Executive_Committee.tsx'
 
 
 function App() {
@@ -51,6 +53,8 @@ function App() {
         <Route path="/ipSupporters" element={<IP />} />
         <Route path="/networkingPartners" element={<Network />} />
         <Route path="/team" element={<Team/>} />
+        <Route path="/team/coreteam" element={<CoreTeam/>} />
+        <Route path="/team/executive_committee" element={<Executive_Committee/>} />
         
         <Route path="*" element={<div>404 - Page Not Found</div>} />
       </Routes>

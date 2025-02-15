@@ -17,10 +17,6 @@ const Navbar_menu = [
         title: "Students Projects",
         link: "/studentProject",
       },
-      {
-        title:"Team",
-      link:"/team",
-      },
     ],
   },
   {
@@ -70,6 +66,21 @@ const Navbar_menu = [
       {
         title: "Investment Partners",
         link: "/investmentPartner",
+      },
+    ],
+  },
+  {
+    Title: "Team",
+    link: "/team",
+    drop: "active",
+    dropList: [
+      {
+        title: "Core Team",
+        link: "/team/coreteam",
+      },
+      {
+        title: "Executive Committee",
+        link: "/team/executive_committee",
       },
     ],
   },

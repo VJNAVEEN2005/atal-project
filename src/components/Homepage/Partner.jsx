@@ -60,8 +60,9 @@ export const Partner = () => {
   };
 
   return (
-    <div className="partner-carousel" style={{ perspective: '1500px', paddingBottom: '50px' }}>
-      <h2 className='mt-10' style={{ textAlign: 'center', marginBottom: '20px', color: '#333' }}>OUR PARTNERS</h2>
+    <div className=' mt-24'>
+      <div className="partner-carousel" style={{ perspective: '1500px', paddingBottom: '10px' }}>
+      <h2 className='mt-10' style={{ textAlign: 'center', marginBottom: '20px', color: '#333' }}>Corporate Partners</h2>
       <Slider {...settings}>
         {logos.map((logo, index) => (
           <div key={index} style={{ transform: `rotateY(${index * 15}deg)`, transition: 'transform 0.5s', padding: '10px' }}>
@@ -71,6 +72,19 @@ export const Partner = () => {
           </div>
         ))}
       </Slider>
+    </div>
+    <div className="partner-carousel" style={{ perspective: '1500px', paddingBottom: '10px' }}>
+      <h2 className='' style={{ textAlign: 'center', marginBottom: '20px', color: '#333' }}>Academic Partners</h2>
+      <Slider {...settings}>
+        {logos.map((logo, index) => (
+          <div key={index} style={{ transform: `rotateY(${index * 15}deg)`, transition: 'transform 0.5s', padding: '10px' }}>
+            <div style={{ width: '100%', height: '100px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              {logo}
+            </div>
+          </div>
+        ))}
+      </Slider>
+    </div>
     </div>
   );
 };

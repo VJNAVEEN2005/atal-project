@@ -3,17 +3,18 @@ import styled from 'styled-components';
 import { useInView } from 'react-intersection-observer';
 import CountUp from 'react-countup';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRocket, faGraduationCap, faUsers,faUser, faDollarSign, faHandshake } from '@fortawesome/free-solid-svg-icons';
+import { faRocket, faGraduationCap, faUsers,faUser, faDollarSign, faHandshake, faMessage, faBuilding, faSchool, faFile, faBriefcase, faEarthAsia } from '@fortawesome/free-solid-svg-icons';
+
 
 const stats = [
     { number: 2500, description: "Registered Members", icon: faUser },
     { number: 75, description: "Start-ups Supported", icon: faRocket },
-    { number: 35, description: "Mentors On-board", icon: faRocket },
-    { number: 25, description: "Industrial Partnership", icon: faRocket },
-    { number: 15, description: "Academic Partnership", icon: faRocket },
-    { number: 15, description: "Industry Consulting Projects", icon: faRocket },
-    { number: 8, description: "MSMEs Supported", icon: faRocket },
-    { number: 1375, description: "Outreach Initiatives Events", icon: faRocket },
+    { number: 35, description: "Mentors On-board", icon: faMessage },
+    { number: 25, description: "Industrial Partnership", icon: faBuilding },
+    { number: 15, description: "Academic Partnership", icon: faSchool },
+    { number: 15, description: "Industry Consulting Projects", icon: faFile },
+    { number: 8, description: "MSMEs Supported", icon: faBriefcase },
+    { number: 1375, description: "Outreach Initiatives Events", icon: faEarthAsia },
     { number: 67, description: "No. of Startups", icon: faRocket },
     { number: 12, description: "Startups Graduated", icon: faGraduationCap },
     { number: 250, description: "Employment Generated", icon: faUsers },
@@ -57,6 +58,10 @@ const StatDescription = styled.span`
 
 const App = () => {
     return (
+        <div className="max-w-full bg-gray-100 mx-auto mt-12 p-5 pt-10">
+      <h1 className="inline-block bg-[#12283c] text-white px-5 py-2.5 rounded-full font-bold mb-10">
+        ECOSYSTEM IMPACT
+      </h1>
         <Wrapper>
             {stats.map((stat, index) => (
                 <StatItem
@@ -67,6 +72,7 @@ const App = () => {
                 />
             ))}
         </Wrapper>
+        </div>
     );
 };
 

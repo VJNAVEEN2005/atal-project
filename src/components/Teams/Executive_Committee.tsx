@@ -9,42 +9,6 @@ interface TeamMember {
 
 const teamMembers: TeamMember[] = [
   {
-    name: "Dr. G Gerald Moses",
-    role: "Director"
-  },
-  {
-    name: "Dr. R Sundaramurthy",
-    role: "Executive Director"
-  },
-  {
-    name: "Mr. V Vishnu Varadan",
-    role: "Chief Executive Officer"
-  },
-  {
-    name: "Mr. S Rajakumar",
-    role: "Chief Operating Officer"
-  },
-  {
-    name: "Mr. S Kameswaran",
-    role: "Incubation Manager"
-  },
-  {
-    name: "Mr. T Uthaya Kumar",
-    role: "Program Executive"
-  },
-  {
-    name: "Mr. Hari Dharsan",
-    role: "Field Engineer"
-  },
-  {
-    name: "Mr. Iyonstan",
-    role: "Graduate Engineer Trainee"
-  },
-  {
-    name: "Mr. R Parthiban",
-    role: "Tech Assistant"
-  },
-  {
     name: "Dr.A.Muthadhi",
     role: "Member - AICPECF / CE"
   },
@@ -87,7 +51,7 @@ const Team = () => {
     <div className="bg-gray-50 py-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">AIC-PECF – TEAM MEMBERS</h2>
+          <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">AIC-PECF – Executive Committee</h2>
           <p className="mt-3 max-w-2xl mx-auto text-xl text-gray-500 sm:mt-4">
             Meet our dedicated team of professionals driving innovation and success
           </p>
