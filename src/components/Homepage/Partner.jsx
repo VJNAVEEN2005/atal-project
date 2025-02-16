@@ -40,27 +40,27 @@ export const Partner = () => {
   ];
 
   const cooperatePartnerLogo = [
-    <img src={di} alt="AIM Logo" style={{ width: 110, height: 50 }} />,
-    <img src={digi} alt="AIM Logo" style={{ width: 110, height: 50 }} />,
-    <img src={Easy} alt="AIM Logo" style={{ width: 110, height: 50 }} />,
-    <img src={idea} alt="AIM Logo" style={{ width: 110, height: 50 }} />,
-    <img src={kris} alt="AIM Logo" style={{ width: 110, height: 50 }} />,
-    <img src={ktech} alt="AIM Logo" style={{ width: 110, height: 50 }} />,
-    <img src={lucas} alt="AIM Logo" style={{ width: 110, height: 50 }} />,
-    <img src={re} alt="AIM Logo" style={{ width: 110, height: 50 }} />,
-    <img src={schneider} alt="AIM Logo" style={{ width: 110, height: 50 }} />,
-    <img src={tele} alt="AIM Logo" style={{ width: 110, height: 50 }} />,
-    <img src={touch} alt="AIM Logo" style={{ width: 110, height: 50 }} />,
-    <img src={zoho} alt="AIM Logo" style={{ width: 110, height: 50 }} />,
+    <img src={di} alt="AIM Logo" style={{ width: 80, height: 50}} />,
+    <img src={digi} alt="AIM Logo" style={{ width: 80, height: 50 }} />,
+    <img src={Easy} alt="AIM Logo" style={{ width: 80, height: 50}} />,
+    <img src={idea} alt="AIM Logo" style={{ width: 140, height: 50 }} />,
+    <img src={kris} alt="AIM Logo" style={{ width: 80, height: 50 }} />,
+    <img src={ktech} alt="AIM Logo" style={{width: 80, height: 50 }} />,
+    <img src={lucas} alt="AIM Logo" style={{width: 140, height: 50 }} />,
+    <img src={re} alt="AIM Logo" style={{ width: 140, height: 50 }} />,
+    <img src={schneider} alt="AIM Logo" style={{ width: 140, height: 50 }} />,
+    <img src={tele} alt="AIM Logo" style={{ width: 80, height: 50 }} />,
+    <img src={touch} alt="AIM Logo" style={{ width: 80, height: 50 }} />,
+    <img src={zoho} alt="AIM Logo" style={{ width: 80, height: 50 }} />,
   ]
 
   const acadamicPartnerLogo = [
-    <img src={nitLogo} alt="AIM Logo" style={{ width: 110, height: 50 }} />,
-    <img src={ifetlogo} alt="AIM Logo" style={{ width: 110, height: 50 }} />,
-    <img src={pip} alt="AIM Logo" style={{ width: 110, height: 50 }} />,
-    <img src={river} alt="AIM Logo" style={{ width: 110, height: 50 }} />,
-    <img src={rj} alt="AIM Logo" style={{ width: 110, height: 50 }} />,
-    <img src={smvec} alt="AIM Logo" style={{ width: 110, height: 50 }} />,
+    <img src={nitLogo} alt="AIM Logo" style={{ width: 80, height: 50 }} />,
+    <img src={ifetlogo} alt="AIM Logo" style={{ width: 160, height: 50 }} />,
+    <img src={pip} alt="AIM Logo" style={{ width: 80, height: 50 }} />,
+    <img src={river} alt="AIM Logo" style={{ width: 140, height: 50 }} />,
+    <img src={rj} alt="AIM Logo" style={{ width: 80, height: 50 }} />,
+    <img src={smvec} alt="AIM Logo" style={{ width: 160, height: 50 }} />,
   ]
 
   const settings = {
