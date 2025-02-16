@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { FaPhoneAlt, FaMapMarkerAlt, FaEnvelope, FaInstagram, FaLinkedinIn, FaYoutube } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
+import GetInTouch from "../components/Contact/GetInTouch";
 
 const ContactUs = () => {
   return (
@@ -29,25 +30,30 @@ const ContactUs = () => {
             <p>Email: info@aicpecf.org</p>
             <p>Phone: +91 123456789</p>
             <SocialIcons>
-            <a className='instagram' href="https://www.instagram.com/aic_pecf" target="_blank" rel="noopener noreferrer"><FaInstagram /></a>
-            <a className='x'href="https://twitter.com/aicpecftweet" target="_blank" rel="noopener noreferrer"><FaXTwitter /></a>
-            <a className='link'href="https://www.linkedin.com/company/aicpecf/" target="_blank" rel="noopener noreferrer"><FaLinkedinIn /></a>
-            <a className='youtube'href="https://youtube.com/@atalincubationcentre-pecfo946" target="_blank" rel="noopener noreferrer"><FaYoutube /></a>
-          </SocialIcons>
+              <a className='instagram' href="https://www.instagram.com/aic_pecf" target="_blank" rel="noopener noreferrer"><FaInstagram /></a>
+              <a className='x' href="https://twitter.com/aicpecftweet" target="_blank" rel="noopener noreferrer"><FaXTwitter /></a>
+              <a className='link' href="https://www.linkedin.com/company/aicpecf/" target="_blank" rel="noopener noreferrer"><FaLinkedinIn /></a>
+              <a className='youtube' href="https://youtube.com/@atalincubationcentre-pecfo946" target="_blank" rel="noopener noreferrer"><FaYoutube /></a>
+            </SocialIcons>
           </TileContent>
         </Tile>
       </TileContainer>
-      <MapContainer>
-        <iframe
-          src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d3902.4421966329014!2d79.8531070539368!3d12.013048708963673!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2s!4v1441215349055"
-          width="100%"
-          height="400"
-          style={{ border: 0 }}
-          allowFullScreen=""
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-        ></iframe>
-      </MapContainer>
+
+      <ContentWrapper>
+        <MapContainer>
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d3902.4421966329014!2d79.8531070539368!3d12.013048708963673!2m3!1f0!2f0!3f0!2m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2s!4v1441215349055"
+            width="100%"
+            height="400"
+            style={{ border: 0 }}
+            allowFullScreen=""
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          ></iframe>
+        </MapContainer>
+        
+        <GetInTouch /> 
+      </ContentWrapper>
     </ContactContainer>
   );
 };
@@ -131,11 +137,28 @@ const SocialIcons = styled.div`
   }
 `;
 
-const MapContainer = styled.div`
+const ContentWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   width: 100%;
   max-width: 1000px;
   margin-top: 50px;
+  gap: 20px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: center;
+  }
+`;
+
+const MapContainer = styled.div`
+  width: 60%;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 0px;
   overflow: hidden;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 `;
