@@ -4,9 +4,11 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import { AIM, PTU, aws, IFET, SMVEC, River, NIT, RJ, Pip, Zoho, Resuegent, START, touch, Ktech, Kris, Lucas,
   Easy, Idea, Seed, Start, Schn, Eagle, S, Bee, CII, MSME, BCIL, Digi } from '../../assets/Homepage/Partners/Keypartner';
+import { di, digi, idea, kris, ktech, lucas, re, schneider, tele, zoho } from '../../assets/Partnerspage/Corporate/CooperatePartner';
+import { ifetlogo, nitLogo, pip, river, rj, smvec } from '../../assets/Partnerspage/Academic/AcadamicPartner';
 
 export const Partner = () => {
-  const logos = [
+  const logos1 = [
     <img src={AIM} alt="AIM Logo" style={{ width: 110, height: 50 }} />,
     <img src={PTU} alt="PTU Logo" style={{ width: 80, height: 80 }} />,
     <img src={Seed} alt="Seed Logo" style={{ width: 50, height: 50 }} />,
@@ -37,6 +39,30 @@ export const Partner = () => {
     <img src={aws} alt="Digi Logo" style={{ width: 90, height: 50 }} />,
   ];
 
+  const cooperatePartnerLogo = [
+    <img src={di} alt="AIM Logo" style={{ width: 80, height: 50}} />,
+    <img src={digi} alt="AIM Logo" style={{ width: 80, height: 50 }} />,
+    <img src={Easy} alt="AIM Logo" style={{ width: 80, height: 50}} />,
+    <img src={idea} alt="AIM Logo" style={{ width: 140, height: 50 }} />,
+    <img src={kris} alt="AIM Logo" style={{ width: 80, height: 50 }} />,
+    <img src={ktech} alt="AIM Logo" style={{width: 80, height: 50 }} />,
+    <img src={lucas} alt="AIM Logo" style={{width: 140, height: 50 }} />,
+    <img src={re} alt="AIM Logo" style={{ width: 140, height: 50 }} />,
+    <img src={schneider} alt="AIM Logo" style={{ width: 140, height: 50 }} />,
+    <img src={tele} alt="AIM Logo" style={{ width: 80, height: 50 }} />,
+    <img src={touch} alt="AIM Logo" style={{ width: 80, height: 50 }} />,
+    <img src={zoho} alt="AIM Logo" style={{ width: 80, height: 50 }} />,
+  ]
+
+  const acadamicPartnerLogo = [
+    <img src={nitLogo} alt="AIM Logo" style={{ width: 80, height: 50 }} />,
+    <img src={ifetlogo} alt="AIM Logo" style={{ width: 160, height: 50 }} />,
+    <img src={pip} alt="AIM Logo" style={{ width: 80, height: 50 }} />,
+    <img src={river} alt="AIM Logo" style={{ width: 140, height: 50 }} />,
+    <img src={rj} alt="AIM Logo" style={{ width: 80, height: 50 }} />,
+    <img src={smvec} alt="AIM Logo" style={{ width: 160, height: 50 }} />,
+  ]
+
   const settings = {
     dots: false,
     infinite: true,
@@ -64,7 +90,7 @@ export const Partner = () => {
       <div className="partner-carousel" style={{ perspective: '1500px', paddingBottom: '10px' }}>
       <h2 className='mt-10' style={{ textAlign: 'center', marginBottom: '20px', color: '#333' }}>Corporate Partners</h2>
       <Slider {...settings}>
-        {logos.map((logo, index) => (
+        {cooperatePartnerLogo.map((logo, index) => (
           <div key={index} style={{ transform: `rotateY(${index * 15}deg)`, transition: 'transform 0.5s', padding: '10px' }}>
             <div style={{ width: '100%', height: '100px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               {logo}
@@ -76,7 +102,7 @@ export const Partner = () => {
     <div className="partner-carousel" style={{ perspective: '1500px', paddingBottom: '10px' }}>
       <h2 className='' style={{ textAlign: 'center', marginBottom: '20px', color: '#333' }}>Academic Partners</h2>
       <Slider {...settings}>
-        {logos.map((logo, index) => (
+        {acadamicPartnerLogo.map((logo, index) => (
           <div key={index} style={{ transform: `rotateY(${index * 15}deg)`, transition: 'transform 0.5s', padding: '10px' }}>
             <div style={{ width: '100%', height: '100px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               {logo}
