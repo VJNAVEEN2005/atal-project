@@ -4,7 +4,7 @@ const Infrastructure_services = () => {
   return (
     <div className='mt-5 mx-8'>
         <div className=' flex justify-center'>
-        <div className=' px-4 py-2 bg-customBlue text-white text-4xl font-bold rounded-xl'>
+        <div className=' px-5 py-3  bg-[#12283c] text-white text-3xl font-bold rounded-3xl'>
             AIC-PEC FOUNDATION INFRASTUCTURE SERVICES
         </div>
         </div>
