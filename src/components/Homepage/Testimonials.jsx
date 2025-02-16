@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Rajkumar_COO, Sundhara_Moorthy_Director, Vishnu_CEO } from '../../assets/Team/coreTeam/images/coreTeamImage';
 
 const Testimonials = () => {
   const testimonials = [
@@ -9,7 +10,7 @@ const Testimonials = () => {
       company: 'Atal Incubation Centre, PEC Foundation',
       message:
         'AIC-PECF has been instrumental in our startup journey. The support we have received, including expert mentorship, crucial resources, and valuable networking opportunities, has been vital for our product development. Their dedication continues to play a key role as we advance in our development process.',
-      photo: '/images/ceo.jpg', // Replace with actual image URLs
+      photo: Vishnu_CEO, // Replace with actual image URLs
     },
     {
       role: 'COO',
@@ -18,7 +19,7 @@ const Testimonials = () => {
       company: 'Atal Incubation Centre, PEC Foundation',
       message:
         'The strategic guidance from AIC-PECF helped us navigate critical challenges in our business. The team’s hands-on approach ensured we had access to essential resources and connections that accelerated our growth.',
-      photo: '/images/coo.jpg',
+      photo: Rajkumar_COO,
     },
     {
       role: 'Director',
@@ -27,7 +28,7 @@ const Testimonials = () => {
       company: 'Atal Incubation Centre, PEC Foundation',
       message:
         'AIC-PECF provided us with a nurturing environment to innovate and grow. Their mentorship and resources have been invaluable in helping us reach new milestones in our journey.',
-      photo: '/images/director.jpg',
+      photo: Sundhara_Moorthy_Director,
     },
   ];
 
