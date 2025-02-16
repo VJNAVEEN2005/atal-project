@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
+import React, { useState } from "react";
+import styled from "styled-components";
 
 const GetInTouch = () => {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    message: ''
+    name: "",
+    email: "",
+    phone: "",
+    message: "",
   });
 
   const handleChange = (e) => {
@@ -24,18 +24,43 @@ Phone: ${formData.phone}
 Message:
 ${formData.message}
     `;
-    
-    window.location.href = `mailto:djpavithra2005@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+    window.location.href = `mailto:djpavithra2005@gmail.com?subject=${encodeURIComponent(
+      subject
+    )}&body=${encodeURIComponent(body)}`;
   };
 
   return (
     <FormContainer>
       <h2>GET IN TOUCH</h2>
       <Form onSubmit={handleSubmit}>
-        <Input type="text" name="name" placeholder="Name" onChange={handleChange} required />
-        <Input type="email" name="email" placeholder="Email" onChange={handleChange} required />
-        <Input type="tel" name="phone" placeholder="Phone" onChange={handleChange} required />
-        <TextArea name="message" placeholder="Message" onChange={handleChange} required />
+        <Input
+          type="text"
+          name="name"
+          placeholder="Name"
+          onChange={handleChange}
+          required
+        />
+        <Input
+          type="email"
+          name="email"
+          placeholder="Email"
+          onChange={handleChange}
+          required
+        />
+        <Input
+          type="tel"
+          name="phone"
+          placeholder="Phone"
+          onChange={handleChange}
+          required
+        />
+        <TextArea
+          name="message"
+          placeholder="Message"
+          onChange={handleChange}
+          required
+        />
         <SubmitButton type="submit">Submit</SubmitButton>
       </Form>
     </FormContainer>
