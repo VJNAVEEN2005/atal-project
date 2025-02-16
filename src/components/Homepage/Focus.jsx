@@ -1,10 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { drone, embedded, iot } from '../../assets/Focus/image/focus';
+
 
 const focusAreas = [
   {
     title: "Electronics Design and Manufacturing",
-    image: "http://www.aicpecf.org/uploads/9/8/0/9/9809129/published/pcb.jpg?1557299529",
+    image: embedded,
     details: [
       "PCB design and prototyping",
       "Surface Mount PCB Assembly",
@@ -17,7 +19,7 @@ const focusAreas = [
   },
   {
     title: "Internet of Things (IoT)",
-    image: "http://www.aicpecf.org/uploads/9/8/0/9/9809129/iot_orig.jpg",
+    image: iot,
     details: [
       "Gateway management",
       "Connectivity of Devices",
@@ -30,7 +32,7 @@ const focusAreas = [
   },
   {
     title: "Unmanned Aerial Vehicle (UAV)",
-    image: "http://www.aicpecf.org/uploads/9/8/0/9/9809129/published/xbird-250-drone-quadro.jpg?1557299790",
+    image: drone,
     details: [
       "UAV system Integration and Testing",
       "Ground station Control and Navigation support",
@@ -41,6 +43,8 @@ const focusAreas = [
     ]
   }
 ];
+
+console.log(drone);
 
 const Focus = () => {
   const handleApply = (title) => {

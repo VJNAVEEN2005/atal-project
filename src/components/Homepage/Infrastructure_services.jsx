@@ -1,5 +1,11 @@
 import React from "react";
 import { animate, delay, motion } from "framer-motion";
+import {
+  co_working_space1,
+  co_working_space2,
+  rapid_prototyping_lab1,
+  rapid_prototyping_lab2,
+} from "../../assets/Infrastucture_Services/images/infrastucture_services";
 
 const Infrastructure_services = () => {
   const popOnView = {
@@ -17,7 +23,7 @@ const Infrastructure_services = () => {
   };
 
   return (
-    <div className="mt-5 mx-8">
+    <div className="mt-5 mx-40">
       <div className=" flex justify-center">
         <div className=" px-5 py-3  bg-[#12283c] text-white text-3xl font-bold rounded-3xl">
           AIC-PEC FOUNDATION INFRASTUCTURE SERVICES
@@ -25,7 +31,7 @@ const Infrastructure_services = () => {
       </div>
       <div className=" flex mt-10">
         <div className=" w-[50%] flex flex-col items-center justify-center">
-          <div className=" flex flex-col items-end">
+          <div className=" flex flex-col items-center">
             <motion.div
               variants={popOnView}
               initial="initial"
@@ -33,7 +39,7 @@ const Infrastructure_services = () => {
               viewport={{
                 once: true,
               }}
-              className=" font-bold text-2xl"
+              className=" font-bold text-3xl"
             >
               PLUG & PLAY
             </motion.div>
@@ -44,14 +50,14 @@ const Infrastructure_services = () => {
               viewport={{
                 once: true,
               }}
-              className=" font-bold text-2xl"
+              className=" font-bold text-3xl"
             >
               Co-Work Space
             </motion.div>
           </div>
         </div>
-        <div className="w-[50%] flex justify-end">
-          <div className="pr-44">
+        <div className="w-[50%] flex justify-center">
+          <div className="">
             <motion.div
               variants={popOnView}
               initial="initial"
@@ -59,14 +65,20 @@ const Infrastructure_services = () => {
               viewport={{
                 once: true,
               }}
-              className=" w-80 h-52 bg-customBlue rounded-r-full"
-            ></motion.div>
+              className=" "
+            >
+              <img
+                className="rounded-3xl h-96 hover:scale-110 shadow-xl shadow-gray-600 transition-all"
+                src={co_working_space1}
+                alt=""
+              />
+            </motion.div>
           </div>
         </div>
       </div>
       <div className=" flex mt-5">
-        <div className="w-[50%] flex justify-start">
-          <div className="pl-44">
+        <div className="w-[50%] flex justify-center">
+          <div className="">
             <motion.div
               variants={popOnView}
               initial="initial"
@@ -74,36 +86,39 @@ const Infrastructure_services = () => {
               viewport={{
                 once: true,
               }}
-              className=" w-80 h-52 bg-customBlue rounded-l-full"
-            ></motion.div>
+              className="-mt-20"
+            >
+              <img
+                className="rounded-3xl h-96 hover:scale-110 shadow-xl shadow-gray-600 transition-all"
+                src={co_working_space2}
+                alt=""
+              />
+            </motion.div>
           </div>
         </div>
         <div className=" w-[50%] flex flex-col items-center justify-center">
           <div className="flex flex-col items-start">
-            <div className=" font-semibold text-2xl">
-              <motion.li
-                variants={popOnView}
-                initial="initial"
-                whileInView="animate"
-                viewport={{
-                  once: true,
-                }}
-              >
-                24/7 High Speed Internet Connectivity.
-              </motion.li>
+          <div className=" m-5">
+              {[
+                '24/7 High Speed Internet Connectivity.',
+                'World Class Amenities',
+              ].map((val, index) => (
+                <div className=" font-semibold text-2xl flex justify-start hover:text-customBlue hover:scale-105 transition-all">
+                  <motion.li
+                    variants={popOnView}
+                    initial="initial"
+                    whileInView="animate"
+                    viewport={{
+                      once: true,
+                    }}
+                    className=" p-2 border shadow-xl hover:shadow-gray-600 rounded-xl m-2"
+                  >
+                    {val}
+                  </motion.li>
+                </div>
+              ))}
             </div>
-            <div className=" font-semibold text-2xl">
-              <motion.li
-                variants={popOnView}
-                initial="initial"
-                whileInView="animate"
-                viewport={{
-                  once: true,
-                }}
-              >
-                World Class Amenities
-              </motion.li>
-            </div>
+            
           </div>
         </div>
       </div>
@@ -117,7 +132,7 @@ const Infrastructure_services = () => {
               viewport={{
                 once: true,
               }}
-              className=" font-bold text-2xl"
+              className=" font-bold text-3xl"
             >
               AIC-PEC FOUNDATION
             </motion.div>
@@ -128,7 +143,7 @@ const Infrastructure_services = () => {
               viewport={{
                 once: true,
               }}
-              className=" font-bold text-2xl"
+              className=" font-bold text-3xl"
             >
               INFRASTRUCTURE SERVICES
             </motion.div>
@@ -139,14 +154,14 @@ const Infrastructure_services = () => {
               viewport={{
                 once: true,
               }}
-              className=" font-bold text-xl text-customBlue"
+              className=" font-bold text-2xl text-customBlue"
             >
               Rapid Prototype & Re-engineering
             </motion.div>
           </div>
         </div>
-        <div className="w-[50%] flex justify-end">
-          <div className="pr-44">
+        <div className="w-[50%] flex justify-center">
+          <div className="">
             <motion.div
               variants={popOnView}
               initial="initial"
@@ -154,14 +169,20 @@ const Infrastructure_services = () => {
               viewport={{
                 once: true,
               }}
-              className=" w-80 h-52 bg-customBlue rounded-r-full"
-            ></motion.div>
+              className=" -mt-14"
+            >
+              <img
+                className="rounded-3xl h-96 hover:scale-110 shadow-xl shadow-gray-600 transition-all"
+                src={rapid_prototyping_lab1}
+                alt=""
+              />
+            </motion.div>
           </div>
         </div>
       </div>
       <div className=" flex mt-5">
-        <div className="w-[50%] flex justify-start">
-          <div className="pl-44">
+        <div className="w-[50%] flex justify-center">
+          <div className="">
             <motion.div
               variants={popOnView}
               initial="initial"
@@ -169,8 +190,14 @@ const Infrastructure_services = () => {
               viewport={{
                 once: true,
               }}
-              className=" w-80 h-52 bg-customBlue rounded-l-full"
-            ></motion.div>
+              className=""
+            >
+              <img
+                className="rounded-3xl h-96 hover:scale-110 shadow-xl shadow-gray-600 transition-all"
+                src={rapid_prototyping_lab2}
+                alt=""
+              />
+            </motion.div>
           </div>
         </div>
         <div className=" w-[50%] flex flex-col items-center justify-center">
@@ -182,70 +209,34 @@ const Infrastructure_services = () => {
               viewport={{
                 once: true,
               }}
-              className=" font-bold text-2xl"
+              className=" font-bold text-3xl text-customBlue mt-2"
             >
               State-of-the-Art Rapid Prototyping Lab
             </motion.div>
-            <div className=" font-semibold text-2xl">
-              <motion.li
-                variants={popOnView}
-                initial="initial"
-                whileInView="animate"
-                viewport={{
-                  once: true,
-                }}
-              >
-                Additive Manufactuing Line.
-              </motion.li>
+            <div className=" m-5">
+              {[
+                'Additive Manufactuing Line.',
+                'Internet of Things (IoT).',
+                'Electronic Design Manufacturing (EMD).',
+                'PCB Fabrication Line.',
+                'Unmanned Aerial Vehicle (UAV) Simulation.',
+              ].map((val, index) => (
+                <div className=" font-semibold text-2xl flex justify-start hover:text-customBlue hover:scale-105 transition-all">
+                  <motion.li
+                    variants={popOnView}
+                    initial="initial"
+                    whileInView="animate"
+                    viewport={{
+                      once: true,
+                    }}
+                    className=" p-2 border shadow-xl hover:shadow-gray-600 rounded-xl m-2"
+                  >
+                    {val}
+                  </motion.li>
+                </div>
+              ))}
             </div>
-            <div className=" font-semibold text-2xl">
-              <motion.li
-                variants={popOnView}
-                initial="initial"
-                whileInView="animate"
-                viewport={{
-                  once: true,
-                }}
-              >
-                Internet of Things (IoT).
-              </motion.li>
-            </div>
-            <div className=" font-semibold text-2xl">
-              <motion.li
-                variants={popOnView}
-                initial="initial"
-                whileInView="animate"
-                viewport={{
-                  once: true,
-                }}
-              >
-                Electronic Design Manufacturing (EMD).
-              </motion.li>
-            </div>
-            <div className=" font-semibold text-2xl">
-              <motion.li
-                variants={popOnView}
-                initial="initial"
-                whileInView="animate"
-                viewport={{
-                  once: true,
-                }}
-              >
-                PCB Fabrication Line.
-              </motion.li>
-            </div>
-            <div className=" font-semibold text-2xl">
-              <motion.li
-                variants={popOnView}
-                initial="initial"
-                whileInView="animate"
-                viewport={{
-                  once: true,
-                }}
-              >
-                Unmanned Aerial Vehicle (UAV) Simulation.
-              </motion.li>
-            </div>
+            
           </div>
         </div>
       </div>

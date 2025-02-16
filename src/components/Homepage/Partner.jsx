@@ -88,7 +88,7 @@ export const Partner = () => {
   return (
     <div className=' mt-24'>
       <div className="partner-carousel" style={{ perspective: '1500px', paddingBottom: '10px' }}>
-      <h2 className='mt-10' style={{ textAlign: 'center', marginBottom: '20px', color: '#333' }}>Corporate Partners</h2>
+      <div className=' flex justify-center'><h2 className='mt-10 border-2 border-[#12283c] p-2 rounded-xl shadow-md shadow-gray-400' style={{ textAlign: 'center', marginBottom: '20px', color: '#333' }}>Corporate Partners</h2></div>
       <Slider {...settings}>
         {cooperatePartnerLogo.map((logo, index) => (
           <div key={index} style={{ transform: `rotateY(${index * 15}deg)`, transition: 'transform 0.5s', padding: '10px' }}>
@@ -100,7 +100,7 @@ export const Partner = () => {
       </Slider>
     </div>
     <div className="partner-carousel" style={{ perspective: '1500px', paddingBottom: '10px' }}>
-      <h2 className='' style={{ textAlign: 'center', marginBottom: '20px', color: '#333' }}>Academic Partners</h2>
+    <div className=' flex justify-center'><h2 className='border-2 border-[#12283c] p-2 rounded-xl shadow-md shadow-gray-400' style={{ textAlign: 'center', marginBottom: '20px', color: '#333' }}>Academic Partners</h2></div>
       <Slider {...settings}>
         {acadamicPartnerLogo.map((logo, index) => (
           <div key={index} style={{ transform: `rotateY(${index * 15}deg)`, transition: 'transform 0.5s', padding: '10px' }}>
