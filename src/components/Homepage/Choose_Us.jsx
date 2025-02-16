@@ -44,7 +44,7 @@ const Choose_Us = () => {
     ]
 
   return (
-    <div className=" mt-5">
+    <div className=" mt-10">
       <div className="w-full block px-4 sm:px-6 lg:px-8">
         <h1 className="text-5xl font-bold text-gray-900 text-start mx-10">
           Why to Choose Us
