@@ -1,7 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import Slider from 'react-slick';
-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 //import { faEye } from '@fortawesome/free-solid-svg-icons';
 
@@ -20,149 +19,107 @@ import slide6 from '../assets/Aboutpage/s6.jpg';
 import slide7 from '../assets/Aboutpage/s7.jpg';
 import Video1 from '../assets/Aboutpage/aic-pecf.mp4';
 
+import ReactPlayer from 'react-player';
+
 const About = () => {
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [showControls, setShowControls] = useState(false);
+    const playerRef = useRef(null);
 
-  const bodyContentRef = useRef(null);
-  const videoRef = useRef(null);
+    const togglePlay = () => {
+        setIsPlaying(!isPlaying);
+    };
 
-  useEffect(() => {
-      const handleScroll = () => {
-          const bodyContent = bodyContentRef.current;
-          const rect = bodyContent.getBoundingClientRect();
-          const windowHeight = window.innerHeight;
+    const handleProgress = (state) => {
+        // Handle progress if needed
+    };
 
-          if (rect.top < windowHeight) {
-              const opacity = Math.min(1, 0.4 + ((windowHeight - rect.top) / windowHeight) * 0.6);
-              bodyContent.style.opacity = opacity;
-          }
-      };
+    const handleFullscreen = () => {
+        if (playerRef.current) {
+            playerRef.current.getInternalPlayer().requestFullscreen();
+        }
+    };
 
-      window.addEventListener('scroll', handleScroll);
+    return (
+        <AboutPage>
+            <VideoContainer
+                onMouseEnter={() => setShowControls(true)}
+                onMouseLeave={() => setShowControls(false)}
+            >
+                <ReactPlayer
+                    ref={playerRef}
+                    url={Video1}
+                    playing={isPlaying}
+                    controls={showControls}
+                    width="100%"
+                    height="100%"
+                    light={Image}
+                    onProgress={handleProgress}
+                    config={{
+                        file: {
+                            attributes: {
+                                controlsList: 'nodownload', // Disable download button
+                                style: {objectFit: 'cover'},
+                            },
+                        },
+                    }}
+                />
+                {!isPlaying && (
+                    <PlayButton onClick={togglePlay}>
+                        ▶
+                    </PlayButton>
+                )}
+                {showControls && (
+                    <FullscreenButton onClick={handleFullscreen}>
+                        ⛶
+                    </FullscreenButton>
+                )}
+            </VideoContainer>
 
-      return () => {
-          window.removeEventListener('scroll', handleScroll);
-      };
-  }, []);
+            <Section>
+                <p>
+                    Atal Incubation Centre Pondicherry Engineering College Foundation (AIC-PECF) is fully supported and funded by the Atal Innovation Mission (AIM), Niti Aayog, and Government of India. AIC-PECF was initiated to provide a platform to assist and enable young entrepreneurs to initiate start-ups for the commercial exploitation of technologies developed by them. AIC-PECF also enables the budding entrepreneurs to showcase and test their abilities to run a start-up business in the areas of Electronics Design and Manufacturing (EDM), Internet of Things (IoT), and Unmanned Aerial Vehicle (UAV).
+                </p>
+            </Section>
 
-  const settings = {
-      dots: true,
-      infinite: true,
-      speed: 500,
-      slidesToShow: 1,
-      slidesToScroll: 1,
-      autoplay: true,
-      autoplaySpeed: 2000,
-      appendDots: dots => <CustomDots>{dots}</CustomDots>
-  };
-
-  const handleMouseEnter = () => {
-      if (videoRef.current) {
-          videoRef.current.play();
-      }
-  };
-
-  const handleMouseLeave = () => {
-      if (videoRef.current) {
-          videoRef.current.pause();
-      }
-  };
-
-  return (
-      <AboutPage>
-          <Head>
-              <ImageWrapper>
-                  <HeadImage src={Image} alt="About AIC-PECF" />
-                  <Overlay />
-                  <TextOverlay>About AIC-PECF</TextOverlay>
-              </ImageWrapper>
-          </Head>
-            <p class="max-w-5xl  font-serif mx-auto text-lg">
-                Atal Incubation Centre Pondicherry Engineering College Foundation (AIC-PECF) is fully supported and funded by the Atal Innovation Mission (AIM), Niti Aayog, and Government of India. AIC-PECF was initiated to provide a platform to assist and enable young entrepreneurs to initiate start-ups for the commercial exploitation of technologies developed by them. AIC-PECF also enables the budding entrepreneurs to showcase and test their abilities to run a start-up business in the areas of Electronics Design and Manufacturing (EDM), Internet of Things (IoT), and Unmanned Aerial Vehicle (UAV).
-            </p>
-
-          <VisionMission>
-              <VisionMissionContent>
-                  <Lottie
+            <VisionMission>
+                <VisionMissionContent>
+                    <Lottie
                         loop
                         animationData={vImage}
                         play
                         style={{ width: '80%', height: '250px' }}
-                  />
-              </VisionMissionContent>
-              <VisionMissionContent>
-              <p class="text-2xl font-bold mt-10 ">Our Vision</p>
-                  <p class=" text-lg">
-                      To provide world-class incubation support for Start-ups that promotes technological innovations to improve people's lives, generate employment, and drive the sustainable growth of the Indian economy.
-                  </p>  
-              </VisionMissionContent>
-          </VisionMission>
-          <VisionMission>
-              <VisionMissionContent>
-                <p class="text-2xl font-bold ">Our Mission</p>
-                  <p class=" text-lg">
-                      To facilitate and enable innovators to pursue their own ideas and convert them into successful ventures. To build a holistic partnership among stakeholders and create a sustainable start-up ecosystem. To promote and inculcate the habit of innovation among the student community and thereby foster future start-ups.
-                  </p>
-              </VisionMissionContent>
-              <VisionMissionContent><Lottie
+                    />
+                </VisionMissionContent>
+                <VisionMissionContent>
+                    <p className="text-2xl font-bold mt-10">Our Vision</p>
+                    <p className="text-lg">
+                        To provide world-class incubation support for Start-ups that promotes technological innovations to improve people's lives, generate employment, and drive the sustainable growth of the Indian economy.
+                    </p>
+                </VisionMissionContent>
+            </VisionMission>
+            <VisionMission>
+                <VisionMissionContent>
+                    <p className="text-2xl font-bold">Our Mission</p>
+                    <p className="text-lg">
+                        To facilitate and enable innovators to pursue their own ideas and convert them into successful ventures. To build a holistic partnership among stakeholders and create a sustainable start-up ecosystem. To promote and inculcate the habit of innovation among the student community and thereby foster future start-ups.
+                    </p>
+                </VisionMissionContent>
+                <VisionMissionContent>
+                    <Lottie
                         loop
                         animationData={mImage}
                         play
                         style={{ width: '80%', height: '250px' }}
-                  />
-              </VisionMissionContent>
-          </VisionMission>
-          <Activities>
-              {/* <ActivitiesContent>
-              <p class="text-2xl font-bold text-center">Activities of PECF</p>
-                  <p class=" text-lg mt-1">
-                      Entrepreneurship and innovation are critical for the growth of any economy, in an increasingly competitive world. They become even more critical for India as its demographic dividend can only be realized with rapid creation of employment and income generation opportunities. Global experience shows that, apart from creating wealth and boosting the economy, new businesses also create disproportionately more jobs than established ones. AIC-PECF actively creates an environment for the young innovators to test their business ideas with minimal risks.
-                  </p>
-              </ActivitiesContent> */}
-              {/* <CarouselSection>
-                  <Slider {...settings}>
-                      <Slide>
-                          <img src={slide1} alt="Slide 1" />
-                      </Slide>
-                      <Slide>
-                          <img src={slide2} alt="Slide 2" />
-                      </Slide>
-                      <Slide>
-                          <img src={slide3} alt="Slide 3" />
-                      </Slide>
-                      <Slide>
-                          <img src={slide4} alt="Slide 4" />
-                      </Slide>
-                      <Slide>
-                          <img src={slide5} alt="Slide 5" />
-                      </Slide>
-                      <Slide>
-                          <img src={slide6} alt="Slide 6" />
-                      </Slide>
-                      <Slide>
-                          <img src={slide7} alt="Slide 7" />
-                      </Slide>
-                  </Slider>
-              </CarouselSection> */}
-          </Activities>
-          <p class="text-2xl font-bold text-center">Infrastructure</p>
-          <Infrastructure onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
-              <StyledVideo ref={videoRef} muted={false}>
-                  <source src={Video1} type="video/mp4" />
-                  Your browser does not support the video.
-              </StyledVideo>
-          </Infrastructure>
-      </AboutPage>
-  );
-  };
-  
-  const fadeIn = keyframes`
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-`;
+                    />
+                </VisionMissionContent>
+            </VisionMission>
+            <Activities>
+                {/* Activities content */}
+            </Activities>
+        </AboutPage>
+    );
+};
 
 const zoomIn = keyframes`
     0% {
@@ -177,94 +134,102 @@ const zoomIn = keyframes`
 
 const AboutPage = styled.div`
     width: 100%;
-    padding: 0;
-    margin: 0;
+    height: auto;
     overflow-x: hidden;
     align-items: center;
+    text-align: center;
 `;
 
-const Head = styled.div`
-    padding: 30px;
-    font-size: 45px;
-    color: #333;
-`;
-
-const ImageWrapper = styled.div`
+const VideoContainer = styled.div`
     position: relative;
     width: 100%;
-    max-width: 1024px;
-    margin: 0 auto;
-    border-radius: 10px;
-
-    @media (max-width: 768px) {
-        max-width: 100%;
-        border-radius: 0;
-    }
-`;
-
-const HeadImage = styled.img`
-    width: 100%;
+    max-width: 900px;
+    aspect-ratio: 16/9;
+    margin: auto;
     height: auto;
-    max-height: 450px;
+    text-align: center;
     border-radius: 10px;
-
-    @media (max-width: 768px) {
-        max-height: 300px;
-        border-radius: 0;
-    }
+    overflow: hidden;
 `;
 
-const Overlay = styled.div`
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.45);
-    border-radius: 10px;
-
-    @media (max-width: 768px) {
-        border-radius: 0;
-    }
-`;
-
-const TextOverlay = styled.div`
+const PlayButton = styled.button`
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.6);
     color: white;
+    font-size: 40px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    outline: none;
+    transition: 0.3s;
     z-index: 1;
-    animation: ${fadeIn} 2s ease-in;
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.8);
+    }
 `;
 
-/*const Body = styled.div`
-    margin-top: 50px;
-    width: 100%;
-    max-width: 768px;
-    margin: 0 auto;
+const FullscreenButton = styled.button`
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    font-size: 24px;
     padding: 10px;
-    color: #333;
-    font-size: 25px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    outline: none;
+    transition: 0.3s;
+    z-index: 1;
 
-    @media (max-width: 768px) {
-        padding: 5px;
-        font-size: 15px;
+    &:hover {
+        background: rgba(0, 0, 0, 0.8);
     }
-`;*/
+`;
 
-/*const BodyContent = styled.div`
-    max-width: 768px;
-    color: black;
+const Section = styled.section`
+    max-width: 1000px;
+    margin: auto;
+    padding: 24px;
+    background-color: #ffffff;
     border-radius: 15px;
-    opacity: 0;
-    transition: opacity 0.5s ease-in;
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.12);
+    text-align: center;
+    margin-top: 24px;
+    margin-bottom: 24px;
+    color: #333;
+    transition: all 0.3s ease-in-out;
+
+    p {
+        font-size: 15px;
+        font-weight: 500; /* Bold text */
+        margin: 0;
+        line-height: 1.6;
+    }
+
+    &:hover {
+        transform: translateY(-3px);
+        box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.15);
+    }
 
     @media (max-width: 768px) {
-        padding: 15px;
-        border-radius: 5px;
+        padding: 18px;
+        margin: 12px;
+        border-radius: 12px;
+
+        p {
+            font-size: 16px;
+            font-weight: 600; /* Slightly less bold for mobile */
+        }
     }
-`;*/
+`;
+
 
 const VisionMission = styled.div`
     display: flex;
@@ -278,7 +243,7 @@ const VisionMission = styled.div`
     color: #333;
 
     @media (max-width: 768px) {
-        flex-direction: row;
+        flex-direction: column;
         font-size: 12px;
     }
 `;
@@ -288,24 +253,13 @@ const VisionMissionContent = styled.div`
     color: black;
     padding: 20px;
     border-radius: 20px;
-    animation: ${zoomIn} 8s ease-out;
+    animation: ${zoomIn} 8s ease-out; // Use the zoomIn animation
     margin: 0 10px;
 
     @media (max-width: 768px) {
         margin: 10px 0;
         padding: 10px;
         border-radius: 10px;
-    }
-`;
-
-const VisionMissionImage = styled.img`
-    width: 70%;
-    height: 250px;
-    max-height: 700px;
-
-    @media (max-width: 768px) {
-        width: 100%;
-        height: auto;
     }
 `;
 
@@ -322,76 +276,4 @@ const Activities = styled.div`
     }
 `;
 
-const ActivitiesContent = styled.div`
-    flex: 1;
-    color: black;
-    padding: 20px;
-    border-radius: 20px;
-    animation: ${zoomIn} 10s ease-out;
-    margin: 0 10px;
-    font-size: 22px;
-
-    @media (max-width: 768px) {
-        padding: 10px;
-        border-radius: 10px;
-        font-size: 15px;
-    }
-`;
-
-const CarouselSection = styled.section`
-    width: 100%;
-    overflow: hidden;
-    border-radius: 10px;
-    .slick-slide img {
-        width: 100%;
-        height: 80vh;
-
-        @media (max-width: 768px) {
-            height: 40vh;
-        }
-    }
-`;
-
-const Slide = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 80vh;
-
-    @media (max-width: 768px) {
-        height: 40vh;
-    }
-`;
-
-const CustomDots = styled.ul`
-    bottom: 0px !important;
-`;
-
-const Infrastructure = styled.div`
-    margin-top: 5px;
-    width: 100%;
-    max-width: 1024px;
-    margin: 0 auto;
-    padding: 10px;
-    color: #333;
-    font-size: 25px;
-
-    @media (max-width: 768px) {
-        padding: 5px;
-        font-size: 15px;
-    }
-`;
-
-const StyledVideo = styled.video`
-    height:500px;
-    width: 1024px;
-
-    @media (max-width: 768px) {
-        width: 320px;
-        height: 300px;
-    }
-`;
-
-
-  export default About;
-  
+export default About;
