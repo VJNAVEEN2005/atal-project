@@ -1,5 +1,6 @@
 import React from 'react';
 import { Linkedin, Instagram, User } from 'lucide-react';
+import { Gerald_Director, Iyonstan_GET, Kamesh_IM, Parthiban_MTS, Rajkumar_COO, Sundhara_Moorthy_Director, Udhaya_PE, Vishnu_CEO } from '../../assets/Team/coreTeam/images/coreTeamImage';
 
 interface TeamMember {
   name: string;
@@ -9,41 +10,45 @@ interface TeamMember {
 
 const teamMembers: TeamMember[] = [
   {
-    name: "Dr. G Gerald Moses",
-    role: "Director"
-  },
-  {
-    name: "Dr. R Sundaramurthy",
-    role: "Executive Director"
-  },
-  {
-    name: "Mr. V Vishnu Varadan",
-    role: "Chief Executive Officer"
-  },
-  {
-    name: "Mr. S Rajakumar",
-    role: "Chief Operating Officer"
-  },
-  {
-    name: "Mr. S Kameswaran",
-    role: "Incubation Manager"
-  },
-  {
-    name: "Mr. T Uthaya Kumar",
-    role: "Program Executive"
-  },
-  {
-    name: "Mr. Hari Dharsan",
-    role: "Field Engineer"
-  },
-  {
-    name: "Mr. Iyonstan",
-    role: "Graduate Engineer Trainee"
-  },
-  {
-    name: "Mr. R Parthiban",
-    role: "Tech Assistant"
-  },
+      name: "Dr. G Gerald Moses",
+      role: "Director",
+      image: Gerald_Director
+    },
+    {
+      name: "Dr. R Sundaramurthy",
+      role: "Executive Director",
+      image: Sundhara_Moorthy_Director
+    },
+    {
+      name: "Mr. V Vishnu Varadan",
+      role: "Chief Executive Officer",
+      image: Vishnu_CEO
+    },
+    {
+      name: "Mr. S Rajakumar",
+      role: "Chief Operating Officer",
+      image: Rajkumar_COO
+    },
+    {
+      name: "Mr. S Kameswaran",
+      role: "Incubation Manager",
+      image: Kamesh_IM
+    },
+    {
+      name: "Mr. T Uthaya Kumar",
+      role: "Program Executive",
+      image: Udhaya_PE
+    },
+    {
+      name: "Mr. Iyonstan",
+      role: "Graduate Engineer Trainee",
+      image: Iyonstan_GET
+    },
+    {
+      name: "Mr. R Parthiban",
+      role: "Tech Assistant",
+      image: Parthiban_MTS
+    },
   
 ];
 
@@ -62,7 +67,7 @@ const Team = () => {
           {teamMembers.map((member, index) => (
             <div key={index} className="group flex flex-col items-center">
               <div className="relative w-48 h-48">
-                <div className="absolute inset-0 rounded-full border-4 border-[#3F6197]">
+                <div className="absolute inset-0 rounded-full border-4 border-[#3F6197] overflow-hidden">
                   {member.image ? (
                     <img
                       src={member.image}
