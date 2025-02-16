@@ -9,7 +9,7 @@ function MainSlider(props) {
     useEffect(() => {
         const interval = setInterval(() => {
             setCurrentIndex((prev) => (prev === props.images.length - 3 ? 0 : prev + 1));
-        }, 5000); // Change slide every 3 seconds
+        }, 3000); // Change slide every 3 seconds
 
         return () => clearInterval(interval); // Cleanup on unmount
     }, [currentIndex]);
