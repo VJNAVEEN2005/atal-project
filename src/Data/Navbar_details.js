@@ -96,7 +96,7 @@ const Navbar_menu = [
     dropList: null,
   },
   {
-    Title: "Contact Us",
+    Title: "Contact",
     link: "/contact",
     dropList:null, 
   },

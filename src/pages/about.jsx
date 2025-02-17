@@ -27,17 +27,15 @@ const About = () => {
     const playerRef = useRef(null);
 
     const togglePlay = () => {
-        setIsPlaying(!isPlaying);
+        setIsPlaying(true);
     };
 
     const handleProgress = (state) => {
         // Handle progress if needed
     };
 
-    const handleFullscreen = () => {
-        if (playerRef.current) {
-            playerRef.current.getInternalPlayer().requestFullscreen();
-        }
+    const handleThumbnailClick = () => {
+        setIsPlaying(true);
     };
 
     return (
@@ -50,30 +48,22 @@ const About = () => {
                     ref={playerRef}
                     url={Video1}
                     playing={isPlaying}
-                    controls={showControls}
+                    controls={true}
                     width="100%"
                     height="100%"
                     light={Image}
                     onProgress={handleProgress}
+                    onClickPreview={handleThumbnailClick}
                     config={{
                         file: {
                             attributes: {
-                                controlsList: 'nodownload', // Disable download button
+                                controlsList: 'nodownload',
                                 style: {objectFit: 'cover'},
                             },
                         },
                     }}
                 />
-                {!isPlaying && (
-                    <PlayButton onClick={togglePlay}>
-                        ▶
-                    </PlayButton>
-                )}
-                {showControls && (
-                    <FullscreenButton onClick={handleFullscreen}>
-                        ⛶
-                    </FullscreenButton>
-                )}
+               
             </VideoContainer>
 
             <Section>
@@ -152,46 +142,6 @@ const VideoContainer = styled.div`
     overflow: hidden;
 `;
 
-const PlayButton = styled.button`
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(0, 0, 0, 0.6);
-    color: white;
-    font-size: 40px;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    outline: none;
-    transition: 0.3s;
-    z-index: 1;
-
-    &:hover {
-        background: rgba(0, 0, 0, 0.8);
-    }
-`;
-
-const FullscreenButton = styled.button`
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    background: rgba(0, 0, 0, 0.6);
-    color: white;
-    font-size: 24px;
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    outline: none;
-    transition: 0.3s;
-    z-index: 1;
-
-    &:hover {
-        background: rgba(0, 0, 0, 0.8);
-    }
-`;
 
 const Section = styled.section`
     max-width: 1000px;

@@ -13,7 +13,7 @@ const ContactUs = () => {
           <FaPhoneAlt size={40} />
           <TileContent>
             <h3>Phone</h3>
-            <p>+91 123456789</p>
+            <p>+91-8903467223</p>
           </TileContent>
         </Tile>
         <Tile>
@@ -27,8 +27,8 @@ const ContactUs = () => {
           <FaEnvelope size={40} />
           <TileContent>
             <h3>Support</h3>
-            <p>Email: info@aicpecf.org</p>
-            <p>Phone: +91 123456789</p>
+            <p>Email:  ceo@aicpecf.org</p>
+            <p>Phone: +91-8903467223</p>
             <SocialIcons>
               <a className='instagram' href="https://www.instagram.com/aic_pecf" target="_blank" rel="noopener noreferrer"><FaInstagram /></a>
               <a className='x' href="https://twitter.com/aicpecftweet" target="_blank" rel="noopener noreferrer"><FaXTwitter /></a>

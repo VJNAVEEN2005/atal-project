@@ -25,7 +25,7 @@ Message:
 ${formData.message}
     `;
 
-    window.location.href = `mailto:djpavithra2005@gmail.com?subject=${encodeURIComponent(
+    window.location.href = `mailto: ceo@aicpecf.org?subject=${encodeURIComponent(
       subject
     )}&body=${encodeURIComponent(body)}`;
   };
