@@ -17,7 +17,7 @@ const AboutNew = () => {
   };
 
   return (
-    <div className="md:max-h-screen bg-[#F7F7F7] pb-20 min-w-screen">
+    <div className=" bg-[#F7F7F7] pb-20 min-w-screen">
       {/* about-content  */}
       <div className="w-[85%] mx-auto">
         <div className="max-w-fit ml-[-30px]">
