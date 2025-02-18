@@ -28,9 +28,9 @@ function App() {
 
   const partnerSections = [
     { name: 'Academic', icon: <GraduationCap className="w-6 h-6" />, path: 'Academic' },
-    { name: 'Co-operative', icon: <Handshake className="w-6 h-6" />, path: 'Co-operative' },
-    { name: 'IP Supporters', icon: <Lightbulb className="w-6 h-6" />, path: 'IP Supporters' },
-    { name: 'Network', icon: <Network className="w-6 h-6" />, path: 'Network' },
+    { name: 'Corporative', icon: <Handshake className="w-6 h-6" />, path: 'Co-operative' },
+    { name: 'IP Partners', icon: <Lightbulb className="w-6 h-6" />, path: 'IP Supporters' },
+    { name: 'Mentors', icon: <Network className="w-6 h-6" />, path: 'Network' },
     { name: 'Investment', icon: <Building2 className="w-6 h-6" />, path: 'Investment' }
   ];
 
@@ -58,14 +58,14 @@ function App() {
     { name: 'DI Corporation', logo: di }
   ];
 
-  const ipSupporters = [
+  const ipPartners = [
     { name: 'Facebook Research', logo: 'https://via.placeholder.com/150?text=FB' },
     { name: 'Google AI', logo: 'https://via.placeholder.com/150?text=Google' },
     { name: 'Microsoft Labs', logo: 'https://via.placeholder.com/150?text=MS' },
     { name: 'OpenAI', logo: 'https://via.placeholder.com/150?text=OpenAI' }
   ];
 
-  const networkPartners = [
+  const mentorPartners = [
     { name: 'AWS', logo: 'https://via.placeholder.com/150?text=AWS' },
     { name: 'IBM Watson', logo: 'https://via.placeholder.com/150?text=IBM' },
     { name: 'NVIDIA AI', logo: 'https://via.placeholder.com/150?text=NVIDIA' },
@@ -89,16 +89,50 @@ function App() {
         partners = corporatePartners;
         break;
       case 'IP Supporters':
-        partners = ipSupporters;
+        partners = ipPartners;
         break;
       case 'Network':
-        partners = networkPartners;
+        partners = mentorPartners;
         break;
       case 'Investment':
         partners = investmentPartners;
         break;
       default:
         partners = [];
+    }
+
+    if (activeSection === "Network" || activeSection === "Investment") {
+      return (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-10">
+          {partners.map((partner, index) => (
+            <div
+              key={index}
+              className="group relative bg-gradient-to-tr from-[#4E7FAB] to-[#1E2C3D] rounded-xl overflow-hidden transition-all duration-300 hover:from-[#426A90 ] hover:to-[#2A405A] hover:shadow-2xl hover:scale-105 transition-transform duration-300 text-[#12283c]"
+            >
+              <div className="p-6 h-[300px] flex flex-col items-center justify-center">
+                <div className="w-32 h-32 mb-4 rounded-full overflow-hidden bg-gray-100 group-hover:border-2 border-gray-400">
+                  <img
+                    src={partner.logo || "/placeholder.svg"}
+                    alt={`${partner.name}`}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="text-center">
+                  <h3 className="text-xl font-semibold mb-2 text-white group-hover:text-gray-100  transition-colors">
+                    {partner.name}
+                  </h3>
+                  <p className="text-blue-100 group-hover:text-blue-100 transition-colors">
+                    {activeSection === "Network" ? "Mentor" : "Investor"}
+                  </p>
+                  <p className="mt-2 text-sm text-blue-100 group-hover:text-blue-100 transition-colors">
+                    Expertise: {activeSection} Development
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      );
     }
 
     return (
