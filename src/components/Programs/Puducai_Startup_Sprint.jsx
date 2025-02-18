@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { arduino, drone, puduvai_Startup_Sprint, rasparipi, solidworks } from "../../assets/Programs/Puduvai_Startup_Sprint/data";
+import { bootcamp, demo, hackathon, idea, OP1, OP2, OP3, OP4, outreach1, pitch, preinc, startup } from "../../assets/logos/dataPrograms";
 
 // Enhanced animation variants
 const fadeInUp = {
@@ -47,36 +48,36 @@ const floatingAnimation = {
 const PuduvaiStartupSprint = () => {
   const programPillars = [
     {
-      icon: "src/assets/logos/OP1.png",
+      icon: OP1,
       title: "Community Engagement",
       description: "Fostering connections and building stronger communities."
     },
     {
-      icon: "src/assets/logos/OP2.png",
+      icon: OP2,
       title: "Education",
       description: "Promoting learning opportunities and knowledge sharing."
     },
     {
-      icon: "src/assets/logos/OP3.png",
+      icon: OP3,
       title: "Innovation",
       description: "Encouraging creativity and forward-thinking solutions."
     },
     {
-      icon: "src/assets/logos/OP4.png",
+      icon: OP4,
       title: "Sustainability",
       description: "Focusing on long-term environmental and social impacts."
     }
   ];
 
   const pedagogy = [
-    { logo: "src/assets/logos/bootcamp.png", name: "Boot Camp" },
-    { logo: "src/assets/logos/hackathon.png", name: "Hackathon" },
-    { logo: "src/assets/logos/preinc.png", name: "Pre-Incubation" },
-    { logo: "src/assets/logos/startup.png", name: "Startup Creation" },
-    { logo: "src/assets/logos/outreach1.png", name: "Outreach" },
-    { logo: "src/assets/logos/idea.png", name: "Ideathon" },
-    { logo: "src/assets/logos/demo.png", name: "Demo Day" },
-    { logo: "src/assets/logos/pitch.png", name: "Pitch Fest" }
+    { logo: bootcamp, name: "Boot Camp" },
+    { logo: hackathon, name: "Hackathon" },
+    { logo: preinc, name: "Pre-Incubation" },
+    { logo: startup, name: "Startup Creation" },
+    { logo: outreach1, name: "Outreach" },
+    { logo: idea, name: "Ideathon" },
+    { logo: demo, name: "Demo Day" },
+    { logo: pitch, name: "Pitch Fest" }
   ];
 
   const programs = [
