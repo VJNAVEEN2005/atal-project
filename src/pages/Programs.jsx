@@ -5,6 +5,7 @@ import {
   Lightbulb,
   Handshake,
   GraduationCap,
+  FileBadge,
 } from "lucide-react";
 import {
   nitLogo,
@@ -28,30 +29,37 @@ import {
   touch,
   zoho,
 } from "../assets/Partnerspage/Corporate/CooperatePartner";
+import Puducai_Startup_Sprint from "../components/Programs/Puducai_Startup_Sprint";
 
 function Programs() {
-  const [activeSection, setActiveSection] = useState("Pre-Incubate");
+  const [activeSection, setActiveSection] = useState("Puduvai Startup Sprint");
+  const [program, setProgram] = useState("Puduvai Startup Sprint");
 
   const programsSections = [
     {
-      name: "Pre-Incubate",
+      name: "Puduvai Startup Sprint",
       icon: <GraduationCap className="w-6 h-6" />,
-      path: "Pre-Incubate",
+      path: "Puduvai Startup Sprint",
     },
     {
-      name: "Incubate",
+      name: "Pre-Incubation",
       icon: <Handshake className="w-6 h-6" />,
-      path: "Incubate",
+      path: "Pre-Incubation",
     },
     {
-      name: "Incubation",
+      name: "Acceleration",
       icon: <Lightbulb className="w-6 h-6" />,
-      path: "Incubation",
+      path: "Acceleration",
     },
     {
-      name: "IP Facilities",
+      name: "Skill Pattara",
       icon: <Network className="w-6 h-6" />,
-      path: "IP Facilities",
+      path: "Skill Pattara",
+    },
+    {
+      name: "Dass",
+      icon: <FileBadge className="w-6 h-6" />,
+      path: "Dass",
     },
   ];
 
@@ -100,49 +108,28 @@ function Programs() {
   ];
 
   const renderPartners = () => {
-    let partners;
+    let programs;
     switch (activeSection) {
-      case "Pre-Incubate":
-        partners = preIncubate;
+      case "Puduvai Startup Sprint":
+        programs = preIncubate;
         break;
-      case "Incubate":
-        partners = incubate;
+      case "Pre-Incubation":
+        programs = incubate;
         break;
-      case "Incubation":
-        partners = incubation;
+      case "Acceleration":
+        programs = incubation;
         break;
-      case "IP Facilities":
-        partners = ipFacilities;
+      case "Skill Pattara":
+        programs = ipFacilities;
+        break;
+      case "Dass":
+        programs = ipFacilities;
         break;
       default:
-        partners = [];
+        programs = [];
     }
 
-    return partners.length > 0 ? (
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-        {partners.map((partner, index) => (
-          <div
-            key={index}
-            className="relative group bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300"
-          >
-            <div className="w-full h-32 flex items-center justify-center">
-              <img
-                src={partner.logo}
-                alt={`${partner.name} logo`}
-                className="max-h-full max-w-full object-contain"
-              />
-            </div>
-            <div className="mt-4 opacity-0 group-hover:opacity-100 absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center transition-opacity duration-300 rounded-xl">
-              <h3 className="text-white text-lg font-semibold px-4 text-center">
-                {partner.name}
-              </h3>
-            </div>
-          </div>
-        ))}
-      </div>
-    ) : (
-      <p className="text-center text-gray-500">No partners available.</p>
-    );
+    
   };
 
   return (
@@ -166,12 +153,33 @@ function Programs() {
       </div>
 
       {/* Partners Section */}
-      <div className="flex-grow flex flex-col items-center justify-center">
+      <div className=" flex flex-col items-center justify-center">
         <h2 className="text-3xl font-bold text-gray-800 mb-6">
-          {activeSection} Partners
+          {/* {activeSection} Programs */}
         </h2>
         <div className="w-full max-w-7xl px-6">{renderPartners()}</div>
       </div>
+
+
+      <div className=" mx-10">
+      {activeSection === "Puduvai Startup Sprint" && (
+        <div><Puducai_Startup_Sprint/></div>
+      )}
+      {activeSection === "Pre-Incubation" && (
+        <div>Pre-Incubation</div>
+      )}
+      {activeSection === "Acceleration" && (
+        <div>Acceleration</div>
+      )}
+      {activeSection === "Skill Pattara" && (
+        <div>Skill Pattara</div>
+      )}
+      {activeSection === "Dass" && (
+        <div>Dass</div>
+      )}
+      </div>
+
+
     </div>
   );
 }
