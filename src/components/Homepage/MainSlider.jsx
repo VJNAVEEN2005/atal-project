@@ -1,9 +1,19 @@
 import React, { useState, useEffect } from "react";
+import Skeleton from 'react-loading-skeleton'
+import 'react-loading-skeleton/dist/skeleton.css'
 import { Tilt } from "react-tilt";
 
 function MainSlider(props) {
 
     const [currentIndex, setCurrentIndex] = useState(0);
+
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (props.images.length > 0) {
+            setLoading(false);
+        }
+    }, [props.images]);
 
     // Automatically move to the next slide
     useEffect(() => {
@@ -26,21 +36,25 @@ function MainSlider(props) {
             <div className="relative  overflow-hidden mx-auto mt-10 mb-2 rounded-lg">
                 {/* Carousel Content */}
                 <div
-                    className="flex transition-transform duration-700 ease-in-out h-80"
-                    style={{ transform: `translateX(-${(currentIndex * 3 * 100 / 3)}%)`, width: `${100 / 3}%` }}
-                >
-                    {props.images.map((image, index) => (
-                        <div key={index} className="w-full flex-shrink-0 px-2">
-                            <img
-                                src={image}
-                                alt={`Slide ${index + 1}`}
-                                loading="lazy"
-
-                                className={` h-72 md:h-full w-full object-cover rounded-xl`}
-                            />
-                        </div>
-                    ))}
+            className="flex transition-transform duration-700 ease-in-out h-80"
+            style={{ transform: `translateX(-${(currentIndex * 3 * 100 / 3)}%)`, width: `${100 / 3}%` }}
+        >
+            {props.images.map((image, index) => (
+                <div key={index} className="w-full flex-shrink-0 px-2">
+                    {loading ? (
+                        <Skeleton className="h-72 md:h-full w-full bg-gray-300 animate-pulse rounded-xl"/>
+                    ) : (
+                        <img
+                            src={image}
+                            alt={`Slide ${index + 1}`}
+                            loading="lazy"
+                            onLoad={() => setLoading(false)}
+                            className="h-72 md:h-full w-full object-cover rounded-xl"
+                        />
+                    )}
                 </div>
+            ))}
+        </div>
 
                 {/* Navigation Buttons */}
                 <button
