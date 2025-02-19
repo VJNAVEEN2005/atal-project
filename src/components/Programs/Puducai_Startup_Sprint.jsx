@@ -88,7 +88,7 @@ const PuduvaiStartupSprint = () => {
   ];
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 py-8">
+    <div className="w-full max-w-7xl mx-auto px-4 py-8 bg-white shadow-xl rounded-lg mb-10">
       <motion.div 
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -194,42 +194,7 @@ const PuduvaiStartupSprint = () => {
         </motion.div>
       </section>
 
-      <section className="mb-16">
-        <motion.div 
-          variants={staggerContainer}
-          initial="initial"
-          animate="animate"
-          className="grid grid-cols-1 md:grid-cols-2 gap-8"
-        >
-          {programs.map((program, index) => (
-            <motion.div
-              key={index}
-              variants={fadeInUp}
-              initial="rest"
-              whileHover="hover"
       
-              className="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer"
-            >
-              <motion.div 
-                className="relative overflow-hidden"
-                variants={imageHover}
-              >
-                <img 
-                  src={program.image} 
-                  alt={program.title} 
-                  className="w-full object-cover h-64" 
-                />
-              </motion.div>
-              <motion.h3 
-                className="text-xl font-semibold text-[#3f6197] py-4 text-center"
-                whileHover={{ scale: 1.05 }}
-              >
-                {program.title}
-              </motion.h3>
-            </motion.div>
-          ))}
-        </motion.div>
-      </section>
 
       <motion.section 
         initial={{ opacity: 0, y: 20 }}

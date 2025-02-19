@@ -30,6 +30,10 @@ import {
   zoho,
 } from "../assets/Partnerspage/Corporate/CooperatePartner";
 import Puducai_Startup_Sprint from "../components/Programs/Puducai_Startup_Sprint";
+import Pre_Incubation from "../components/Programs/Pre_Incubation";
+import Acceleration from "../components/Programs/Acceleration";
+import Skill_Pattara from "../components/Programs/Skill_Pattara";
+import Dass from "../components/Programs/Dass";
 
 function Programs() {
   const [activeSection, setActiveSection] = useState("Puduvai Startup Sprint");
@@ -166,16 +170,16 @@ function Programs() {
         <div><Puducai_Startup_Sprint/></div>
       )}
       {activeSection === "Pre-Incubation" && (
-        <div>Pre-Incubation</div>
+        <div><Pre_Incubation/></div>
       )}
       {activeSection === "Acceleration" && (
-        <div>Acceleration</div>
+        <div><Acceleration/></div>
       )}
       {activeSection === "Skill Pattara" && (
-        <div>Skill Pattara</div>
+        <div><Skill_Pattara/></div>
       )}
       {activeSection === "Dass" && (
-        <div>Dass</div>
+        <div><Dass/></div>
       )}
       </div>
 
