@@ -27,6 +27,7 @@ import Programs from "./pages/Programs.jsx";
 import Team from "./pages/Teams.jsx";
 import CoreTeam from './components/Teams/CoreTeam.tsx'
 import Executive_Committee from './components/Teams/Executive_Committee.tsx'
+import NewNav from "./components/ui/NewNav.jsx";
 
 
 function App() {
@@ -35,7 +36,8 @@ function App() {
       {/*
       <Header />
     */}
-      <NavbarOG />
+      <NewNav/>
+      {/* <NavbarOG /> */}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
