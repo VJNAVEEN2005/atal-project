@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Menu, X, ChevronDown } from 'lucide-react';
 import { Aic, Aim, ptuLogo } from '../../assets/logos/logs';
+import { NavLink } from 'react-router-dom';
 
 const NewNav = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -124,8 +125,7 @@ const NewNav = () => {
                   onMouseEnter={() => handleMouseEnter(index)}
                   onMouseLeave={handleMouseLeave}
                 >
-                  <motion.a
-                    href={item.link}
+                  <motion.div
                     className="flex items-center text-base font-medium px-2 py-3"
                     whileHover={{ scale: 1.05 }}
                     initial={{ opacity: 0, y: -10 }}
@@ -133,11 +133,14 @@ const NewNav = () => {
                     transition={{ delay: 0.1 * index, duration: 0.3 }}
                     style={{ color: '#3f6197' }}
                   >
-                    <span>{item.name}</span>
+                    <NavLink to={item.link}>
+                      {item.name}
+                    </NavLink>
+                    {/* <span>{item.name}</span> */}
                     {item.dropdown && (
                       <ChevronDown className="ml-1 h-4 w-4" style={{ color: '#3f6197' }} />
                     )}
-                  </motion.a>
+                  </motion.div>
                   
                   {/* Dropdown Menu with Animation */}
                   {item.dropdown && (
@@ -160,15 +163,18 @@ const NewNav = () => {
                     >
                       <div className="py-1">
                         {item.submenu.map((subItem, subIndex) => (
-                          <motion.a
+                          <motion.div
                             key={subIndex}
                             href={subItem.link}
                             className="block px-4 py-2 text-sm hover:bg-gray-100"
                             whileHover={{ x: 5 }}
                             style={{ color: '#3f6197' }}
                           >
-                            {subItem.name}
-                          </motion.a>
+                            <NavLink to={subItem.link}>
+                                {subItem.name}
+                            </NavLink>
+                            {/* {subItem.name} */}
+                          </motion.div>
                         ))}
                       </div>
                     </motion.div>
