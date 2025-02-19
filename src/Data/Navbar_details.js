@@ -21,7 +21,7 @@ const Navbar_menu = [
   },
   {
     Title: "Programs",
-    link: "/",
+    link: "/programs",
     drop: "active",
     dropList: [
       {
