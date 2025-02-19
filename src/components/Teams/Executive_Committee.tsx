@@ -49,7 +49,7 @@ const teamMembers: TeamMember[] = [
 const Team = () => {
   return (
     <div className="bg-gray-50 py-16 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto bg-white rounded-lg shadow-lg p-8">
         <div className="text-center">
           <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">AIC-PECF – Executive Committee</h2>
           <p className="mt-3 max-w-2xl mx-auto text-xl text-gray-500 sm:mt-4">

@@ -34,6 +34,7 @@ function MainSlider(props) {
                             <img
                                 src={image}
                                 alt={`Slide ${index + 1}`}
+                                loading="lazy"
 
                                 className={` h-72 md:h-full w-full object-cover rounded-xl`}
                             />

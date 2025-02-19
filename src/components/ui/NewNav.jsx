@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Menu, X, ChevronDown } from 'lucide-react';
 import { Aic, Aim, ptuLogo } from '../../assets/logos/logs';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { Nav } from 'react-bootstrap';
 
 const NewNav = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
+  const navigate = useNavigate();
   
   // Navigation items with correct titles from the image
   const navItems = [
@@ -61,7 +63,7 @@ const NewNav = () => {
     },
     { 
       name: 'Tenders', 
-      dropdown: true, 
+      dropdown: false, 
       link: '/tenders',
       submenu: [
         { name: 'Current Tenders', link: '/tenders/current' },
@@ -106,10 +108,11 @@ const NewNav = () => {
         <div className="flex justify-between w-full items-center h-20">
           {/* Left Icons Group */}
           <motion.div 
-            className="flex items-center space-x-4"
+            className="flex items-center space-x-4 hover:cursor-pointer"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
+            onClick={()=> navigate('/')}
           >
             <img src={Aic} alt="AIC-PECT Logo" className="h-24 object-cover" />
             <img src={ptuLogo} alt="University Logo" className="h-16 object-cover" />
