@@ -41,7 +41,7 @@ const teamMembers: TeamMember[] = [
   },
   {
     name: "Mr. Iyonstan",
-    role: "Graduate Engineer Intern",
+    role: "Embedded System Intern",
     image: Iyonstan_GET
   },
   {
@@ -88,7 +88,7 @@ const teamMembers: TeamMember[] = [
 ];
 
 const Team = () => {
-  const coreTeamRoles = ["Director", "Executive Director", "Chief Executive Officer", "Chief Operating Officer","Incubation Manager","Program Executive","Graduate Engineer Intern","Tech Assistant"];
+  const coreTeamRoles = ["Director", "Executive Director", "Chief Executive Officer", "Chief Operating Officer","Incubation Manager","Program Executive","Graduate Engineer Intern","Tech Assistant","Embedded System Intern"];
 
   const coreTeam = teamMembers.filter(member => coreTeamRoles.includes(member.role));
   const executiveTeam = teamMembers.filter(member => !coreTeamRoles.includes(member.role));

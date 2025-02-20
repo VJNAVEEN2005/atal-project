@@ -41,7 +41,7 @@ const teamMembers: TeamMember[] = [
     },
     {
       name: "Mr. Iyonstan",
-      role: "Graduate Engineer Trainee",
+      role: "Embedded System Intern",
       image: Iyonstan_GET
     },
     {

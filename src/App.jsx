@@ -28,6 +28,11 @@ import Team from "./pages/Teams.jsx";
 import CoreTeam from './components/Teams/CoreTeam.tsx'
 import Executive_Committee from './components/Teams/Executive_Committee.tsx'
 import NewNav from "./components/ui/NewNav.jsx";
+import Events_Calendar from "./components/Events/Events_Calander.jsx";
+import Road_Map from "./components/Events/Road_Map.jsx";
+import News_letter from "./components/Events/News_letter.jsx";
+import Press_Media_Coverage from "./components/Events/Press_Media_Coverage.jsx";
+import Page_Not_Found from "./pages/Page_Not_Found.jsx";
 
 
 function App() {
@@ -57,8 +62,12 @@ function App() {
         <Route path="/team" element={<Team/>} />
         <Route path="/team/coreteam" element={<CoreTeam/>} />
         <Route path="/team/executive_committee" element={<Executive_Committee/>} />
+        <Route path="/upcoming_events" element={<Events_Calendar/>} />
+        <Route path="/road_map" element={<Road_Map/>} />
+        <Route path="/news_letter" element={<News_letter/>} />
+        <Route path="/press_media" element={<Press_Media_Coverage/>} />
         
-        <Route path="*" element={<div>404 - Page Not Found</div>} />
+        <Route path="*" element={<Page_Not_Found/>} />
       </Routes>
       <Footer />
     </Router>

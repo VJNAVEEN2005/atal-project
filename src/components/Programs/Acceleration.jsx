@@ -52,7 +52,7 @@ const Acceleration = () => {
   ];
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 py-12 bg-gradient-to-b from-white shadow-xl rounded-lg to-gray-50 mb-10">
+    <div className="w-full mx-auto px-4 py-12 bg-gradient-to-b from-white shadow-xl rounded-lg overflow-hidden to-gray-50 mb-10">
       {/* Header Section with Logo */}
       <motion.div 
         initial={{ opacity: 0, y: -20 }}

@@ -53,12 +53,13 @@ const NewNav = () => {
     },
     {
       name: "Events",
-      dropdown: false,
+      dropdown: true,
       link: "/events",
       submenu: [
-        { name: "Upcoming Events", link: "/events/upcoming" },
-        { name: "Past Events", link: "/events/past" },
-        { name: "Workshops", link: "/events/workshops" },
+        { name: "Road Map", link: "/road_map" },
+        { name: "Upcoming Events", link: "upcoming_events" },
+        { name: "News Letter", link: "/news_letter" },
+        { name: "Press Media Coverage", link: "/press_media" },
       ],
     },
     {
@@ -102,7 +103,7 @@ const NewNav = () => {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="bg-white shadow-md md:m-7 md:rounded-2xl md:shadow-[#3f6197]"
+      className="bg-white shadow-md md:border md:border-[#3f6197] md:m-7 md:rounded-3xl md:shadow-[#3f6197]"
     >
       <div className="max-w-full flex justify-center px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between w-full items-center h-20">
@@ -129,6 +130,7 @@ const NewNav = () => {
                 <div
                   key={item.name}
                   className="relative"
+                
                   onMouseEnter={() => handleMouseEnter(index)}
                   onMouseLeave={handleMouseLeave}
                 >
@@ -153,7 +155,7 @@ const NewNav = () => {
                   {/* Dropdown Menu with Animation */}
                   {item.dropdown && (
                     <motion.div
-                      className="absolute left-0 z-10 mt-1 w-48 rounded-md shadow-lg bg-white overflow-hidden"
+                      className="absolute left-0 mt-1 w-48 rounded-md z-20 shadow-lg bg-white overflow-hidden"
                       initial={{ opacity: 0, height: 0 }}
                       animate={{
                         opacity: activeDropdown === index ? 1 : 0,
@@ -173,9 +175,10 @@ const NewNav = () => {
                         {item.submenu.map((subItem, subIndex) => (
                           <motion.div
                             key={subIndex}
-                            className="block px-4 py-2 text-sm hover:bg-gray-100"
+                            className="block px-4 py-2 hover:cursor-pointer text-sm hover:bg-gray-100"
                             whileHover={{ x: 5 }}
                             style={{ color: "#3f6197" }}
+                            onClick={()=>navigate(subItem.link)}
                           >
                             <NavLink to={subItem.link}>{subItem.name}</NavLink>
                             {/* {subItem.name} */}

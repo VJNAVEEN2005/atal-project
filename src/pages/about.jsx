@@ -120,7 +120,7 @@ const About = () => {
       </motion.div>
 
       {/* Activities Section Placeholder */}
-      <motion.div
+      {/* <motion.div
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
@@ -128,11 +128,12 @@ const About = () => {
         className="max-w-5xl mx-auto px-4 mb-16"
       >
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">Our Activities</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"> */}
           {/* Activity cards would go here */}
           {/* This is a placeholder for the Activities section mentioned in the original code */}
-        </div>
-      </motion.div>
+        {/* </div>
+      </motion.div> */}
+
     </div>
   );
 };

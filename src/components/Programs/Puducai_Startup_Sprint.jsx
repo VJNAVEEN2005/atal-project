@@ -88,7 +88,7 @@ const PuduvaiStartupSprint = () => {
   ];
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 py-8 bg-white shadow-xl rounded-lg mb-10">
+    <div className="w-full  mx-auto px-4 py-8 bg-white shadow-xl rounded-lg mb-10">
       <motion.div 
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
