@@ -34,6 +34,8 @@ import News_letter from "./components/Events/News_letter.jsx";
 import Press_Media_Coverage from "./components/Events/Press_Media_Coverage.jsx";
 import Page_Not_Found from "./pages/Page_Not_Found.jsx";
 import Drone_Technology from "./components/Programs/Skill_Pattara/Drone_Technology.jsx";
+import Arduino_Programming from "./components/Programs/Skill_Pattara/Arduino_Programming.jsx";
+import Raspberry_Pi_Development from "./components/Programs/Skill_Pattara/Raspberry_Pi_Development.jsx";
 
 
 function App() {
@@ -71,6 +73,8 @@ function App() {
 
         {/* Skill_Pattara */}
         <Route path="/drone_technology" element={<Drone_Technology/>} />
+        <Route path="/arduino_programming" element={<Arduino_Programming/>} />
+        <Route path="/raspberry_pi_development" element={<Raspberry_Pi_Development/>} />
         
         <Route path="*" element={<Page_Not_Found/>} />
       </Routes>

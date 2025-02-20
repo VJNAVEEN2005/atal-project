@@ -42,9 +42,9 @@ const Skill_Pattara = () => {
 
   const programs = [
     { title: "Drone Technology", image: drone, description: "Learn drone design, assembly and flight operations",link:"/drone_technology" },
-    { title: "Arduino Programming", image: arduino, description: "Build electronic projects with Arduino",link:"/drone_technology" },
+    { title: "Arduino Programming", image: arduino, description: "Build electronic projects with Arduino",link:"/arduino_programming" },
     { title: "3D Modeling with SolidWorks", image: solidworks, description: "Create precision 3D models for manufacturing",link:"/drone_technology" },
-    { title: "Raspberry Pi Development", image: rasparipi, description: "Develop IoT solutions using Raspberry Pi",link:"/drone_technology" }
+    { title: "Raspberry Pi Development", image: rasparipi, description: "Develop IoT solutions using Raspberry Pi",link:"/raspberry_pi_development" }
   ];
   
   return (
