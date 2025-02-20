@@ -2,8 +2,11 @@ import React from 'react';
 import { motion } from "framer-motion";
 import { arduino, drone, rasparipi, solidworks } from "../../assets/Programs/Puduvai_Startup_Sprint/data";
 import { skill_patara } from '../../assets/Programs/SkillPattara/data';
+import { useNavigate } from 'react-router-dom';
 
 const Skill_Pattara = () => {
+
+  const navigate = new useNavigate();
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -38,10 +41,10 @@ const Skill_Pattara = () => {
   };
 
   const programs = [
-    { title: "Drone Technology", image: drone, description: "Learn drone design, assembly and flight operations" },
-    { title: "Arduino Programming", image: arduino, description: "Build electronic projects with Arduino" },
-    { title: "3D Modeling with SolidWorks", image: solidworks, description: "Create precision 3D models for manufacturing" },
-    { title: "Raspberry Pi Development", image: rasparipi, description: "Develop IoT solutions using Raspberry Pi" }
+    { title: "Drone Technology", image: drone, description: "Learn drone design, assembly and flight operations",link:"/drone_technology" },
+    { title: "Arduino Programming", image: arduino, description: "Build electronic projects with Arduino",link:"/drone_technology" },
+    { title: "3D Modeling with SolidWorks", image: solidworks, description: "Create precision 3D models for manufacturing",link:"/drone_technology" },
+    { title: "Raspberry Pi Development", image: rasparipi, description: "Develop IoT solutions using Raspberry Pi",link:"/drone_technology" }
   ];
   
   return (
@@ -101,6 +104,7 @@ const Skill_Pattara = () => {
                 <motion.button 
                   whileHover={{ scale: 1.03 }}
                   className="text-sm font-medium text-[#3f6197] hover:text-[#2a4268] flex items-center"
+                  onClick={()=>navigate(program.link)}
                 >
                   Learn more
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -33,6 +33,7 @@ import Road_Map from "./components/Events/Road_Map.jsx";
 import News_letter from "./components/Events/News_letter.jsx";
 import Press_Media_Coverage from "./components/Events/Press_Media_Coverage.jsx";
 import Page_Not_Found from "./pages/Page_Not_Found.jsx";
+import Drone_Technology from "./components/Programs/Skill_Pattara/Drone_Technology.jsx";
 
 
 function App() {
@@ -66,6 +67,9 @@ function App() {
         <Route path="/road_map" element={<Road_Map/>} />
         <Route path="/news_letter" element={<News_letter/>} />
         <Route path="/press_media" element={<Press_Media_Coverage/>} />
+
+        {/* Skill_Pattara */}
+        <Route path="/drone_technology" element={<Drone_Technology/>} />
         
         <Route path="*" element={<Page_Not_Found/>} />
       </Routes>
