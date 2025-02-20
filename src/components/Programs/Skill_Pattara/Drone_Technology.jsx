@@ -2,6 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { drone1, drone2, drone3, drone4, drone5, drone6, drone_event } from "../../../assets/Programs/SkillPattara/data";
 import { drone } from "../../../assets/Focus/image/focus";
+import ScrollToTop from "../../ScrollToTop";
 
 const Drone_Technology = () => {
   const fadeIn = {
@@ -33,6 +34,7 @@ const Drone_Technology = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-12 bg-gray-50">
+      <ScrollToTop/>
       <motion.div 
         initial="hidden"
         animate="visible"
