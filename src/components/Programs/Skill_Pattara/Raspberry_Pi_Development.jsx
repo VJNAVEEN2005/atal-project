@@ -3,26 +3,14 @@ import { motion } from "framer-motion";
 import ScrollToTop from "../../ScrollToTop";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
+import { raspberry1, raspberry2, raspberry3, raspberry4, raspberry5, raspberry6 } from "../../../assets/Programs/SkillPattara/data";
 
-// Replace these imports with your actual image paths
-// import { 
-//   raspberryPi1, 
-//   raspberryPi2, 
-//   raspberryPi3, 
-//   raspberryPi4, 
-//   raspberryPi5, 
-//   raspberryPi6, 
-//   raspberryPi_event 
-// } from "../../../assets/Programs/SkillPattara/data";
-// import { raspberryPi } from "../../../assets/Programs/Puduvai_Startup_Sprint/data";
-
-// Placeholder for demo purposes - replace with actual imports
-const raspberryPi1 = "https://via.placeholder.com/400x300";
-const raspberryPi2 = "https://via.placeholder.com/400x300";
-const raspberryPi3 = "https://via.placeholder.com/400x300";
-const raspberryPi4 = "https://via.placeholder.com/400x300";
-const raspberryPi5 = "https://via.placeholder.com/400x300";
-const raspberryPi6 = "https://via.placeholder.com/400x300";
+const raspberryPi1 = raspberry1;
+const raspberryPi2 = raspberry2;
+const raspberryPi3 = raspberry3;
+const raspberryPi4 = raspberry4;
+const raspberryPi5 = raspberry5;
+const raspberryPi6 = raspberry6;
 const raspberryPi_event = "https://via.placeholder.com/640x360";
 const raspberryPi = "https://via.placeholder.com/640x360";
 
@@ -248,7 +236,7 @@ const Raspberry_Pi_Development = () => {
               </ul>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 p-2 mt-5">
+            <div className="grid grid-cols-2 gap-2 p-2">
               <motion.div
                 whileHover="hover"
                 initial="rest"

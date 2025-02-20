@@ -13,5 +13,11 @@ import arduino3 from './images/arduino/arduino3.jpg';
 import arduino4 from './images/arduino/arduino4.jpg';
 import arduino5 from './images/arduino/arduino5.jpg';
 import arduino6 from './images/arduino/arduino6.jpg';
+import raspberry1 from './images/raspberry/raspberry1.jpg';
+import raspberry2 from './images/raspberry/raspberry2.jpg';
+import raspberry3 from './images/raspberry/raspberry3.jpg';
+import raspberry4 from './images/raspberry/raspberry4.jpg';
+import raspberry5 from './images/raspberry/raspberry5.jpg';
+import raspberry6 from './images/raspberry/raspberry6.jpg';
 
-export { skill_patara, drone_event, drone1, drone2, drone3, drone4, drone5, drone6, arduino_event, arduino1, arduino2, arduino3, arduino4, arduino5, arduino6 };
+export { skill_patara, drone_event, drone1, drone2, drone3, drone4, drone5, drone6, arduino_event, arduino1, arduino2, arduino3, arduino4, arduino5, arduino6, raspberry1, raspberry2, raspberry3, raspberry4, raspberry5, raspberry6 };
