@@ -1,10 +1,31 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { drone1, drone2, drone3, drone4, drone5, drone6, drone_event } from "../../../assets/Programs/SkillPattara/data";
 import { drone } from "../../../assets/Focus/image/focus";
 import ScrollToTop from "../../ScrollToTop";
+import Skeleton from 'react-loading-skeleton'
+import 'react-loading-skeleton/dist/skeleton.css'
+
+
+const ImageWithSkeleton = ({ src, alt, className }) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+  
+  return (
+    <div className={`relative ${className}`}>
+      {!imageLoaded && <Skeleton className="bg-gray-300 w-full h-full rounded-lg"/>}
+      <img 
+        src={src} 
+        alt={alt} 
+        className={`w-full h-full object-cover ${imageLoaded ? 'opacity-100' : 'opacity-0'}`} 
+        onLoad={() => setImageLoaded(true)}
+      />
+    </div>
+  );
+};
 
 const Drone_Technology = () => {
+  const [videoLoaded, setVideoLoaded] = useState(false);
+  
   const fadeIn = {
     hidden: { opacity: 0, y: 20 },
     visible: { 
@@ -87,19 +108,18 @@ const Drone_Technology = () => {
               whileHover="hover"
               initial="rest"
               variants={imageHover}
-              className="overflow-hidden rounded-lg shadow-lg"
+              className="overflow-hidden rounded-lg shadow-lg h-48"
             >
-              <img src={drone1} alt="Drone Workshop" className="w-full h-full object-cover" />
+              <ImageWithSkeleton src={drone1} alt="Drone Workshop" className="h-full" />
             </motion.div>
             
             <motion.div 
-            
               whileHover="hover"
               initial="rest"
               variants={imageHover}
-              className="overflow-hidden rounded-lg shadow-lg" 
+              className="overflow-hidden rounded-lg shadow-lg h-48" 
             >
-              <img src={drone2} alt="Drone Workshop" className="w-full h-full object-cover" />
+              <ImageWithSkeleton src={drone2} alt="Drone Workshop" className="h-full" />
             </motion.div>
           </div>
         </motion.div>
@@ -172,18 +192,18 @@ const Drone_Technology = () => {
                 whileHover="hover"
                 initial="rest"
                 variants={imageHover}
-                className="overflow-hidden rounded-lg"
+                className="overflow-hidden rounded-lg h-48"
               >
-                <img src={drone3} alt="Drone Workshop Day 1" className="w-full h-48 object-cover" />
+                <ImageWithSkeleton src={drone3} alt="Drone Workshop Day 1" className="h-full" />
               </motion.div>
               
               <motion.div 
                 whileHover="hover"
                 initial="rest"
                 variants={imageHover}
-                className="overflow-hidden rounded-lg"
+                className="overflow-hidden rounded-lg h-48"
               >
-                <img src={drone4} alt="Drone Workshop Day 1" className="w-full h-48 object-cover" />
+                <ImageWithSkeleton src={drone4} alt="Drone Workshop Day 1" className="h-full" />
               </motion.div>
             </div>
           </motion.div>
@@ -218,18 +238,18 @@ const Drone_Technology = () => {
                 whileHover="hover"
                 initial="rest"
                 variants={imageHover}
-                className="overflow-hidden rounded-lg"
+                className="overflow-hidden rounded-lg h-48"
               >
-                <img src={drone5} alt="Drone Workshop Day 2" className="w-full h-48 object-cover" />
+                <ImageWithSkeleton src={drone5} alt="Drone Workshop Day 2" className="h-full" />
               </motion.div>
               
               <motion.div 
                 whileHover="hover"
                 initial="rest"
                 variants={imageHover}
-                className="overflow-hidden rounded-lg"
+                className="overflow-hidden rounded-lg h-48"
               >
-                <img src={drone6} alt="Drone Workshop Day 2" className="w-full h-48 object-cover" />
+                <ImageWithSkeleton src={drone6} alt="Drone Workshop Day 2" className="h-full" />
               </motion.div>
             </div>
           </motion.div>
@@ -313,13 +333,19 @@ const Drone_Technology = () => {
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
         variants={fadeIn}
-        className="rounded-lg overflow-hidden shadow-lg"
+        className="rounded-lg overflow-hidden shadow-lg relative h-[500px]"
       >
+        {!videoLoaded && (
+          <div className="absolute inset-0 z-10">
+            <Skeleton className="bg-gray-300 w-full h-full rounded-lg"/>
+          </div>
+        )}
         <video 
           src={drone_event} 
           controls
           className="w-full h-[500px] object-cover"
           poster={drone}
+          onLoadedData={() => setVideoLoaded(true)}
         ></video>
       </motion.section>
 
