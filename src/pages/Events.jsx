@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css"; // Import calendar styles
 import "./Events.css"; // Add your custom styles here
+import { color } from "framer-motion";
+import Events_Calander from "../components/Events/Events_Calander";
 
 const Events = () => {
   const [selectedDates, setSelectedDates] = useState([]); // Array to hold multiple selected dates
@@ -116,45 +118,7 @@ const Events = () => {
 
       {/* Tab Content */}
       {activeTab === "Upcoming Events" && (
-        <div className="content-container">
-          <div className="calendar-container">
-            <Calendar
-              onChange={handleDateChange}
-              value={selectedDates.length > 0 ? selectedDates.map((date) => new Date(date)) : []} // Use empty array when no dates are selected
-              tileClassName={({ date }) =>
-                selectedDates.includes(formatDate(date)) ? "selected-date" : "" // Highlight only selected dates
-              }
-              selectRange={false} // Prevent selecting date ranges
-            />
-            <div className="button-group">
-              <button onClick={handleApply} className="apply-button">
-                Apply
-              </button>
-              <button onClick={handleClear} className="clear-button">
-                Clear
-              </button>
-            </div>
-          </div>
-
-          <div className="events-container">
-            {displayedEvents.map((event, index) => {
-              const eventDate = new Date(event.date);
-              const currentDate = new Date();
-              const isExpired = eventDate < currentDate; // Check if the event date is in the past
-
-              return (
-                <div key={index} className="event-card">
-                  <div className={`event-indicator ${isExpired ? "expired" : "available"}`}></div>
-                  <div className="event-date">
-                    {event.date} | {event.time}
-                  </div>
-                  <img src={event.poster} alt={event.title} />
-                  <h3>{event.title}</h3>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        <Events_Calander/>
       )}
 
 {activeTab === "Outreach Events" && (

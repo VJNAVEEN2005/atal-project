@@ -40,7 +40,7 @@
   /* Content Container */
   .content-container {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-evenly;
     align-items: flex-start;
     width: 100%;
     gap: 40px;
