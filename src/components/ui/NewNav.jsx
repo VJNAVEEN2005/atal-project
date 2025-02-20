@@ -130,7 +130,6 @@ const NewNav = () => {
                 <div
                   key={item.name}
                   className="relative"
-                
                   onMouseEnter={() => handleMouseEnter(index)}
                   onMouseLeave={handleMouseLeave}
                 >
@@ -178,7 +177,7 @@ const NewNav = () => {
                             className="block px-4 py-2 hover:cursor-pointer text-sm hover:bg-gray-100"
                             whileHover={{ x: 5 }}
                             style={{ color: "#3f6197" }}
-                            onClick={()=>navigate(subItem.link)}
+                            onClick={() => navigate(subItem.link)}
                           >
                             <NavLink to={subItem.link}>{subItem.name}</NavLink>
                             {/* {subItem.name} */}
@@ -189,9 +188,13 @@ const NewNav = () => {
                   )}
                 </div>
               ))}
+              
             </div>
-          </div>
 
+          </div>
+          <div className=" h-full md:flex items-center justify-center hidden">
+          <button className=" text-white bg-[#0F1F2C] px-3 py-2 rounded-lg shadow-lg hover:scale-105 transition-all">Register</button>
+        </div>
           {/* Right Icons Group */}
           <motion.div
             className="flex items-center space-x-4"

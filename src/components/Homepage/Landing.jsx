@@ -60,7 +60,7 @@ const Landing = () => {
         <MainSlider images={image} />
       </div>
 
-      <WhoAmI />
+      {/* <WhoAmI /> */}
     </div>
   );
 };
