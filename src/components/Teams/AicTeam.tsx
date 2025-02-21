@@ -1,6 +1,7 @@
 import React from 'react';
 import { Linkedin, Mail, User, Sun } from 'lucide-react';
 import { Gerald_Director, Iyonstan_GET, Kamesh_IM, Parthiban_MTS, Rajkumar_COO, Sundhara_Moorthy_Director, Udhaya_PE, Vishnu_CEO } from '../../assets/Team/coreTeam/images/coreTeamImage';
+import { Dr_A_Kalaisselvane, Dr_A_Muthadhi, Dr_B_Hemakumar, Dr_K_Ashok, Dr_N_Sivakumar, Dr_R_Sridar, Dr_S_Jeevananthan } from '../../assets/Team/executiveTeam/images/data';
 
 interface TeamMember {
   name: string;
@@ -52,14 +53,17 @@ const teamMembers: TeamMember[] = [
   {
     name: "Dr.A.Muthadhi",
     role: "Member - AICPECF / CE",
+    image: Dr_A_Muthadhi
   },
   {
     name: "Dr. A. Kalaisselvane",
-    role: "Member - AICPECF / ME"
+    role: "Member - AICPECF / ME",
+    image: Dr_A_Kalaisselvane
   },
   {
     name: "Dr. K. Ashok",
-    role: "Member - AICPECF / ME"
+    role: "Member - AICPECF / ME",
+    image: Dr_K_Ashok
   },
   {
     name: "Dr. S. Tamilselvan",
@@ -67,11 +71,13 @@ const teamMembers: TeamMember[] = [
   },
   {
     name: "Dr.N. Sivakumar",
-    role: "Member - AICPECF / CSE"
+    role: "Member - AICPECF / CSE",
+    image: Dr_N_Sivakumar
   },
   {
     name: "Dr.S.Jeevananthan",
-    role: "Member - AICPECF / EEE"
+    role: "Member - AICPECF / EEE",
+    image: Dr_S_Jeevananthan
   },
   {
     name: "Dr. V. Govindasamy",
@@ -79,11 +85,13 @@ const teamMembers: TeamMember[] = [
   },
   {
     name: "Dr.R.Sridar",
-    role: "Member - AICPECF / CHE"
+    role: "Member - AICPECF / CHE",
+    image: Dr_R_Sridar
   },
   {
     name: "Dr.B.Hemakumar",
-    role: "Member - IEDC / EIE"
+    role: "Member - IEDC / EIE",
+    image: Dr_B_Hemakumar
   }
 ];
 
