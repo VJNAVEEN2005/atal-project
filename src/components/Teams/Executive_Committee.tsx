@@ -1,5 +1,6 @@
 import React from 'react';
 import { Linkedin, Instagram, User } from 'lucide-react';
+import { Dr_A_Kalaisselvane, Dr_A_Muthadhi, Dr_B_Hemakumar, Dr_K_Ashok, Dr_N_Sivakumar, Dr_R_Sridar, Dr_S_Jeevananthan } from '../../assets/Team/executiveTeam/images/data';
 
 interface TeamMember {
   name: string;
@@ -9,41 +10,48 @@ interface TeamMember {
 
 const teamMembers: TeamMember[] = [
   {
-    name: "Dr.A.Muthadhi",
-    role: "Member - AICPECF / CE"
-  },
-  {
-    name: "Dr. A. Kalaisselvane",
-    role: "Member - AICPECF / ME"
-  },
-  {
-    name: "Dr. K. Ashok",
-    role: "Member - AICPECF / ME"
-  },
-  {
-    name: "Dr. S. Tamilselvan",
-    role: "Member - AICPECF / ECE"
-  },
-  {
-    name: "Dr.N. Sivakumar",
-    role: "Member - AICPECF / CSE"
-  },
-  {
-    name: "Dr.S.Jeevananthan",
-    role: "Member - AICPECF / EEE"
-  },
-  {
-    name: "Dr. V. Govindasamy",
-    role: "Member - IEDC / IT"
-  },
-  {
-    name: "Dr.R.Sridar",
-    role: "Member - AICPECF / CHE"
-  },
-  {
-    name: "Dr.B.Hemakumar",
-    role: "Member - IEDC / EIE"
-  }
+      name: "Dr.A.Muthadhi",
+      role: "Member - AICPECF / CE",
+      image: Dr_A_Muthadhi
+    },
+    {
+      name: "Dr. A. Kalaisselvane",
+      role: "Member - AICPECF / ME",
+      image: Dr_A_Kalaisselvane
+    },
+    {
+      name: "Dr. K. Ashok",
+      role: "Member - AICPECF / ME",
+      image: Dr_K_Ashok
+    },
+    {
+      name: "Dr. S. Tamilselvan",
+      role: "Member - AICPECF / ECE"
+    },
+    {
+      name: "Dr.N. Sivakumar",
+      role: "Member - AICPECF / CSE",
+      image: Dr_N_Sivakumar
+    },
+    {
+      name: "Dr.S.Jeevananthan",
+      role: "Member - AICPECF / EEE",
+      image: Dr_S_Jeevananthan
+    },
+    {
+      name: "Dr. V. Govindasamy",
+      role: "Member - IEDC / IT"
+    },
+    {
+      name: "Dr.R.Sridar",
+      role: "Member - AICPECF / CHE",
+      image: Dr_R_Sridar
+    },
+    {
+      name: "Dr.B.Hemakumar",
+      role: "Member - IEDC / EIE",
+      image: Dr_B_Hemakumar
+    }
 ];
 
 const Team = () => {
@@ -61,7 +69,7 @@ const Team = () => {
           {teamMembers.map((member, index) => (
             <div key={index} className="group flex flex-col items-center">
               <div className="relative w-48 h-48">
-                <div className="absolute inset-0 rounded-full border-4 border-[#3F6197]">
+                <div className="absolute inset-0 rounded-full border-4 overflow-hidden border-[#3F6197]">
                   {member.image ? (
                     <img
                       src={member.image}
