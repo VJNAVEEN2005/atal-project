@@ -61,7 +61,7 @@ const Skill_Pattara = () => {
       title: "3D Modeling with SolidWorks",
       image: solidworks,
       description: "Create precision 3D models for manufacturing",
-      link: "/drone_technology",
+      link: "/solid_works",
     },
     {
       title: "Raspberry Pi Development",
