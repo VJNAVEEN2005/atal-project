@@ -10,6 +10,8 @@ const NewsLetter = () => {
   const [isTurning, setIsTurning] = useState(false);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 0);
   const images = [news1, news2, news3, news4, news5, news6];
+  
+  const isMobile = windowWidth < 768;
 
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -28,17 +30,33 @@ const NewsLetter = () => {
   const dimensions = getBookDimensions();
 
   const nextPage = () => {
-    if (currentPage < images.length - 2 && !isTurning) {
+    if (!isTurning) {
       setIsTurning(true);
-      setCurrentPage(currentPage + 2);
+      if (isMobile) {
+        if (currentPage < images.length - 1) {
+          setCurrentPage(currentPage + 1);
+        }
+      } else {
+        if (currentPage < images.length - 2) {
+          setCurrentPage(currentPage + 2);
+        }
+      }
       setTimeout(() => setIsTurning(false), 800);
     }
   };
 
   const prevPage = () => {
-    if (currentPage > 0 && !isTurning) {
+    if (!isTurning) {
       setIsTurning(true);
-      setCurrentPage(currentPage - 2);
+      if (isMobile) {
+        if (currentPage > 0) {
+          setCurrentPage(currentPage - 1);
+        }
+      } else {
+        if (currentPage > 0) {
+          setCurrentPage(currentPage - 2);
+        }
+      }
       setTimeout(() => setIsTurning(false), 800);
     }
   };
@@ -69,9 +87,74 @@ const NewsLetter = () => {
     })
   };
 
+  // Render book pages based on device type
+  const renderPages = () => {
+    if (isMobile) {
+      // Single page for mobile
+      return (
+        <motion.div
+          key={currentPage}
+          className="bg-white shadow-2xl overflow-hidden rounded-lg"
+          style={{
+            width: dimensions.width,
+            height: dimensions.height,
+          }}
+          variants={pageVariants}
+          custom={currentPage}
+          initial="enter"
+          animate="center"
+          exit="exit"
+        >
+          {currentPage < images.length && (
+            <img
+              src={images[currentPage]}
+              alt={`Page ${currentPage + 1}`}
+              className="w-full h-full object-cover"
+              style={{
+                transform: isTurning ? 'scale(1.02)' : 'scale(1)',
+                transition: 'transform 0.4s'
+              }}
+            />
+          )}
+        </motion.div>
+      );
+    }
+
+    // Double page for desktop
+    return [currentPage, currentPage + 1].map((pageIndex) => (
+      <motion.div
+        key={pageIndex}
+        className="bg-white shadow-2xl overflow-hidden"
+        style={{
+          width: dimensions.width,
+          height: dimensions.height,
+          borderRadius: pageIndex === currentPage ? '8px 0 0 8px' : '0 8px 8px 0',
+          transformOrigin: pageIndex === currentPage ? 'right' : 'left',
+        }}
+        variants={pageVariants}
+        custom={currentPage}
+        initial="enter"
+        animate="center"
+        exit="exit"
+      >
+        {pageIndex < images.length && (
+          <img
+            src={images[pageIndex]}
+            alt={`Page ${pageIndex + 1}`}
+            className="w-full h-full object-cover"
+            style={{
+              transform: isTurning ? 'scale(1.02)' : 'scale(1)',
+              transition: 'transform 0.4s'
+            }}
+          />
+        )}
+      </motion.div>
+    ));
+  };
+
   return (
     <div className="flex flex-col items-center min-h-screen bg-gradient-to-b from-gray-50 to-blue-50 py-6 md:py-12 px-4">
-      {/* Responsive Header */}
+      {/* Header */}
       <motion.div 
         className="w-full max-w-4xl text-center mb-8 md:mb-12"
         initial={{ y: -50, opacity: 0 }}
@@ -111,7 +194,7 @@ const NewsLetter = () => {
           <div 
             className="bg-[#3f6197] rounded-lg shadow-2xl flex items-center justify-center"
             style={{ 
-              width: dimensions.width * 2,
+              width: isMobile ? dimensions.width : dimensions.width * 2,
               height: dimensions.height,
               perspective: "1000px"
             }}
@@ -133,7 +216,6 @@ const NewsLetter = () => {
       {/* Flipbook Container */}
       {isOpen && (
         <div className="relative flex justify-center items-center w-full">
-          {/* Navigation Buttons */}
           <motion.button 
             onClick={prevPage}
             disabled={currentPage === 0 || isTurning}
@@ -144,7 +226,6 @@ const NewsLetter = () => {
             <ChevronLeft size={windowWidth < 768 ? 20 : 24} />
           </motion.button>
 
-          {/* Book Display */}
           <motion.div 
             className="flex justify-center items-center transform-gpu"
             style={{ perspective: "2000px" }}
@@ -160,7 +241,6 @@ const NewsLetter = () => {
                 }}
                 transition={{ duration: 0.5 }}
               >
-                {/* Page Turn Effect Overlay */}
                 {isTurning && (
                   <motion.div
                     className="absolute inset-0 bg-black/5 rounded-lg"
@@ -170,44 +250,14 @@ const NewsLetter = () => {
                     transition={{ duration: 0.4 }}
                   />
                 )}
-
-                {/* Pages */}
-                {[currentPage, currentPage + 1].map((pageIndex) => (
-                  <motion.div
-                    key={pageIndex}
-                    className="bg-white shadow-2xl overflow-hidden"
-                    style={{
-                      width: dimensions.width,
-                      height: dimensions.height,
-                      borderRadius: pageIndex === currentPage ? '8px 0 0 8px' : '0 8px 8px 0',
-                      transformOrigin: pageIndex === currentPage ? 'right' : 'left',
-                    }}
-                    variants={pageVariants}
-                    custom={currentPage}
-                    initial="enter"
-                    animate="center"
-                    exit="exit"
-                  >
-                    {pageIndex < images.length && (
-                      <img
-                        src={images[pageIndex]}
-                        alt={`Page ${pageIndex + 1}`}
-                        className="w-full h-full object-cover"
-                        style={{
-                          transform: isTurning ? 'scale(1.02)' : 'scale(1)',
-                          transition: 'transform 0.4s'
-                        }}
-                      />
-                    )}
-                  </motion.div>
-                ))}
+                {renderPages()}
               </motion.div>
             </AnimatePresence>
           </motion.div>
 
           <motion.button 
             onClick={nextPage}
-            disabled={currentPage >= images.length - 2 || isTurning}
+            disabled={(isMobile ? currentPage >= images.length - 1 : currentPage >= images.length - 2) || isTurning}
             className="absolute right-2 md:right-4 z-10 p-2 md:p-4 rounded-full bg-white shadow-lg hover:bg-gray-100 disabled:opacity-50"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
@@ -226,7 +276,11 @@ const NewsLetter = () => {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
         >
-          Page {currentPage + 1}-{Math.min(currentPage + 2, images.length)} of {images.length}
+          {isMobile ? (
+            `Page ${currentPage + 1} of ${images.length}`
+          ) : (
+            `Page ${currentPage + 1}-${Math.min(currentPage + 2, images.length)} of ${images.length}`
+          )}
         </motion.div>
 
         {isOpen && (
