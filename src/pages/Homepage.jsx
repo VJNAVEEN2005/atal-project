@@ -11,10 +11,11 @@ import EcoSystem from "../components/Homepage/Ecosystem";
 import Testimonials from "../components/Homepage/Testimonials";
 import Choose_Us from "../components/Homepage/Choose_Us";
 import Infrastructure_services from "../components/Homepage/Infrastructure_services";
+import ScrollToTop from '../components/ScrollToTop'
 const Home = () => {
   return (
     <Container>
-
+      <ScrollToTop/>
       <Landing />
       <AboutNew /> 
       <Testimonials/>
