@@ -109,7 +109,7 @@ const NewNav = () => {
     if (window.innerWidth >= 1024) {
       setTimeout(() => {
         setActiveDropdown(null);
-      }, 300);
+      }, 2000);
     }
   };
 
@@ -144,7 +144,7 @@ const NewNav = () => {
           </motion.div>
 
           {/* Desktop Menu - now only shows on lg screens */}
-          <div className="hidden lg:flex flex-1 justify-center">
+          <div className="hidden lg:flex flex-1 justify-center ">
             <div className="flex justify-evenly">
               {navItems.map((item, index) => (
                 <div
