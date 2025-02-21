@@ -29,7 +29,7 @@ const About = () => {
         initial="hidden"
         animate="visible"
         variants={fadeIn}
-        className="max-w-5xl mx-auto my-8 overflow-hidden rounded-xl shadow-lg"
+        className="max-w-full flex justify-center my-8 overflow-hidden rounded-xl shadow-lg mx-5"
       >
         <div className="w-full aspect-video">
           <ReactPlayer

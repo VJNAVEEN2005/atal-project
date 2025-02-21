@@ -24,7 +24,7 @@ const NewNav = () => {
     };
   }, []);
 
-  // Navigation items with correct titles from the image
+  // Navigation items remain the same...
   const navItems = [
     { name: "Home", dropdown: false, link: "/" },
     {
@@ -97,22 +97,22 @@ const NewNav = () => {
     },
   ];
 
-  // Handle mouse enter for dropdown
+  // Handle mouse enter for dropdown - updated for desktop only
   const handleMouseEnter = (index) => {
-    if (navItems[index].dropdown) {
+    if (window.innerWidth >= 1024 && navItems[index].dropdown) {
       setActiveDropdown(index);
     }
   };
 
-  // Handle mouse leave with delay
+  // Handle mouse leave with delay - updated for desktop only
   const handleMouseLeave = () => {
-    // Use timeout to prevent immediate hiding
-    setTimeout(() => {
-      setActiveDropdown(null);
-    }, 300);
+    if (window.innerWidth >= 1024) {
+      setTimeout(() => {
+        setActiveDropdown(null);
+      }, 300);
+    }
   };
 
-  // Handle mobile menu item click
   const handleMobileItemClick = (index, hasDropdown) => {
     if (hasDropdown) {
       setActiveDropdown(activeDropdown === index ? null : index);
@@ -127,28 +127,24 @@ const NewNav = () => {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="bg-white shadow-md border border-[#3f6197] md:m-7 m-2 rounded-3xl shadow-[#3f6197]"
+      className="bg-white shadow-md border border-[#3f6197] m-2 sm:m-4 lg:m-7 rounded-3xl shadow-[#3f6197]"
     >
       <div className="max-w-full px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between w-full items-center h-16 md:h-20">
-          {/* Left Icons Group - Responsive sizing */}
+        <div className="flex justify-between w-full items-center h-16 sm:h-18 lg:h-20">
+          {/* Left Icons Group */}
           <motion.div
-            className="flex items-center space-x-2 md:space-x-4 hover:cursor-pointer"
+            className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4 hover:cursor-pointer"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
             onClick={() => navigate("/")}
           >
-            <img src={Aic} alt="AIC-PECT Logo" className="h-14 md:h-24 object-cover" />
-            <img
-              src={ptuLogo}
-              alt="University Logo"
-              className="h-10 md:h-16 object-cover"
-            />
+            <img src={Aic} alt="AIC-PECT Logo" className="h-12 sm:h-16 lg:h-24 object-cover" />
+            <img src={ptuLogo} alt="University Logo" className="h-8 sm:h-12 lg:h-16 object-cover" />
           </motion.div>
 
-          {/* Desktop Menu */}
-          <div className="hidden md:flex flex-1 justify-center">
+          {/* Desktop Menu - now only shows on lg screens */}
+          <div className="hidden lg:flex flex-1 justify-center">
             <div className="flex justify-evenly">
               {navItems.map((item, index) => (
                 <div
@@ -158,7 +154,7 @@ const NewNav = () => {
                   onMouseLeave={handleMouseLeave}
                 >
                   <motion.div
-                    className="flex items-center text-sm lg:text-base font-medium px-1 lg:px-2 py-3"
+                    className="flex items-center text-base font-medium px-2 py-3"
                     whileHover={{ scale: 1.05 }}
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -167,14 +163,11 @@ const NewNav = () => {
                   >
                     <NavLink to={item.link}>{item.name}</NavLink>
                     {item.dropdown && (
-                      <ChevronDown
-                        className="ml-1 h-4 w-4"
-                        style={{ color: "#3f6197" }}
-                      />
+                      <ChevronDown className="ml-1 h-4 w-4" style={{ color: "#3f6197" }} />
                     )}
                   </motion.div>
 
-                  {/* Dropdown Menu with Animation */}
+                  {/* Desktop Dropdown Menu */}
                   {item.dropdown && (
                     <motion.div
                       className="absolute left-0 mt-1 w-48 rounded-md z-20 shadow-lg bg-white overflow-hidden"
@@ -183,10 +176,7 @@ const NewNav = () => {
                         opacity: activeDropdown === index ? 1 : 0,
                         height: activeDropdown === index ? "auto" : 0,
                       }}
-                      transition={{
-                        duration: 0.3,
-                        delay: activeDropdown === index ? 0 : 0.2,
-                      }}
+                      transition={{ duration: 0.3 }}
                       style={{
                         transformOrigin: "top",
                         backgroundColor: "white",
@@ -211,9 +201,9 @@ const NewNav = () => {
               ))}
             </div>
           </div>
-          
+
           {/* Desktop Register Button */}
-          <div className="hidden md:flex items-center">
+          <div className="hidden lg:flex items-center mr-5">
             <motion.button 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -223,39 +213,39 @@ const NewNav = () => {
             </motion.button>
           </div>
 
-          {/* Right Logo - Responsive sizing */}
+          {/* Right Logo */}
           <motion.div
             className="flex items-center"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
           >
-            <img src={Aim} alt="NITI Aayog Logo" className="h-10 md:h-14" />
+            <img src={Aim} alt="NITI Aayog Logo" className="h-8 sm:h-10 lg:h-14" />
           </motion.div>
 
-          {/* Mobile menu button */}
-          <div className="md:hidden ml-2">
+          {/* Mobile/Tablet menu button - now shows on all screens below lg */}
+          <div className="lg:hidden ml-2">
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={() => setIsOpen(!isOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none"
+              className="inline-flex items-center justify-center p-2 rounded-md hover:bg-gray-100 focus:outline-none"
               style={{ color: "#3f6197" }}
             >
               <span className="sr-only">Open main menu</span>
               {isOpen ? (
-                <X className="block h-6 w-6" />
+                <X className="block h-5 w-5 sm:h-6 sm:w-6" />
               ) : (
-                <Menu className="block h-6 w-6" />
+                <Menu className="block h-5 w-5 sm:h-6 sm:w-6" />
               )}
             </motion.button>
           </div>
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile/Tablet menu - now shows on all screens below lg */}
       <motion.div
         ref={mobileMenuRef}
-        className="md:hidden"
+        className="lg:hidden"
         initial={false}
         animate={
           isOpen ? { height: "auto", opacity: 1 } : { height: 0, opacity: 0 }
@@ -267,7 +257,7 @@ const NewNav = () => {
           {navItems.map((item, index) => (
             <div key={index}>
               <div
-                className="flex justify-between items-center px-3 py-2 rounded-md text-base font-medium hover:bg-gray-50"
+                className="flex justify-between items-center px-3 py-2 rounded-md text-sm sm:text-base font-medium hover:bg-gray-50"
                 style={{ color: "#3f6197" }}
               >
                 <NavLink 
@@ -291,7 +281,7 @@ const NewNav = () => {
                 )}
               </div>
 
-              {/* Mobile Submenu */}
+              {/* Mobile/Tablet Submenu */}
               {item.dropdown && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
@@ -306,7 +296,7 @@ const NewNav = () => {
                   {item.submenu.map((subItem, subIndex) => (
                     <div
                       key={subIndex}
-                      className="block px-3 py-2 text-sm rounded-md hover:bg-gray-100"
+                      className="block px-3 py-2 text-xs sm:text-sm rounded-md hover:bg-gray-100"
                       style={{ color: "#3f6197" }}
                     >
                       <NavLink 
@@ -323,11 +313,11 @@ const NewNav = () => {
             </div>
           ))}
           
-          {/* Mobile Register Button */}
+          {/* Mobile/Tablet Register Button */}
           <div className="px-3 py-4">
             <motion.button 
               whileTap={{ scale: 0.95 }}
-              className="w-full text-white bg-[#0F1F2C] px-3 py-2 rounded-lg shadow-lg transition-all text-center"
+              className="w-full text-white bg-[#0F1F2C] px-3 py-2 rounded-lg shadow-lg transition-all text-center text-sm sm:text-base"
             >
               Register
             </motion.button>
