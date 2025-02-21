@@ -1,14 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, ChevronUp } from "lucide-react";
 import { Aic, Aim, ptuLogo } from "../../assets/logos/logs";
 import { NavLink, useNavigate } from "react-router-dom";
-import { Nav } from "react-bootstrap";
 
 const NewNav = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const navigate = useNavigate();
+  const mobileMenuRef = useRef(null);
+
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    }
+    
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   // Navigation items with correct titles from the image
   const navItems = [
@@ -95,7 +109,17 @@ const NewNav = () => {
     // Use timeout to prevent immediate hiding
     setTimeout(() => {
       setActiveDropdown(null);
-    }, 2000); // 300ms delay before hiding
+    }, 300);
+  };
+
+  // Handle mobile menu item click
+  const handleMobileItemClick = (index, hasDropdown) => {
+    if (hasDropdown) {
+      setActiveDropdown(activeDropdown === index ? null : index);
+    } else {
+      setIsOpen(false);
+      setActiveDropdown(null);
+    }
   };
 
   return (
@@ -103,28 +127,28 @@ const NewNav = () => {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="bg-white shadow-md md:border md:border-[#3f6197] md:m-7 md:rounded-3xl md:shadow-[#3f6197]"
+      className="bg-white shadow-md border border-[#3f6197] md:m-7 m-2 rounded-3xl shadow-[#3f6197]"
     >
-      <div className="max-w-full flex justify-center px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between w-full items-center h-20">
-          {/* Left Icons Group */}
+      <div className="max-w-full px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between w-full items-center h-16 md:h-20">
+          {/* Left Icons Group - Responsive sizing */}
           <motion.div
-            className="flex items-center space-x-4 hover:cursor-pointer"
+            className="flex items-center space-x-2 md:space-x-4 hover:cursor-pointer"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
             onClick={() => navigate("/")}
           >
-            <img src={Aic} alt="AIC-PECT Logo" className="h-24 object-cover" />
+            <img src={Aic} alt="AIC-PECT Logo" className="h-14 md:h-24 object-cover" />
             <img
               src={ptuLogo}
               alt="University Logo"
-              className="h-16 object-cover"
+              className="h-10 md:h-16 object-cover"
             />
           </motion.div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex">
+          <div className="hidden md:flex flex-1 justify-center">
             <div className="flex justify-evenly">
               {navItems.map((item, index) => (
                 <div
@@ -134,7 +158,7 @@ const NewNav = () => {
                   onMouseLeave={handleMouseLeave}
                 >
                   <motion.div
-                    className="flex items-center text-base font-medium px-2 py-3"
+                    className="flex items-center text-sm lg:text-base font-medium px-1 lg:px-2 py-3"
                     whileHover={{ scale: 1.05 }}
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -142,7 +166,6 @@ const NewNav = () => {
                     style={{ color: "#3f6197" }}
                   >
                     <NavLink to={item.link}>{item.name}</NavLink>
-                    {/* <span>{item.name}</span> */}
                     {item.dropdown && (
                       <ChevronDown
                         className="ml-1 h-4 w-4"
@@ -162,7 +185,7 @@ const NewNav = () => {
                       }}
                       transition={{
                         duration: 0.3,
-                        delay: activeDropdown === index ? 0 : 0.2, // Delay hiding
+                        delay: activeDropdown === index ? 0 : 0.2,
                       }}
                       style={{
                         transformOrigin: "top",
@@ -177,10 +200,8 @@ const NewNav = () => {
                             className="block px-4 py-2 hover:cursor-pointer text-sm hover:bg-gray-100"
                             whileHover={{ x: 5 }}
                             style={{ color: "#3f6197" }}
-                            onClick={() => navigate(subItem.link)}
                           >
                             <NavLink to={subItem.link}>{subItem.name}</NavLink>
-                            {/* {subItem.name} */}
                           </motion.div>
                         ))}
                       </div>
@@ -188,25 +209,32 @@ const NewNav = () => {
                   )}
                 </div>
               ))}
-              
             </div>
-
           </div>
-          <div className=" h-full md:flex items-center justify-center hidden">
-          <button className=" text-white bg-[#0F1F2C] px-3 py-2 rounded-lg shadow-lg hover:scale-105 transition-all">Register</button>
-        </div>
-          {/* Right Icons Group */}
+          
+          {/* Desktop Register Button */}
+          <div className="hidden md:flex items-center">
+            <motion.button 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="text-white bg-[#0F1F2C] px-3 py-2 rounded-lg shadow-lg transition-all"
+            >
+              Register
+            </motion.button>
+          </div>
+
+          {/* Right Logo - Responsive sizing */}
           <motion.div
-            className="flex items-center space-x-4"
+            className="flex items-center"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
           >
-            <img src={Aim} alt="NITI Aayog Logo" className="h-14" />
+            <img src={Aim} alt="NITI Aayog Logo" className="h-10 md:h-14" />
           </motion.div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden">
+          <div className="md:hidden ml-2">
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={() => setIsOpen(!isOpen)}
@@ -226,6 +254,7 @@ const NewNav = () => {
 
       {/* Mobile menu */}
       <motion.div
+        ref={mobileMenuRef}
         className="md:hidden"
         initial={false}
         animate={
@@ -234,28 +263,36 @@ const NewNav = () => {
         transition={{ duration: 0.3 }}
         style={{ overflow: "hidden" }}
       >
-        <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white">
+        <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white rounded-b-3xl">
           {navItems.map((item, index) => (
             <div key={index}>
               <div
-                className="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-50"
+                className="flex justify-between items-center px-3 py-2 rounded-md text-base font-medium hover:bg-gray-50"
                 style={{ color: "#3f6197" }}
-                onClick={(e) => {
-                  if (item.dropdown) {
-                    e.preventDefault();
-                    setActiveDropdown(activeDropdown === index ? null : index);
-                  }
-                }}
               >
-                <NavLink to={item.link}>{item.name}</NavLink>
-                {/* {item.name} */}
+                <NavLink 
+                  to={item.link}
+                  onClick={() => !item.dropdown && handleMobileItemClick(index, false)}
+                  className="flex-grow"
+                >
+                  {item.name}
+                </NavLink>
                 {item.dropdown && (
-                  <ChevronDown className="ml-1 h-4 w-4 inline" />
+                  <button
+                    onClick={() => handleMobileItemClick(index, true)}
+                    className="p-1 focus:outline-none"
+                  >
+                    {activeDropdown === index ? (
+                      <ChevronUp className="h-4 w-4" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4" />
+                    )}
+                  </button>
                 )}
               </div>
 
               {/* Mobile Submenu */}
-              {item.dropdown && isOpen && (
+              {item.dropdown && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{
@@ -263,22 +300,38 @@ const NewNav = () => {
                     height: activeDropdown === index ? "auto" : 0,
                   }}
                   transition={{ duration: 0.3 }}
-                  className="pl-6 pr-2 py-1"
+                  className="pl-6 pr-2 py-1 bg-gray-50 rounded-md mx-2"
+                  style={{ overflow: "hidden" }}
                 >
                   {item.submenu.map((subItem, subIndex) => (
                     <div
                       key={subIndex}
-                      className="block px-3 py-1 text-sm rounded-md hover:bg-gray-50"
+                      className="block px-3 py-2 text-sm rounded-md hover:bg-gray-100"
                       style={{ color: "#3f6197" }}
                     >
-                      <NavLink to={subItem.link}>• {subItem.name}</NavLink>
-                      {/* • {subItem.name} */}
+                      <NavLink 
+                        to={subItem.link}
+                        onClick={() => setIsOpen(false)}
+                        className="block w-full"
+                      >
+                        • {subItem.name}
+                      </NavLink>
                     </div>
                   ))}
                 </motion.div>
               )}
             </div>
           ))}
+          
+          {/* Mobile Register Button */}
+          <div className="px-3 py-4">
+            <motion.button 
+              whileTap={{ scale: 0.95 }}
+              className="w-full text-white bg-[#0F1F2C] px-3 py-2 rounded-lg shadow-lg transition-all text-center"
+            >
+              Register
+            </motion.button>
+          </div>
         </div>
       </motion.div>
     </motion.nav>
