@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
@@ -7,8 +7,125 @@ import { AIM, PTU, aws, IFET, SMVEC, River, NIT, RJ, Pip, Zoho, Resuegent, START
 import { di, digi, idea, kris, ktech, lucas, re, schneider, tele, zoho } from '../../assets/Partnerspage/Corporate/CooperatePartner';
 import { ifetlogo, nitLogo, pip, river, rj, smvec } from '../../assets/Partnerspage/Academic/AcadamicPartner';
 
-export const Partner = () => {
-  const logos1 = [
+const DirectionalPartnerCarousel = ({ title, logos, direction }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, 300);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
+  const settings = {
+    dots: false,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 5,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 2000,
+    centerMode: false,
+    focusOnSelect: true,
+    responsive: [
+      {
+        breakpoint: 1280,
+        settings: {
+          slidesToShow: 4,
+        }
+      },
+      {
+        breakpoint: 1024,
+        settings: {
+          slidesToShow: 3,
+        }
+      },
+      {
+        breakpoint: 768,
+        settings: {
+          slidesToShow: 2,
+        }
+      },
+      {
+        breakpoint: 480,
+        settings: {
+          slidesToShow: 1,
+          centerMode: true,
+          centerPadding: '20px',
+        }
+      },
+    ],
+  };
+
+  const containerClasses = `relative overflow-hidden mb-16 transform transition-all duration-1000 ease-out
+    ${isVisible ? 'translate-x-0 opacity-100' : direction === 'left' ? '-translate-x-full opacity-0' : 'translate-x-full opacity-0'}`;
+
+  const titleBoxClasses = `absolute ${direction === 'left' ? 'left-0' : 'right-0'} top-0 z-10 
+    bg-[#12283c] text-white py-3 px-6 shadow-lg ${direction === 'left' ? 'rounded-tr-2xl rounded-br-2xl' : 'rounded-tl-2xl rounded-bl-2xl'}`;
+
+  return (
+    <div className={containerClasses}>
+      <div className="py-8 px-4 bg-gray-50 rounded-lg shadow-md relative">
+        <div className={titleBoxClasses}>
+          <h2 className="text-xl font-semibold">{title}</h2>
+        </div>
+
+        <div className="pt-16 pb-4 px-6">
+          <Slider {...settings}>
+            {logos.map((logo, index) => (
+              <div key={index} className="px-2">
+                <div className="h-24 bg-white rounded-lg shadow-sm flex items-center justify-center p-3 hover:shadow-md transition-all duration-300">
+                  {logo}
+                </div>
+              </div>
+            ))}
+          </Slider>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const Partner = () => {
+  // Process logo data for consistent rendering
+  const processLogo = (src, alt, maxWidth = 'auto', height = 50) => (
+    <img 
+      src={src} 
+      alt={alt} 
+      className="max-w-full object-contain" 
+      style={{ maxWidth, height }} 
+    />
+  );
+
+  // Corporate partner logos
+  const corporateLogos = [
+    processLogo(di, "Digital Impact Logo", 80),
+    processLogo(digi, "DigiThink Logo", 80),
+    processLogo(Easy, "EasyTech Logo", 80),
+    processLogo(idea, "Idea Innovations Logo", 140),
+    processLogo(kris, "Kris Systems Logo", 80),
+    processLogo(ktech, "KTech Logo", 80),
+    processLogo(lucas, "Lucas Technologies Logo", 140),
+    processLogo(re, "Resuegent Logo", 140),
+    processLogo(schneider, "Schneider Electric Logo", 140),
+    processLogo(tele, "Telecom Solutions Logo", 80),
+    processLogo(touch, "TouchTech Logo", 80),
+    processLogo(zoho, "Zoho Logo", 80)
+  ];
+
+  // Academic partner logos
+  const academicLogos = [
+    processLogo(nitLogo, "NIT Logo", 80),
+    processLogo(ifetlogo, "IFET Logo", 160),
+    processLogo(pip, "PIP Institute Logo", 80),
+    processLogo(river, "River University Logo", 140),
+    processLogo(rj, "RJ College Logo", 80),
+    processLogo(smvec, "SMVEC Logo", 160)
+  ];
+
+  // All partner logos (original size preserved)
+  const allPartnerLogos = [
     <img src={AIM} alt="AIM Logo" style={{ width: 110, height: 50 }} />,
     <img src={PTU} alt="PTU Logo" style={{ width: 80, height: 80 }} />,
     <img src={Seed} alt="Seed Logo" style={{ width: 50, height: 50 }} />,
@@ -39,78 +156,53 @@ export const Partner = () => {
     <img src={aws} alt="Digi Logo" style={{ width: 90, height: 50 }} />,
   ];
 
-  const cooperatePartnerLogo = [
-    <img src={di} alt="AIM Logo" style={{ width: 80, height: 50}} />,
-    <img src={digi} alt="AIM Logo" style={{ width: 80, height: 50 }} />,
-    <img src={Easy} alt="AIM Logo" style={{ width: 80, height: 50}} />,
-    <img src={idea} alt="AIM Logo" style={{ width: 140, height: 50 }} />,
-    <img src={kris} alt="AIM Logo" style={{ width: 80, height: 50 }} />,
-    <img src={ktech} alt="AIM Logo" style={{width: 80, height: 50 }} />,
-    <img src={lucas} alt="AIM Logo" style={{width: 140, height: 50 }} />,
-    <img src={re} alt="AIM Logo" style={{ width: 140, height: 50 }} />,
-    <img src={schneider} alt="AIM Logo" style={{ width: 140, height: 50 }} />,
-    <img src={tele} alt="AIM Logo" style={{ width: 80, height: 50 }} />,
-    <img src={touch} alt="AIM Logo" style={{ width: 80, height: 50 }} />,
-    <img src={zoho} alt="AIM Logo" style={{ width: 80, height: 50 }} />,
-  ]
-
-  const acadamicPartnerLogo = [
-    <img src={nitLogo} alt="AIM Logo" style={{ width: 80, height: 50 }} />,
-    <img src={ifetlogo} alt="AIM Logo" style={{ width: 160, height: 50 }} />,
-    <img src={pip} alt="AIM Logo" style={{ width: 80, height: 50 }} />,
-    <img src={river} alt="AIM Logo" style={{ width: 140, height: 50 }} />,
-    <img src={rj} alt="AIM Logo" style={{ width: 80, height: 50 }} />,
-    <img src={smvec} alt="AIM Logo" style={{ width: 160, height: 50 }} />,
-  ]
-
-  const settings = {
+  const keyPartnerSettings = {
     dots: false,
     infinite: true,
     speed: 500,
-    slidesToShow: 5,
+    slidesToShow: 6,
     slidesToScroll: 1,
     autoplay: true,
-    autoplaySpeed: 2000,
-    centerMode: true, // Enables centering of items for better 3D effect
-    focusOnSelect: true, // Makes items selectable
+    autoplaySpeed: 2500,
+    pauseOnHover: true,
     responsive: [
       {
+        breakpoint: 1280,
+        settings: { slidesToShow: 5 }
+      },
+      {
+        breakpoint: 1024,
+        settings: { slidesToShow: 4 }
+      },
+      {
         breakpoint: 768,
-        settings: { slidesToShow: 2 },
+        settings: { slidesToShow: 3 }
       },
       {
         breakpoint: 480,
-        settings: { slidesToShow: 1 },
+        settings: { slidesToShow: 2 }
       },
     ],
   };
 
   return (
-    <div className=' mt-24'>
-      <div className="partner-carousel" style={{ perspective: '1500px', paddingBottom: '10px' }}>
-      <div className=' flex justify-center'><h2 className='mt-10 border-2 border-[#12283c] p-2 rounded-xl shadow-md shadow-gray-400' style={{ textAlign: 'center', marginBottom: '20px', color: '#333' }}>Corporate Partners</h2></div>
-      <Slider {...settings}>
-        {cooperatePartnerLogo.map((logo, index) => (
-          <div key={index} style={{ transform: `rotateY(${index * 15}deg)`, transition: 'transform 0.5s', padding: '10px' }}>
-            <div style={{ width: '100%', height: '100px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-              {logo}
-            </div>
-          </div>
-        ))}
-      </Slider>
-    </div>
-    <div className="partner-carousel" style={{ perspective: '1500px', paddingBottom: '10px' }}>
-    <div className=' flex justify-center'><h2 className='border-2 border-[#12283c] p-2 rounded-xl shadow-md shadow-gray-400' style={{ textAlign: 'center', marginBottom: '20px', color: '#333' }}>Academic Partners</h2></div>
-      <Slider {...settings}>
-        {acadamicPartnerLogo.map((logo, index) => (
-          <div key={index} style={{ transform: `rotateY(${index * 15}deg)`, transition: 'transform 0.5s', padding: '10px' }}>
-            <div style={{ width: '100%', height: '100px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-              {logo}
-            </div>
-          </div>
-        ))}
-      </Slider>
-    </div>
+    <div className="container mx-auto px-4 mt-24 mb-24">
+      <h1 className="text-2xl md:text-3xl font-bold text-center text-[#12283c] mb-16">
+        Our Strategic Partnerships
+      </h1>
+      
+      <DirectionalPartnerCarousel 
+        title="Corporate Partners" 
+        logos={corporateLogos} 
+        direction="left" 
+      />
+      
+      <DirectionalPartnerCarousel 
+        title="Academic Partners" 
+        logos={academicLogos} 
+        direction="right" 
+      />
+      
     </div>
   );
 };

@@ -44,19 +44,26 @@ const Choose_Us = () => {
     ]
 
   return (
-    <div className=" mt-10">
+    <div className=" mt-10 mx-10">
       <div className="w-full block px-4 sm:px-6 lg:px-8">
         <h1 className="text-5xl font-bold text-gray-900 text-start mx-10">
           Why to Choose Us
         </h1>
 
-        <div className=" flex-wrap flex justify-evenly">
-          {
-            dataChooseUs.map((val,index)=>(
-                <Card_Choose_Us title={val.title} details={val.details} link={val.link} button={val.button}/>
-            ))
-          }
-        </div>
+        <div className="flex-wrap flex justify-evenly">
+  {
+    dataChooseUs.map((val, index) => (
+      <div key={index} className="w-full flex justify-center md:w-1/3 px-4 mb-8">
+        <Card_Choose_Us 
+          title={val.title} 
+          details={val.details} 
+          link={val.link} 
+          button={val.button}
+        />
+      </div>
+    ))
+  }
+</div>
       </div>
     </div>
   );

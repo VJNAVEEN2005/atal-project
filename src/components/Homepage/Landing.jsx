@@ -36,30 +36,35 @@ const Landing = () => {
   ];
 
   return (
-    <div className="md:pb-10 pb-10 ">
-      {/* Landing Section */}
-      <div className="fixed hidden border-4  md:absolute  border-gray-300 rounded-full min-h-screen min-w-[850px] md:min-w-[1000px] -left-[700px] top-0 -z-10"></div>
-      <div className=" fixed hidden md:absolute  border-4 border-gray-300 rounded-full min-h-screen  min-w-[850px]  md:min-w-[1000px] -right-[700px] top-0 -z-10"></div>
-      <div className="mt- text-gray-700 flex flex-col items-center">
-        <h1 className="font-semibold text-4xl md:text-5xl text-center  title">
+    <div className="py-6 sm:py-8 md:py-0 px-4 sm:px-6 md:px-8 lg:px-12">
+      {/* Decorative circles - visible only on larger screens with better positioning */}
+      <div className="hidden md:block absolute border-4 border-gray-300 rounded-full min-h-screen w-[850px] lg:w-[1000px] -left-[650px] lg:-left-[700px] top-0 -z-10 opacity-50"></div>
+      <div className="hidden md:block absolute border-4 border-gray-300 rounded-full min-h-screen w-[850px] lg:w-[1000px] -right-[650px] lg:-right-[700px] top-0 -z-10 opacity-50"></div>
+      
+      {/* Title Section - Responsive text sizing */}
+      <div className="mt-4 sm:mt-6 md:mt-8 text-gray-700 flex flex-col items-center">
+        <h1 className="font-semibold text-3xl sm:text-4xl md:text-5xl text-center title">
           Atal Incubation Centre - PEC Foundation
         </h1>
-        <h4 className="mt-2 text-2xl text-center font-semibold title ">
+        <h4 className="mt-2 md:mt-3 text-xl sm:text-2xl text-center font-semibold title">
           Puducherry Technological University
         </h4>
-        <h4 className="mt-3 text-lg text-center text-blue-800 w-fit title ">
+        <h4 className="mt-2 md:mt-3 text-base sm:text-lg text-center text-blue-800 max-w-3xl mx-auto title">
           Supported by Atal Innovation Mission (AIM), NITI Aayog, Govt. of India
         </h4>
       </div>
 
-      <div className="mt-10 ml-4 mr-4 flex md:hidden">
+      {/* Mobile Carousel with improved spacing */}
+      <div className="mt-6 sm:mt-8 md:mt-10 md:hidden">
         <Image_Carousel images={image} />
       </div>
 
-      <div className=" px-5 md:block hidden">
+      {/* Desktop Slider with responsive padding */}
+      <div className="hidden md:block mt-10 px-2 sm:px-4 md:px-6 lg:px-8">
         <MainSlider images={image} />
       </div>
 
+      {/* Uncomment if you want to include WhoAmI component */}
       {/* <WhoAmI /> */}
     </div>
   );

@@ -6,73 +6,31 @@ const SocialMediaFeeds = () => {
     <SocialMediaContainer>
       <Heading>Social Media</Heading>
 
-      <div className=" hidden md:block">
-        <SocialMediaRow>
-          {/* Instagram Feed */}
+      <SocialMediaRow>
+        {/* Instagram Feed */}
+        <FeedContainer>
+          <iframe
+            src="https://www.instagram.com/aic_pecf/embed"
+            title="Instagram Feed"
+            allow="encrypted-media"
+            width="100%"
+            height="100%"
+            frameBorder="0"
+          ></iframe>
+        </FeedContainer>
 
-          <FeedContainer>
-            <iframe
-              src="https://www.instagram.com/aic_pecf/embed"
-              title="Instagram Feed"
-              allow="encrypted-media"
-              width="100%"
-              height="400"
-              frameBorder="0"
-            ></iframe>
-          </FeedContainer>
-
-          {/* YouTube Feed */}
-
-          <FeedContainer>
-            <iframe
-              src="https://www.youtube.com/embed/Ydc5tR0_HF0?si=g5PVQJ1MOqX5DU0U"
-              title="YouTube video player"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              referrerPolicy="strict-origin-when-cross-origin"
-              allowFullScreen
-              width="100%"
-              height="400"
-            ></iframe>
-          </FeedContainer>
-        </SocialMediaRow>
-      </div>
-
-      <div className=" block md:hidden">
-        <SocialMediaRow>
-          {/* Instagram Feed */}
-
-          <div>
-            <FeedContainer>
-              <iframe
-                src="https://www.instagram.com/aic_pecf/embed"
-                title="Instagram Feed"
-                allow="encrypted-media"
-                width="100%"
-                height="400"
-                frameBorder="0"
-              ></iframe>
-            </FeedContainer>
-          </div>
-
-          {/* YouTube Feed */}
-
-          <div>
-            <FeedContainer>
-              <iframe
-                src="https://www.youtube.com/embed/Ydc5tR0_HF0?si=g5PVQJ1MOqX5DU0U"
-                title="YouTube video player"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                referrerPolicy="strict-origin-when-cross-origin"
-                allowFullScreen
-                width="100%"
-                height="400"
-              ></iframe>
-            </FeedContainer>
-          </div>
-        </SocialMediaRow>
-      </div>
+        {/* YouTube Feed */}
+        <FeedContainer>
+          <iframe
+            src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7297534059407151104"
+            title="LinkedIn Post"
+            frameBorder="0"
+            allowFullScreen
+            width="100%"
+            height="100%"
+          ></iframe>
+        </FeedContainer>
+      </SocialMediaRow>
     </SocialMediaContainer>
   );
 };
@@ -80,34 +38,60 @@ const SocialMediaFeeds = () => {
 export default SocialMediaFeeds;
 
 // Styled Components
-
 const SocialMediaContainer = styled.div`
   text-align: center;
-  margin: 40px 0;
+  margin: 20px 10px 40px;
+  padding: 0 10px;
+
+  @media (min-width: 768px) {
+    margin: 40px 20px;
+    padding: 0 20px;
+  }
 `;
 
 const Heading = styled.h2`
-  font-size: 2.5rem;
-  margin-bottom: 20px;
+  font-size: 1.75rem;
+  margin-bottom: 15px;
   color: #12283c;
+
+  @media (min-width: 768px) {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+  }
 `;
 
 const SocialMediaRow = styled.div`
   display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 20px;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    justify-content: space-around;
+    gap: 20px;
+  }
 `;
 
 const FeedContainer = styled.div`
-  flex: 1;
-  min-width: 300px;
-  max-width: 600px;
+  border-radius: 10px;
+  width: 100%;
+  height: 350px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+
+  @media (min-width: 480px) {
+    height: 400px;
+  }
+
+  @media (min-width: 768px) {
+    flex: 1;
+    min-width: 300px;
+    max-width: 600px;
+  }
 
   iframe {
     width: 100%;
-    height: 400px;
+    height: 100%;
     border: none;
   }
 `;
