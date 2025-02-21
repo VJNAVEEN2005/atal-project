@@ -125,7 +125,7 @@ const NewNav = () => {
 
           {/* Desktop Menu */}
           <div className="hidden md:flex">
-            <div className="flex space-x-6">
+            <div className="flex justify-evenly">
               {navItems.map((item, index) => (
                 <div
                   key={item.name}
