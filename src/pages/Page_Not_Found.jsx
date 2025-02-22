@@ -2,6 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { astronaut } from "../assets/404/data";
 import { useNavigate } from "react-router-dom";
+import ScrollToTop from "../components/ScrollToTop";
 
 const Page_Not_Found = () => {
   const floatingVariants = {
@@ -30,6 +31,7 @@ const Page_Not_Found = () => {
 
   return (
     <div className="h-screen bg-[#3f6197] overflow-hidden relative m-1 md:m-10 shadow-2xl shadow-gray-500 rounded-lg">
+      <ScrollToTop/>
       {/* Animated Background Elements */}
       {[...Array(30)].map((_, i) => (
         <motion.div
