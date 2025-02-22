@@ -520,14 +520,14 @@ function App() {
       if (!detailedPartners) return null;
       return (
         <>
-          <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-8 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
             {detailedPartners.map((partner, index) => (
               <div 
                 key={index} 
                 className="group flex flex-col items-center cursor-pointer"
                 onClick={() => openModal(partner)}
               >
-                <div className="relative w-48 h-48">
+                <div className="relative w-20 h-20 sm:w-30 sm:h-30 md:w-48 md:h-48 lg:w-56 lg:h-56">
                   <div className="absolute inset-0 rounded-full overflow-hidden border-4 border-[#3F6197] hover:border-[#1e3f75] transition-colors">
                     {partner.logo ? (
                       <img
