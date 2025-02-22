@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Linkedin, Mail, User, Sun } from "lucide-react";
+import { Linkedin, Mail, User } from "lucide-react";
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 import {
   Gerald_Director,
   Iyonstan_GET,
@@ -25,6 +27,60 @@ interface TeamMember {
   role: string;
   image?: string;
 }
+
+const TeamMemberCard = ({ member }: { member: TeamMember }) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  return (
+    <div className="group flex flex-col items-center">
+      <div className="relative w-48 h-48">
+        <div className="absolute inset-0 rounded-full overflow-hidden border-4 border-[#3F6197]">
+          {member.image && !imageError ? (
+            <>
+              {/* Skeleton loader */}
+              {!imageLoaded && (
+                <div className="absolute inset-0">
+                  <Skeleton circle height="100%" containerClassName="w-full h-full" />
+                </div>
+              )}
+              <img
+                src={member.image}
+                alt={member.name}
+                className={`w-full h-full object-cover rounded-full transition-transform duration-300 group-hover:scale-110 ${
+                  imageLoaded ? 'opacity-100' : 'opacity-0'
+                }`}
+                onLoad={() => setImageLoaded(true)}
+                onError={() => setImageError(true)}
+              />
+            </>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded-full">
+              <User size={48} className="text-gray-400" />
+            </div>
+          )}
+          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center rounded-full">
+            <div className="flex space-x-4 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+              <a href="#" className="hover:scale-110 transition-transform duration-200">
+                <Linkedin size={24} className="text-white hover:text-[#0077b5] transition-colors duration-200" />
+              </a>
+              <a href="#" className="hover:scale-110 transition-transform duration-200">
+                <Mail size={24} className="text-white hover:text-[#E4405F] transition-colors duration-200" />
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="mt-4 text-center">
+         
+            <h3 className="text-lg font-semibold text-gray-900">{member.name}</h3>
+            <p className="text-sm text-gray-500">{member.role}</p>
+         
+     
+      </div>
+    </div>
+  );
+};
 
 const teamMembers: TeamMember[] = [
   {
@@ -132,22 +188,21 @@ const Team = () => {
     (member) => !coreTeamRoles.includes(member.role)
   );
 
-  const [activeTab, setActiveTab] = useState("Core Team"); // Track active tab
-  const [observed, setObserved] = useState(false); // To trigger the observer only once
+  const [activeTab, setActiveTab] = useState("Core Team");
+  const [observed, setObserved] = useState(false);
 
-  // IntersectionObserver to trigger animation when tiles are in view
   const observeTiles = () => {
     const tiles = document.querySelectorAll(".pedagogy-tile");
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add("visible"); // Add visible class when the tile is in view
+            entry.target.classList.add("visible");
           }
         });
       },
       {
-        threshold: 0.3, // Trigger when 30% of the tile is in view
+        threshold: 0.3,
       }
     );
 
@@ -159,7 +214,7 @@ const Team = () => {
   useEffect(() => {
     if (!observed) {
       observeTiles();
-      setObserved(true); // Set observed to true to avoid multiple observer initializations
+      setObserved(true);
     }
   }, [observed]);
 
@@ -171,8 +226,7 @@ const Team = () => {
             AIC-PECF – TEAM MEMBERS
           </h2>
           <p className="mt-3 max-w-2xl mx-auto text-xl text-gray-500 sm:mt-4">
-            Meet our dedicated team of professionals driving innovation and
-            success
+            Meet our dedicated team of professionals driving innovation and success
           </p>
         </div>
 
@@ -188,7 +242,6 @@ const Team = () => {
           ))}
         </div>
 
-        {/* Render Core Team */}
         {activeTab === "Core Team" && (
           <div className="mt-12">
             <h3 className="text-2xl font-bold text-gray-900 text-center mb-8">
@@ -196,57 +249,12 @@ const Team = () => {
             </h3>
             <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {coreTeam.map((member, index) => (
-                <div key={index} className="group flex flex-col items-center">
-                  <div className="relative w-48 h-48">
-                    <div className="absolute inset-0 rounded-full overflow-hidden border-4 border-[#3F6197]">
-                      {member.image ? (
-                        <img
-                          src={member.image}
-                          alt={member.name}
-                          className="w-full h-full object-cover rounded-full transition-transform duration-300 group-hover:scale-110"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded-full">
-                          <User size={48} className="text-gray-400" />
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center rounded-full">
-                        <div className="flex space-x-4 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
-                          <a
-                            href="#"
-                            className="hover:scale-110 transition-transform duration-200"
-                          >
-                            <Linkedin
-                              size={24}
-                              className="text-white hover:text-[#0077b5] transition-colors duration-200"
-                            />
-                          </a>
-                          <a
-                            href="#"
-                            className="hover:scale-110 transition-transform duration-200"
-                          >
-                            <Mail
-                              size={24}
-                              className="text-white hover:text-[#E4405F] transition-colors duration-200"
-                            />
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="mt-4 text-center">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      {member.name}
-                    </h3>
-                    <p className="text-sm text-gray-500">{member.role}</p>
-                  </div>
-                </div>
+                <TeamMemberCard key={index} member={member} />
               ))}
             </div>
           </div>
         )}
 
-        {/* Render Executive Team */}
         {activeTab === "Executive Team" && (
           <div className="mt-12">
             <h3 className="text-2xl font-bold text-gray-900 text-center mb-8">
@@ -254,51 +262,7 @@ const Team = () => {
             </h3>
             <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {executiveTeam.map((member, index) => (
-                <div key={index} className="group flex flex-col items-center">
-                  <div className="relative w-48 h-48">
-                    <div className="absolute inset-0 rounded-full overflow-hidden border-4 border-[#3F6197]">
-                      {member.image ? (
-                        <img
-                          src={member.image}
-                          alt={member.name}
-                          className="w-full h-full object-cover rounded-full transition-transform duration-300 group-hover:scale-110"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded-full">
-                          <User size={48} className="text-gray-400" />
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center rounded-full">
-                        <div className="flex space-x-4 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
-                          <a
-                            href="#"
-                            className="hover:scale-110 transition-transform duration-200"
-                          >
-                            <Linkedin
-                              size={24}
-                              className="text-white hover:text-[#0077b5] transition-colors duration-200"
-                            />
-                          </a>
-                          <a
-                            href="#"
-                            className="hover:scale-110 transition-transform duration-200"
-                          >
-                            <Mail
-                              size={24}
-                              className="text-white hover:text-[#E4405F] transition-colors duration-200"
-                            />
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="mt-4 text-center">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      {member.name}
-                    </h3>
-                    <p className="text-sm text-gray-500">{member.role}</p>
-                  </div>
-                </div>
+                <TeamMemberCard key={index} member={member} />
               ))}
             </div>
           </div>
