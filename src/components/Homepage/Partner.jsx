@@ -58,7 +58,7 @@ const DirectionalPartnerCarousel = ({ title, logos, direction }) => {
     ],
   };
 
-  const containerClasses = `relative overflow-hidden mb-16 transform transition-all duration-1000 ease-out
+  const containerClasses = `relative overflow-hidden mb-5 transform transition-all duration-1000 ease-out
     ${isVisible ? 'translate-x-0 opacity-100' : direction === 'left' ? '-translate-x-full opacity-0' : 'translate-x-full opacity-0'}`;
 
   const titleBoxClasses = `absolute ${direction === 'left' ? 'left-0' : 'right-0'} top-0 z-10 
