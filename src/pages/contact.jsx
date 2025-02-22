@@ -7,6 +7,7 @@ import {
   FaInstagram,
   FaLinkedinIn,
   FaYoutube,
+  FaWhatsapp,
 } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import GetInTouch from "../components/Contact/GetInTouch";
@@ -14,12 +15,12 @@ import GetInTouch from "../components/Contact/GetInTouch";
 const ContactUs = () => {
   return (
     <ContactContainer>
-      <div className="fixed right-0 top-1/2 -translate-y-1/2 flex flex-col gap-4 bg-white p-3 shadow-lg rounded-l-lg z-50">
+      <SocialIconsContainer className="fixed right-0 top-1/2 -translate-y-1/2 flex flex-col gap-4 bg-white p-3 shadow-lg rounded-l-lg z-50">
         <a
           href="https://www.instagram.com/aic_pecf"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-2xl hover:scale-110 transition-transform text-[#E1306C]"
+          className="text-lg md:text-2xl hover:scale-110 transition-transform text-[#E1306C]"
         >
           <FaInstagram />
         </a>
@@ -27,7 +28,7 @@ const ContactUs = () => {
           href="https://twitter.com/aicpecftweet"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-2xl hover:scale-110 transition-transform text-black"
+          className="text-lg md:text-2xl hover:scale-110 transition-transform text-black"
         >
           <FaXTwitter />
         </a>
@@ -35,7 +36,7 @@ const ContactUs = () => {
           href="https://www.linkedin.com/company/aicpecf/"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-2xl hover:scale-110 transition-transform text-[#0077B5]"
+          className="text-lg md:text-2xl hover:scale-110 transition-transform text-[#0077B5]"
         >
           <FaLinkedinIn />
         </a>
@@ -43,11 +44,19 @@ const ContactUs = () => {
           href="https://youtube.com/@atalincubationcentre-pecfo946"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-2xl hover:scale-110 transition-transform text-[#FF0000]"
+          className="text-lg md:text-2xl hover:scale-110 transition-transform text-[#FF0000]"
         >
           <FaYoutube />
         </a>
-      </div>
+        <a
+          href="https://whatsapp.com/channel/0029Vas9egE9MF8vKLwXxn0s"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-lg md:text-2xl hover:scale-110 transition-transform text-[#29871c]"
+        >
+          <FaWhatsapp />
+        </a>
+      </SocialIconsContainer>
       <Title>Contact Us</Title>
       <TileContainer>
         <Tile>
@@ -102,12 +111,28 @@ const ContactContainer = styled.div`
   padding: 20px;
   background-color: #f4f4f9;
   color: #12283c;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
+`;
+
+const SocialIconsContainer = styled.div`
+  @media (max-width: 768px) {
+    padding: 8px;
+    gap: 16px;
+  }
 `;
 
 const Title = styled.h2`
   font-size: 2rem;
   color: #12283c;
   margin-bottom: 20px;
+
+  @media (max-width: 768px) {
+    font-size: 1.75rem;
+    margin-bottom: 16px;
+  }
 `;
 
 const TileContainer = styled.div`
@@ -121,6 +146,8 @@ const TileContainer = styled.div`
   @media (max-width: 768px) {
     flex-direction: column;
     align-items: center;
+    gap: 16px;
+    margin-top: 16px;
   }
 `;
 
@@ -135,6 +162,11 @@ const Tile = styled.div`
   text-align: center;
   width: 100%;
   max-width: 250px;
+
+  @media (max-width: 768px) {
+    max-width: 100%;
+    padding: 16px;
+  }
 `;
 
 const TileContent = styled.div`
@@ -150,27 +182,14 @@ const TileContent = styled.div`
     color: #666;
     margin: 4px 0;
   }
-`;
 
-const SocialIcons = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-
-  a {
-    color: black;
-    font-size: 24px;
-    &.instagram:hover {
-      color: #e1306c;
+  @media (max-width: 768px) {
+    h3 {
+      font-size: 1.1rem;
+      margin-bottom: 6px;
     }
-    &.youtube:hover {
-      color: #ff0000;
-    }
-    &.link:hover {
-      color: #0077b5;
-    }
-    &.x:hover {
-      color: black;
+    p {
+      font-size: 0.95rem;
     }
   }
 `;
@@ -187,6 +206,8 @@ const ContentWrapper = styled.div`
   @media (max-width: 768px) {
     flex-direction: column;
     align-items: center;
+    margin-top: 30px;
+    gap: 24px;
   }
 `;
 
