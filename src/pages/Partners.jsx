@@ -36,9 +36,9 @@ function App() {
 
   const partnerSections = [
     { name: 'Academic', icon: <GraduationCap className="w-6 h-6" />, path: 'Academic' },
-    { name: 'Corporative', icon: <Handshake className="w-6 h-6" />, path: 'Corporative' },
+    { name: 'Corporate', icon: <Handshake className="w-6 h-6" />, path: 'Corporate' },
     { name: 'IP Partners', icon: <Lightbulb className="w-6 h-6" />, path: 'IP Supporters' },
-    { name: 'Mentors', icon: <Network className="w-6 h-6" />, path: 'Network' },
+    { name: 'Mentors', icon: <Network className="w-6 h-6" />, path: 'Mentors' },
     { name: 'Investment', icon: <Building2 className="w-6 h-6" />, path: 'Investment' }
   ];
 
@@ -484,13 +484,13 @@ function App() {
       case 'Academic':
         partners = academicPartners;
         break;
-      case 'Corporative':
+      case 'Corporate':
         partners = corporatePartners;
         break;
       case 'IP Supporters':
         partners = ipPartners;
         break;
-      case 'Network':
+      case 'Mentors':
         detailedPartners = mentorPartnersDetailed;
         break;
       case 'Investment':
@@ -501,7 +501,7 @@ function App() {
     }
 
     
-    if (activeSection === "Network" || activeSection === "Investment") {
+    if (activeSection === "Mentors" || activeSection === "Investment") {
       if (!detailedPartners) return null;
       return (
         <div className="partners-container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 bg-gradient-to-b from-gray-50 to-gray-200 rounded-lg shadow-md">
