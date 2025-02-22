@@ -3,19 +3,7 @@ import { useRef } from 'react';
 import { Building2, Network, Lightbulb, Handshake, GraduationCap, User, X, Linkedin,Mail  } from 'lucide-react';
 import {nitLogo,ifetlogo,pip,river,rj,smvec,achariya,balaji,chirst,kingston,krisiinasamy,mit,motilal,nandha,pajancoa,psg,pvkk,sctr,sri,lecole,tripura
 } from '../assets/Partnerspage/Academic/AcadamicPartner';
-import {
-  di,
-  digi,
-  Easy,
-  idea,
-  kris,
-  ktech,
-  lucas,
-  re,
-  schneider,
-  tele,
-  touch,
-  zoho
+import {di,digi,Easy,idea,kris,ktech,lucas,re,schneider,tele,touch,zoho,ip,periyar,raksha,tally, startup,aic,appasamy,artilab,beehive,boudiik,conf,socio,startupBuddy,eagle10,mr,puthra,uav
 } from '../assets/Partnerspage/Corporate/CooperatePartner';
 const images = import.meta.glob('../assets/Partnerspage/Mentors/*.jpg', { eager: true });
 
@@ -72,7 +60,25 @@ function App() {
     { name: 'Telemedia Solutions', logo: tele },
     { name: 'Touch Enterprises', logo: touch },
     { name: 'Easy Tech', logo: Easy },
-    { name: 'DI Corporation', logo: di }
+    { name: 'DI Corporation', logo: di },
+    { name: '4A IP Solutions', logo: ip },
+    { name: 'Periyar Technology Business Incubator', logo: periyar },
+    { name:'Raksha Agarwal and Associates',logo:raksha},
+    { name:'Tally Solutions Private Limited',logo:tally},
+    { name:'10000 Startup',logo:startup},
+    { name:'AIC-Great Lakes Balachandran Foundation',logo:aic},
+    { name:'APPASAMY OCULAR DEVICES PVT LTD',logo:appasamy},
+    { name:'Artilab Foundation',logo:artilab},
+    { name:'Boudiiik Ventures Pvt Ltd',logo:boudiik},
+    { name:'Beehive Capital Advisor',logo:beehive},
+    { name:'Confederation of Indian Industries',logo:conf},
+    { name:'Sociocharge ',logo:socio},
+    { name:'Startup Buddy Services Pvt Ltd',logo:startupBuddy},
+    { name: 'Eagle Ventures', logo: eagle10 },
+    { name:'Mr Steel Corporation Pvt Ltd',logo:mr},
+    { name:'Puthran and Associates',logo:puthra},
+    { name:'UAV Sysytems Pvt Ltd',logo:uav},
+    
   ];
   
   const ipPartners = [
