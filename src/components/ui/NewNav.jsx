@@ -67,7 +67,7 @@ const NewNav = () => {
     },
     {
       name: "Team",
-      dropdown: true,
+      dropdown: false,
       link: "/team",
       submenu: [
         { name: "Core Team", link: "/team/coreteam" },
@@ -76,7 +76,7 @@ const NewNav = () => {
     },
     {
       name: "Events",
-      dropdown: true,
+      dropdown: false,
       link: "/events",
       submenu: [
         { name: "Road Map", link: "/road_map" },

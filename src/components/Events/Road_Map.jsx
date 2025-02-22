@@ -42,7 +42,7 @@ const Road_Map = () => {
   };
 
   const years = Object.keys(timelineData);
-  const [selectedYear, setSelectedYear] = useState('all');
+  const [selectedYear, setSelectedYear] = useState('2019');
   const [hoveredItem, setHoveredItem] = useState(null);
 
   // Animation variants
@@ -108,7 +108,7 @@ const Road_Map = () => {
     : timelineData[selectedYear].map(event => ({ ...event, year: selectedYear }));
 
   return (
-    <div className="py-16 bg-gradient-to-b from-white to-blue-50 md:m-5 m-1 shadow-xl rounded-lg">
+    <div className="py-16 bg-gradient-to-b from-white to-blue-50 md:m-5 m-1 shadow-xl min-w-[80%] rounded-lg">
       <div className="container mx-auto px-4">
         {/* Header */}
         <motion.div 
@@ -131,15 +131,6 @@ const Road_Map = () => {
           animate="visible"
           className="flex flex-wrap justify-center gap-4 mb-12"
         >
-          <motion.button
-            variants={itemVariants}
-            animate={selectedYear === 'all' ? 'active' : 'inactive'}
-            whileHover="hover"
-            onClick={() => setSelectedYear('all')}
-            className="px-6 py-2 rounded-full text-[#3f6197] border-2 border-[#3f6197] font-bold transition-all"
-          >
-            All Years
-          </motion.button>
           
           {years.map((year) => (
             <motion.button
