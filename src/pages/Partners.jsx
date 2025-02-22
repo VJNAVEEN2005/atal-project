@@ -1,13 +1,7 @@
 import React, { useState } from 'react';
 import { useRef } from 'react';
 import { Building2, Network, Lightbulb, Handshake, GraduationCap, User, X, Linkedin,Mail  } from 'lucide-react';
-import {
-  nitLogo,
-  ifetlogo,
-  pip,
-  river,
-  rj,
-  smvec
+import {nitLogo,ifetlogo,pip,river,rj,smvec,achariya,balaji,chirst,kingston,krisiinasamy,mit,motilal,nandha,pajancoa,psg,pvkk,sctr,sri,lecole,tripura
 } from '../assets/Partnerspage/Academic/AcadamicPartner';
 import {
   di,
@@ -48,7 +42,22 @@ function App() {
     { name: 'PAJANCOA & RI Karaikal', logo: pip },
     { name: 'Rajiv Gandhi Institute of Veterinary Education and Research (River)', logo: river },
     { name: 'Dr. B. R. Ambedkar Polytechnic College Yanam', logo: rj },
-    { name: 'Sri Manakula Vinayagar Engineering College', logo: smvec }
+    { name: 'Sri Manakula Vinayagar Engineering College', logo: smvec },
+    { name: 'Achariya Educational Public Trust', logo: achariya },
+    { name:'BALAJI COLLEGE OF PHARMACY',logo:balaji},
+    { name:'CHRIST COLLEGE OF ENGINEERING AND TECIINOLOGY',logo:chirst},
+    { name:'KINGSTON Engineering College',logo:kingston},
+    { name:'Krisiinasamy College of Engineering & Technology, CUDDALORE',logo:krisiinasamy},
+    { name:'Manakula Vinayagar Institute of Technology',logo:mit},
+    { name:'Motilal Nehru Government Polytechnic College',logo:motilal},
+    { name:'Nandha Engineering College',logo:nandha},
+    { name:'PAJANCOA & RI',logo:pajancoa},
+    { name:'PSG POLYTECHNUC COLLEGE',logo:psg},
+    { name:'PVKK INSTITUTE OF TECHNOLOGY',logo:pvkk},
+    { name:'SCTR_S PUNE ISNTITUTE OF_COMPUTER TECHNOLOGY',logo:sctr},
+    { name:'SRI Venkateshwaraa College of Engineering & Technology',logo:sri},
+    { name:'Study Lecole Internationale',logo:lecole},
+    { name:'Tripura Institute of Technology',logo:tripura}
   ];
   
   const corporatePartners = [
@@ -504,7 +513,7 @@ function App() {
     if (activeSection === "Mentors" || activeSection === "Investment") {
       if (!detailedPartners) return null;
       return (
-        <div className="partners-container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 bg-gradient-to-b from-gray-50 to-gray-200 rounded-lg shadow-md">
+        <>
           <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {detailedPartners.map((partner, index) => (
               <div 
@@ -627,13 +636,12 @@ function App() {
               </div>
             )}
           </dialog>
-        </div>
+        </>
       );
     }
 
     return (
-      <div className="partners-container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 bg-gradient-to-b from-gray-50 to-gray-200 rounded-lg shadow-md">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-8">
         {partners.map((partner, index) => (
           <div
             key={index}
@@ -654,12 +662,10 @@ function App() {
           </div>
         ))}
       </div>
-      </div>
     );
   };
 
   return (
-    <div className="partners-container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 bg-gradient-to-b from-gray-50 to-gray-200 rounded-lg shadow-md">
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-8">
       <div className="flex flex-wrap justify-center gap-4 mb-12">
         {partnerSections.map((section) => (
@@ -678,6 +684,7 @@ function App() {
         ))}
       </div>
 
+      <div className="partners-container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 bg-white rounded-lg shadow-lg">
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold text-gray-800 mb-8">
           {activeSection} Partners
