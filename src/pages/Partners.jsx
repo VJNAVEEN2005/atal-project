@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Building2, Network, Lightbulb, Handshake, GraduationCap } from 'lucide-react';
+import { useRef } from 'react';
+import { Building2, Network, Lightbulb, Handshake, GraduationCap, User, X, Linkedin,Mail  } from 'lucide-react';
 import {
   nitLogo,
   ifetlogo,
@@ -22,13 +23,20 @@ import {
   touch,
   zoho
 } from '../assets/Partnerspage/Corporate/CooperatePartner';
+const images = import.meta.glob('../assets/Partnerspage/Mentors/*.jpg', { eager: true });
+
+const getImage = (name) => {
+  return images[`../assets/Partnerspage/Mentors/${name}.jpg`]?.default ;
+};
 
 function App() {
   const [activeSection, setActiveSection] = useState('Academic');
+  const [selectedPartner, setSelectedPartner] = useState(null);
+  const dialogRef = useRef(null);
 
   const partnerSections = [
     { name: 'Academic', icon: <GraduationCap className="w-6 h-6" />, path: 'Academic' },
-    { name: 'Corporative', icon: <Handshake className="w-6 h-6" />, path: 'Co-operative' },
+    { name: 'Corporative', icon: <Handshake className="w-6 h-6" />, path: 'Corporative' },
     { name: 'IP Partners', icon: <Lightbulb className="w-6 h-6" />, path: 'IP Supporters' },
     { name: 'Mentors', icon: <Network className="w-6 h-6" />, path: 'Network' },
     { name: 'Investment', icon: <Building2 className="w-6 h-6" />, path: 'Investment' }
@@ -42,7 +50,7 @@ function App() {
     { name: 'Dr. B. R. Ambedkar Polytechnic College Yanam', logo: rj },
     { name: 'Sri Manakula Vinayagar Engineering College', logo: smvec }
   ];
-
+  
   const corporatePartners = [
     { name: 'Zoho Corporation', logo: zoho },
     { name: 'Schneider Electric', logo: schneider },
@@ -57,85 +65,574 @@ function App() {
     { name: 'Easy Tech', logo: Easy },
     { name: 'DI Corporation', logo: di }
   ];
-
+  
   const ipPartners = [
     { name: 'Facebook Research', logo: 'https://via.placeholder.com/150?text=FB' },
     { name: 'Google AI', logo: 'https://via.placeholder.com/150?text=Google' },
     { name: 'Microsoft Labs', logo: 'https://via.placeholder.com/150?text=MS' },
     { name: 'OpenAI', logo: 'https://via.placeholder.com/150?text=OpenAI' }
   ];
+  
+  const mentorPartnersDetailed = [
+    {
+      name: 'Ms. Vaishali Chandrakant Shelar',
+      logo: getImage('Ms Vaishali Chandrakant Shelar'),
+      role: 'ATL Manager',
+      expertise: ['HR', 'Business Administration'],
+      Company_name: 'HOPE FOUNDATION',
+      type: 'Network',
+      mail:'vaishalishelar7@gmail.com',
+      linkedin:'https://www.linkedin.com/in/vaishali-shelar-625678150/'
+    },
+    {
+      name: 'Dr. S. Karthikrajan',
+      logo: getImage('Dr S Karthikrajan'),
+      role: 'Research Advisor - Product Development',
+      expertise: ['Product Development', 'Management'],
+      Company_name: 'REVOLTAXE INDIA PVT LTD',
+      type: 'Network',
+      linkedin:'https://www.linkedin.com/in/karthikrajansenthilnathan/',
+      mail:'skarthikrajan@live.com'
+    },
+    {
+      name: 'Mr. Saurabh Trivedi',
+      logo: getImage('Mr Saurabh Trivedi'),
+      role: 'Co-Founder & Director',
+      expertise: ['Intellectual Property'],
+      Company_name: 'Boudhik Ventures Pvt. Ltd.',
+      type: 'Network',
+      linkedin:'https://www.linkedin.com/in/saurabh-trivedi',
+      mail:'saurabh@boudhikventures.com'
+    },
+    {
+      name: 'Mr. R Ananda Natrajan',
+      logo: getImage('Mr R Ananda Natrajan'),
+      role: 'Professor',
+      expertise: ['Instrumentation'],
+      Company_name: 'Puducherry Technological University',
+      type: 'Network',
+      linkedin:'https://www.linkedin.com/in/ananda-r-634482/',
+      mail:'ananda_natrajan@yahoo.com'
+    },
+    {
+      name: 'Mr. Seyed M Buhari',
+      logo: getImage('Mr Seyed M Buhari'),
+      role: 'Professor',
+      expertise: ['Hardware-Software Integration', 'Internet of Things (IoT)'],
+      Company_name: 'King Abdulaziz University',
+      type: 'Network',
+      linkedin:'https://www.linkedin.com/in/seyed-m-buhari-3907508a/',
+      mail:'mibuhari@gmail.com'
+    },
+    {
+      name: 'Mr. M. Kalaiichelvan',
+      logo: getImage('Mr. M Kalaiichelvan'),
+      role: 'Managing Director',
+      expertise: ['Product Development and Management'],
+      Company_name: 'Manatec Electronics Private Limited',
+      type: 'Network',
+      linkedin:'http://linkedin.com/in/kalaiichelvan-mananathan-3641904',
+      mail:'kalaii.chelvan@manatec.in'
+    },
+    {
+      name: 'Mr. M. Nandakumar',
+      logo: getImage('Mr M Nandakumar'),
+      role: 'Managing Director',
+      expertise: ['Product Development and Management'],
+      Company_name: 'Lebracs Rubber Linings Pvt Ltd',
+      type: 'Network',
+      linkedin:'https://www.linkedin.com/in/nandakumar-menon-b92a7433/',
+      mail:'lebracsnandakr@gmail.com'
+    },
+    {
+      name: 'Mr. Syed Sajjadh Ali',
+      logo: getImage('Mr I Syed Sajjadh Ali'),
+      role: 'Managing Director',
+      expertise: ['Product Development and Management'],
+      Company_name: 'Eaton Power Quality Pvt Ltd',
+      linkedin: 'http://linkedin.com/in/syed-sajjadh-ali-34b89313',
+      type: 'Network',
+      mail:'syedsajjadh@eaton.com'
+    },
+    {
+      name: 'Mr. Upamshu Singhal',
+      logo: getImage('Mr Upamshu Singhal'),
+      role: 'Product Architect',
+      expertise: ['Product Development and Management'],
+      Company_name: 'Dell Technologies',
+      linkedin: 'https://www.linkedin.com/in/upanshu/',
+      type: 'Network',
+      mail:'upanshu@hotmail.com'
+    },
+    {
+      name: 'Mr. Niranjan Agarwal',
+      logo: getImage('Mr Niranjan Agarwal'),
+      role: 'Co-Founder',
+      expertise: ['Product Development and Management'],
+      Company_name: 'Seed Funds (Ganges Consultancies LLP)',
+      type: 'Network',
+    },
+    {
+      name: 'Dr. R. Krishnakumar',
+      logo: getImage('Dr R Krishna Kumar'),
+      role: 'Professor & Head, EEE',
+      expertise: ['Product Development and Management'],
+      Company_name: 'Vels Institute of Science Technology and Advanced Studies (VISTAS)',
+      type: 'Network'
+    },
+    {
+      name: 'Dr. S. Sudalai',
+      logo: getImage('Dr S Sudalai'),
+      role: 'Assistant Professor',
+      expertise: ['Pollution Control and Environmental Engineering'],
+      Company_name: 'Pondicherry University',
+      type: 'Network'
+    },
+    {
+      name: 'Mr. Manoj Kumar Wada',
+      logo: getImage('Mr Manoj Kumar Wada'),
+      role: 'Startup Coach & Mentor',
+      expertise: ['Prototype Development and MVP'],
+      Company_name: 'BGW Tech',
+      email: 'manoj@bgwtech.com',
+      phone: '9642038383',
+      type: 'Network'
+    },
+    {
+      name: 'Mr. L. Djody Bascarane',
+      logo: getImage('Mr L Djody Bascarane'),
+      role: 'Senior Consultant',
+      expertise: ['Telecommunications'],
+      Company_name: 'Telecommunications Consultants India Limited',
+      type: 'Network',
+      mail: '', 
+      linkedin: '', 
+    },
+    {
+      name: 'Mr. Adarsh Krishnamurthy',
+      logo: getImage('Mr Adarsh Krishnamurthy'),
+      role: 'Assistant Professor',
+      expertise: ['Engineering Education'],
+      Company_name: 'Mangalore Institute of Technology & Engineering',
+      type: 'Network',
+      mail: '', 
+      linkedin: '', 
+    },
+    {
+      name: 'Dr. S. Ramachandran',
+      logo: getImage('Dr S Ramachandran'),
+      role: 'COO',
+      expertise: ['Educational Management'],
+      Company_name: 'Achariya Group of Educational Institutions',
+      type: 'Network',
+      mail: '',
+      linkedin: '', 
+    },
+    {
+      name: 'Mr. Raj Bharat',
+      logo: getImage('Mr Raj Bharat'),
+      role: 'Founder - Director',
+      expertise: ['Marketing', 'Media Services'],
+      Company_name: 'ThinkComm Marketing & Media Services Pvt Ltd.',
+      type: 'Network',
+      mail: '', 
+      linkedin: '', 
+    },
+    {
+      name: 'Dr. N. Sozhan',
+      logo: getImage('Dr N Sozhan'),
+      role: 'Principal',
+      expertise: ['Polytechnic Education'],
+      Company_name: 'Dr. B.R. Ambedkar Polytechnic College, Yanam',
+      type: 'Network',
+      mail: '', 
+      linkedin: '',
+    },
+    {
+      name: 'Mr. Ashwin Shah',
+      logo: getImage('Mr Ashwin Shah'),
+      role: 'Director & CTO',
+      expertise: ['Robotics', 'Technology'],
+      Company_name: 'RoboFun Lab Pvt. Ltd.',
+      type: 'Network',
+      mail: '', 
+      linkedin: '', 
+    },
+    {
+      name: 'Mr. Mriganka Das',
+      logo: getImage('Mr Mriganka Das'),
+      role: 'Founder & CEO',
+      expertise: ['Semiconductor Industry'],
+      Company_name: 'Semiconductor Society',
+      type: 'Network',
+      mail: '', 
+      linkedin: '', 
+    },
+    {
+      name: 'Mr. Santhosh Nair',
+      logo: getImage('Mr Santosh S Nair'),
+      role: 'Business Consultant',
+      expertise: ['Business Consulting'],
+      Company_name: 'Past- Senior Vice President-NIIT and ITC Foods Division',
+      type: 'Network',
+      mail: '', 
+      linkedin: '', 
+    },
+    {
+      name: 'Mr. G. Prabhu Ram',
+      logo: getImage('Mr Prabu Ram G'),
+      role: 'Assistant Professor (Senior Grade)',
+      expertise: ['Engineering Education'],
+      Company_name: 'Ramco Institute of Technology',
+      type: 'Network',
+      mail: '',
+      linkedin: '', 
+    },
+    {
+      name: 'Mr. Srinath Birur',
+      logo: getImage('Mr Srinath Birur'),
+      role: 'Chief Innovation Evangelist',
+      expertise: ['Innovation', 'Technology'],
+      Company_name: 'Excelsoft Technologies Pvt Ltd',
+      type: 'Network',
+      mail: 'Srinath.birur@srinathbirur.in',
+      linkedin: '',
+    },
+    {
+      name: 'Mr. V. Shanmuganandam',
+      logo: getImage('Mr. V Shanmuganandam'),
+      role: 'CEO',
+      expertise: ['Energy Technologies'],
+      Company_name: 'Touch Energy Technologies',
+      type: 'Network',
+      mail: '',
+      linkedin: '', 
+    },
+    {
+      name: 'Ms. Radhika Meenakshi Shankar',
+      logo: getImage('Ms Radhlka MeenakshiShankar'),
+      role: 'Founder Director',
+      expertise: ['Consultancy Services'],
+      Company_name: 'Wise Owl Consultancy and Services',
+      type: 'Network',
+      mail: 'radshankar@gmail.com',
+      linkedin: '', 
+    },
+    {
+      name: 'Mr. Subhajit Saha',
+      logo: getImage('Mr Subhajit Saha'),
+      role: 'Head - Legal & IPR',
+      expertise: ['Legal', 'Intellectual Property Rights'],
+      Company_name: 'Resolute Group of Companies',
+      type: 'Network',
+      mail: '', 
+      linkedin: '', 
+    },
+    {
+      name: 'Dr. Rose Kavitha',
+      logo: getImage('Dr Rose Kavitha'),
+      role: 'Professor & Corporate Trainer',
+      expertise: ['Engineering Education', 'Corporate Training'],
+      Company_name: 'New Horizon College of Engineering',
+      type: 'Network',
+      mail: '', 
+      linkedin: '', 
+    },
+    {
+      name: 'Mr. Joseph Rajasekar',
+      logo: getImage('Mr Joseph Mariadass Rajasekar'),
+      role: 'Chief Consultant - HR & IR',
+      expertise: ['Human Resources', 'Industrial Relations'],
+      Company_name: '-', 
+      type: 'Network',
+      mail: '', 
+      linkedin: '', 
+    },
+    {
+      name: 'Mr. Rohitkumar Pillai',
+      logo: getImage('Mr Rohitkumar Pillai'),
+      role: 'Co-founder',
+      expertise: ['Rural Entrepreneurship', 'Livelihood Development'],
+      Company_name: 'Rural Entrepreneurship and Livelihood Foundation',
+      type: 'Network',
+      mail: '',
+      linkedin: '',
+    },
+    {
+      name: 'Mr. Boovaragan',
+      logo: getImage('Mr M Boovaragan'),
+      role: 'Founder & CEO',
+      expertise: ['Process Solutions'],
+      Company_name: 'Third Eye Process Solutions',
+      type: 'Network',
+      mail: '', 
+      linkedin: '', 
+    },
+    {
+      name: 'Mr. Jaya Ganesh',
+      logo: getImage('Mr Jaya Ganesh'),
+      role: 'CEO',
+      expertise: ['Technology'],
+      Company_name: 'Paramount Tech Labs',
+      type: 'Network',
+      mail: '', 
+      linkedin: '', 
+    },
+    {
+      name: 'Dr. M. S. Chidambara Raja',
+      logo: getImage('Dr M S Chidambara Raja'),
+      role: 'Assistant Professor',
+      expertise: ['Renewable Energy', 'Smart Grid'],
+      Company_name: 'VIT University',
+      type: 'Network',
+      mail: '', 
+      linkedin: '',
+    },
+    {
+      name: 'Dr. Sivakumar N',
+      logo: getImage('Dr Sivakumar N'),
+      role: 'Assistant Professor',
+      expertise: ['Polymer Science'],
+      Company_name: 'Indian Institute of Technology, Madras',
+      type: 'Network',
+      mail: '', 
+      linkedin: '', 
+    },
+    {
+      name: 'Mr. Parthasarathy B',
+      logo: getImage('Mr Parthasarathy B'),
+      role: 'Business Consultant',
+      expertise: ['Business Consulting', 'Entrepreneurship'],
+      Company_name: 'Self-Employed',
+      type: 'Network',
+      mail: '', 
+      linkedin: '', 
+    },
+    {
+      name: 'Dr. N. Rajendran',
+      logo: getImage('Dr N Rajendran'),
+      role: 'Professor & Dean',
+      expertise: ['Materials Science'],
+      Company_name: 'Anna University',
+      type: 'Network',
+      mail: '', 
+      linkedin: '', 
+    }
+];
 
-  const mentorPartners = [
-    { name: 'AWS', logo: 'https://via.placeholder.com/150?text=AWS' },
-    { name: 'IBM Watson', logo: 'https://via.placeholder.com/150?text=IBM' },
-    { name: 'NVIDIA AI', logo: 'https://via.placeholder.com/150?text=NVIDIA' },
-    { name: 'Intel Labs', logo: 'https://via.placeholder.com/150?text=Intel' }
+  const investmentPartnersDetailed = [
+    {
+      name: 'Sequoia Capital',
+      logo: 'https://via.placeholder.com/150?text=Sequoia',
+      role: 'Lead Venture Capital Partner',
+      description: 'Sequoia Capital is a leading venture capital firm with a track record of backing revolutionary companies.',
+      portfolio: ['Apple', 'Google', 'Airbnb'],
+      investmentRange: '$1M - $50M',
+      focus: 'Series A to Late Stage',
+      location: 'Menlo Park, USA',
+      type: 'Investment'
+    },
+    {
+      name: 'Andreessen Horowitz',
+      logo: 'https://via.placeholder.com/150?text=A16Z',
+      role: 'Strategic Investment Partner',
+      description: 'A16Z combines deep technical knowledge with practical company-building expertise to help founders succeed.',
+      portfolio: ['Facebook', 'Twitter', 'Coinbase'],
+      investmentRange: '$500K - $100M',
+      focus: 'Seed to Growth Stage',
+      location: 'Menlo Park, USA',
+      type: 'Investment'
+    },
+    {
+      name: 'SoftBank Vision Fund',
+      logo: 'https://via.placeholder.com/150?text=SoftBank',
+      role: 'Growth Capital Partner',
+      description: 'SoftBank Vision Fund focuses on transformative technologies and business models that are leading innovation.',
+      portfolio: ['Uber', 'WeWork', 'ByteDance'],
+      investmentRange: '$100M+',
+      focus: 'Late Stage and Growth',
+      location: 'Tokyo, Japan',
+      type: 'Investment'
+    },
+    {
+      name: 'Accel Partners',
+      logo: 'https://via.placeholder.com/150?text=Accel',
+      role: 'Early-Stage Investment Partner',
+      description: 'Accel Partners specializes in early-stage startup investments across technology sectors globally.',
+      portfolio: ['Slack', 'Dropbox', 'Spotify'],
+      investmentRange: '$1M - $25M',
+      focus: 'Seed to Series B',
+      location: 'Palo Alto, USA',
+      type: 'Investment'
+    }
   ];
 
-  const investmentPartners = [
-    { name: 'Sequoia Capital', logo: 'https://via.placeholder.com/150?text=Sequoia' },
-    { name: 'Andreessen Horowitz', logo: 'https://via.placeholder.com/150?text=A16Z' },
-    { name: 'SoftBank Vision Fund', logo: 'https://via.placeholder.com/150?text=SoftBank' },
-    { name: 'Accel Partners', logo: 'https://via.placeholder.com/150?text=Accel' }
-  ];
+  const openModal = (partner) => {
+    setSelectedPartner(partner);
+    dialogRef.current?.showModal();
+  };
+
+  const closeModal = () => {
+    dialogRef.current?.close();
+    setSelectedPartner(null);
+  };
 
   const renderPartners = () => {
-    let partners;
+    let partners=[];
+    let detailedPartners=null;
     switch (activeSection) {
       case 'Academic':
         partners = academicPartners;
         break;
-      case 'Co-operative':
+      case 'Corporative':
         partners = corporatePartners;
         break;
       case 'IP Supporters':
         partners = ipPartners;
         break;
       case 'Network':
-        partners = mentorPartners;
+        detailedPartners = mentorPartnersDetailed;
         break;
       case 'Investment':
-        partners = investmentPartners;
+        detailedPartners = investmentPartnersDetailed;
         break;
       default:
         partners = [];
     }
 
+    
     if (activeSection === "Network" || activeSection === "Investment") {
+      if (!detailedPartners) return null;
       return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-10">
-          {partners.map((partner, index) => (
-            <div
-              key={index}
-              className="group relative bg-gradient-to-tr from-[#4E7FAB] to-[#1E2C3D] rounded-xl overflow-hidden transition-all duration-300 hover:from-[#426A90 ] hover:to-[#2A405A] hover:shadow-2xl hover:scale-105 transition-transform duration-300 text-[#12283c]"
-            >
-              <div className="p-6 h-[300px] flex flex-col items-center justify-center">
-                <div className="w-32 h-32 mb-4 rounded-full overflow-hidden bg-gray-100 group-hover:border-2 border-gray-400">
-                  <img
-                    src={partner.logo || "/placeholder.svg"}
-                    alt={`${partner.name}`}
-                    className="w-full h-full object-cover"
-                  />
+        <div className="partners-container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 bg-gradient-to-b from-gray-50 to-gray-200 rounded-lg shadow-md">
+          <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {detailedPartners.map((partner, index) => (
+              <div 
+                key={index} 
+                className="group flex flex-col items-center cursor-pointer"
+                onClick={() => openModal(partner)}
+              >
+                <div className="relative w-48 h-48">
+                  <div className="absolute inset-0 rounded-full overflow-hidden border-4 border-[#3F6197] hover:border-[#1e3f75] transition-colors">
+                    {partner.logo ? (
+                      <img
+                        src={partner.logo}
+                        alt={partner.name}
+                        className="w-full h-full object-cover rounded-full transition-transform duration-300 group-hover:scale-110"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded-full">
+                        <User size={48} className="text-gray-400" />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center rounded-full">
+                                          <div className="flex space-x-4 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+                                            <a href={partner.linkedin} className="hover:scale-110 transition-transform duration-200">
+                                              <Linkedin 
+                                                size={24} 
+                                                className="text-white hover:text-[#0077b5] transition-colors duration-200"
+                                              />
+                                            </a>
+                                            <a href={`mailto:${partner.mail}`} className="hover:scale-110 transition-transform duration-200">
+                                              <Mail
+                                                size={24} 
+                                                className="text-white hover:text-[#E4405F] transition-colors duration-200"
+                                              />
+                                            </a>
+                                          </div>
+                                        </div>
+                  </div>
                 </div>
-                <div className="text-center">
-                  <h3 className="text-xl font-semibold mb-2 text-white group-hover:text-gray-100  transition-colors">
-                    {partner.name}
-                  </h3>
-                  <p className="text-blue-100 group-hover:text-blue-100 transition-colors">
-                    {activeSection === "Network" ? "Mentor" : "Investor"}
-                  </p>
-                  <p className="mt-2 text-sm text-blue-100 group-hover:text-blue-100 transition-colors">
-                    Expertise: {activeSection} Development
-                  </p>
+                <div className="mt-4 text-center">
+                  <h3 className="text-lg font-semibold text-gray-900">{partner.name}</h3>
+                  <p className="text-sm text-gray-500">{partner.role}</p>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+
+          <dialog
+            ref={dialogRef}
+            className="w-full max-w-2xl rounded-lg p-0 backdrop:bg-black backdrop:bg-opacity-50"
+            onClick={(e) => {
+              if (e.target === dialogRef.current) closeModal();
+            }}
+          >
+            {selectedPartner && (
+              <div className="bg-white rounded-lg">
+                <div className="p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <h2 className="text-2xl font-bold">{selectedPartner.name}</h2>
+                    <button 
+                      onClick={closeModal}
+                      className="text-gray-500 hover:text-gray-700"
+                    >
+                      <X size={24} />
+                    </button>
+                  </div>
+                  
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-6">
+                      <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-[#3F6197]">
+                        <img 
+                          src={selectedPartner.logo} 
+                          alt={selectedPartner.name} 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-semibold text-gray-900">{selectedPartner.role}</h3>
+                        <p className="text-gray-600">{selectedPartner.Company_name}</p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <p className="text-gray-700">{selectedPartner.description}</p>
+                    </div>
+
+                    {selectedPartner.type === 'Network' && (
+                      <div>
+                        <h4 className="text-lg font-semibold mb-2">Areas of Expertise</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedPartner.expertise.map((skill) => (
+                            <span 
+                              key={skill} 
+                              className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+                            >
+                              {skill}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedPartner.type === 'Investment' && (
+                      <div className="space-y-4">
+                        <div>
+                          <h4 className="text-lg font-semibold mb-2">Notable Portfolio Companies</h4>
+                          <p className="text-gray-700">{selectedPartner.portfolio.join(', ')}</p>
+                        </div>
+                        <div>
+                          <h4 className="text-lg font-semibold mb-2">Investment Focus</h4>
+                          <p className="text-gray-700">{selectedPartner.focus}</p>
+                        </div>
+                        <div>
+                          <h4 className="text-lg font-semibold mb-2">Investment Range</h4>
+                          <p className="text-gray-700">{selectedPartner.investmentRange}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </dialog>
         </div>
       );
     }
 
     return (
+      <div className="partners-container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 bg-gradient-to-b from-gray-50 to-gray-200 rounded-lg shadow-md">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
         {partners.map((partner, index) => (
           <div
@@ -157,12 +654,13 @@ function App() {
           </div>
         ))}
       </div>
+      </div>
     );
   };
 
   return (
+    <div className="partners-container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 bg-gradient-to-b from-gray-50 to-gray-200 rounded-lg shadow-md">
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-8">
-      {/* Navigation Boxes */}
       <div className="flex flex-wrap justify-center gap-4 mb-12">
         {partnerSections.map((section) => (
           <button
@@ -180,13 +678,13 @@ function App() {
         ))}
       </div>
 
-      {/* Partners Section */}
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold text-gray-800 mb-8">
           {activeSection} Partners
         </h2>
         {renderPartners()}
       </div>
+    </div>
     </div>
   );
 }
