@@ -1,18 +1,60 @@
-import React from 'react';
-import styled from 'styled-components';
-import { FaPhoneAlt, FaMapMarkerAlt, FaEnvelope, FaInstagram, FaLinkedinIn, FaYoutube } from 'react-icons/fa';
-import { FaXTwitter } from 'react-icons/fa6';
+import React from "react";
+import styled from "styled-components";
+import {
+  FaPhoneAlt,
+  FaMapMarkerAlt,
+  FaEnvelope,
+  FaInstagram,
+  FaLinkedinIn,
+  FaYoutube,
+} from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
 import GetInTouch from "../components/Contact/GetInTouch";
 
 const ContactUs = () => {
   return (
     <ContactContainer>
+      <div className="fixed right-0 top-1/2 -translate-y-1/2 flex flex-col gap-4 bg-white p-3 shadow-lg rounded-l-lg z-50">
+        <a
+          href="https://www.instagram.com/aic_pecf"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-2xl hover:scale-110 transition-transform text-[#E1306C]"
+        >
+          <FaInstagram />
+        </a>
+        <a
+          href="https://twitter.com/aicpecftweet"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-2xl hover:scale-110 transition-transform text-black"
+        >
+          <FaXTwitter />
+        </a>
+        <a
+          href="https://www.linkedin.com/company/aicpecf/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-2xl hover:scale-110 transition-transform text-[#0077B5]"
+        >
+          <FaLinkedinIn />
+        </a>
+        <a
+          href="https://youtube.com/@atalincubationcentre-pecfo946"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-2xl hover:scale-110 transition-transform text-[#FF0000]"
+        >
+          <FaYoutube />
+        </a>
+      </div>
       <Title>Contact Us</Title>
       <TileContainer>
         <Tile>
           <FaPhoneAlt size={40} />
           <TileContent>
             <h3>Phone</h3>
+            <p>Mr. V Vishnu Varadan</p>
             <p>+91-8903467223</p>
           </TileContent>
         </Tile>
@@ -27,14 +69,7 @@ const ContactUs = () => {
           <FaEnvelope size={40} />
           <TileContent>
             <h3>Support</h3>
-            <p>Email:  ceo@aicpecf.org</p>
-            <p>Phone: +91-8903467223</p>
-            <SocialIcons>
-              <a className='instagram' href="https://www.instagram.com/aic_pecf" target="_blank" rel="noopener noreferrer"><FaInstagram /></a>
-              <a className='x' href="https://twitter.com/aicpecftweet" target="_blank" rel="noopener noreferrer"><FaXTwitter /></a>
-              <a className='link' href="https://www.linkedin.com/company/aicpecf/" target="_blank" rel="noopener noreferrer"><FaLinkedinIn /></a>
-              <a className='youtube' href="https://youtube.com/@atalincubationcentre-pecfo946" target="_blank" rel="noopener noreferrer"><FaYoutube /></a>
-            </SocialIcons>
+            <p>Email: ceo@aicpecf.org</p>
           </TileContent>
         </Tile>
       </TileContainer>
@@ -51,8 +86,8 @@ const ContactUs = () => {
             referrerPolicy="no-referrer-when-downgrade"
           ></iframe>
         </MapContainer>
-        
-        <GetInTouch /> 
+
+        <GetInTouch />
       </ContentWrapper>
     </ContactContainer>
   );
@@ -104,7 +139,7 @@ const Tile = styled.div`
 
 const TileContent = styled.div`
   margin-top: 10px;
-  
+
   h3 {
     font-size: 1.2rem;
     margin-bottom: 8px;
@@ -126,12 +161,15 @@ const SocialIcons = styled.div`
     color: black;
     font-size: 24px;
     &.instagram:hover {
-      color: #E1306C;
-    }&.youtube:hover {
-      color: #FF0000;
-    }&.link:hover {
-      color:#0077B5;
-    }&.x:hover {
+      color: #e1306c;
+    }
+    &.youtube:hover {
+      color: #ff0000;
+    }
+    &.link:hover {
+      color: #0077b5;
+    }
+    &.x:hover {
       color: black;
     }
   }
