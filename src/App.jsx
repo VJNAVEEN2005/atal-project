@@ -70,6 +70,7 @@ function App() {
         <Route path="/road_map" element={<Road_Map/>} />
         <Route path="/news_letter" element={<News_letter/>} />
         <Route path="/press_media" element={<Press_Media_Coverage/>} />
+        
 
         {/* Skill_Pattara */}
         <Route path="/drone_technology" element={<Drone_Technology/>} />

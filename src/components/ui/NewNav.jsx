@@ -29,8 +29,17 @@ const NewNav = () => {
     { name: "Home", dropdown: false, link: "/" },
     {
       name: "Ecosystem",
-      dropdown: true,
-      link: "/ecosystem",
+      dropdown: false,
+      link: "/startupDetail",
+      submenu: [
+        { name: "Startup Details", link: "/startupDetail" },
+        { name: "Students Projects", link: "/studentProject" },
+      ],
+    },
+    {
+      name: "Service & Support",
+      dropdown: false,
+      link: "/studentProject",
       submenu: [
         { name: "Startup Details", link: "/startupDetail" },
         { name: "Students Projects", link: "/studentProject" },
@@ -144,8 +153,8 @@ const NewNav = () => {
           </motion.div>
 
           {/* Desktop Menu - now only shows on lg screens */}
-          <div className="hidden lg:flex flex-1 justify-center ">
-            <div className="flex justify-evenly">
+          <div className="hidden lg:flex flex-1 justify-evenly ">
+            <div className="flex w-full justify-evenly mx-5">
               {navItems.map((item, index) => (
                 <div
                   key={item.name}
