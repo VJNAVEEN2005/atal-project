@@ -163,7 +163,7 @@ const NewNav = () => {
                   onMouseLeave={handleMouseLeave}
                 >
                   <motion.div
-                    className="flex items-center text-base font-medium px-2 py-3"
+                    className="flex items-center text-base h-full text-center font-medium px-2 py-3"
                     whileHover={{ scale: 1.05 }}
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
