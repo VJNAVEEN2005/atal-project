@@ -177,7 +177,7 @@ function Programs() {
       </div>
 
 
-      <div className=" mx-10">
+      <div className=" mx-1 md:mx-10">
       {activeSection === "Puduvai Startup Sprint" && (
         <div><Puducai_Startup_Sprint/></div>
       )}

@@ -19,7 +19,7 @@ const staggerContainer = {
 
 export default function PropelX() {
   return (
-    <div className="w-full  mx-auto px-4 py-8 bg-white shadow-xl rounded-lg mb-10">
+    <div className="w-full mx-auto p-8 rounded-xl bg-white shadow-lg mb-10">
       <div className="max-w-5xl mx-auto p-6">
         {/* Header with Animation */}
         <motion.div 
