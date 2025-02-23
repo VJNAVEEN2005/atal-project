@@ -67,7 +67,7 @@ function Programs() {
       path: "Dass",
     },
     {
-      name: "Sisfs",
+      name: "SISFS",
       icon: <FileBadge className="w-6 h-6" />,
       path: "Sisfs",
     },
