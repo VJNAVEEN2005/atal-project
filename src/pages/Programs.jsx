@@ -34,6 +34,7 @@ import Pre_Incubation from "../components/Programs/Pre_Incubation";
 import Acceleration from "../components/Programs/Acceleration";
 import Skill_Pattara from "../components/Programs/Skill_Pattara";
 import Dass from "../components/Programs/Dass";
+import Sisfs from "../components/Programs/Sisfs";
 
 function Programs() {
   const [activeSection, setActiveSection] = useState("Puduvai Startup Sprint");
@@ -64,6 +65,11 @@ function Programs() {
       name: "Dass",
       icon: <FileBadge className="w-6 h-6" />,
       path: "Dass",
+    },
+    {
+      name: "Sisfs",
+      icon: <FileBadge className="w-6 h-6" />,
+      path: "Sisfs",
     },
   ];
 
@@ -180,6 +186,9 @@ function Programs() {
       )}
       {activeSection === "Dass" && (
         <div><Dass/></div>
+      )}
+      {activeSection === "Sisfs" && (
+        <div><Sisfs/></div>
       )}
       </div>
 
