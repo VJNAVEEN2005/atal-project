@@ -765,7 +765,7 @@ function App() {
                       <div className="space-y-4">
                         <div>
                           <h4 className="text-lg font-semibold mb-2">Startup</h4>
-                          <p className="text-gray-700">{selectedPartner.Company_name.join(', ')}</p>
+                          <p className="text-gray-700">{selectedPartner.Company_name}</p>
                         </div>
                         <div>
                           <h4 className="text-lg font-semibold mb-2">Role</h4>
