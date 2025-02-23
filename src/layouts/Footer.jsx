@@ -123,12 +123,14 @@ const Footer = () => {
         <FooterContainer>
           <Container>
             <Column>
-              <h2>AIC-PECF</h2>
+             <div className=" flex justify-center items-center flex-col">
+             <h2>AIC-PECF</h2>
               <img
                 src={Aic}
                 alt="NIC"
                 style={{ width: "100px", height: "auto" }}
               />
+             </div>
             </Column>
             <Column>
               <h3>About Us</h3>
