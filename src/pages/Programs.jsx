@@ -73,7 +73,7 @@ function Programs() {
       path: "Sisfs",
     },
     {
-      name: "Prople-X",
+      name: "Propel-X",
       icon: <User className="w-6 h-6" />,
       path: "PropleX",
     },

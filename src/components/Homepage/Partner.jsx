@@ -62,7 +62,7 @@ const DirectionalPartnerCarousel = ({ title, logos, direction }) => {
     ${isVisible ? 'translate-x-0 opacity-100' : direction === 'left' ? '-translate-x-full opacity-0' : 'translate-x-full opacity-0'}`;
 
   const titleBoxClasses = `absolute ${direction === 'left' ? 'left-0' : 'right-0'} top-0 z-10 
-    bg-[#12283c] text-white py-3 px-6 shadow-lg ${direction === 'left' ? 'rounded-tr-2xl rounded-br-2xl' : 'rounded-tl-2xl rounded-bl-2xl'}`;
+    bg-[#12283c] text-white py-3 px-6 shadow-2xl ${direction === 'left' ? 'rounded-tr-2xl rounded-br-2xl' : 'rounded-tl-2xl rounded-bl-2xl'}`;
 
   return (
     <div className={containerClasses}>
@@ -71,14 +71,14 @@ const DirectionalPartnerCarousel = ({ title, logos, direction }) => {
           <h2 className="text-xl font-semibold">{title}</h2>
         </div>
 
-        <div className="pt-16 pb-4 px-6">
+        <div className="pt-5 pb-4 px-2">
           <Slider {...settings}>
             {logos.map((logo, index) => (
               <div key={index} className="px-2">
-                <div className="h-24 bg-white rounded-lg shadow-sm flex items-center justify-center p-3 hover:shadow-md transition-all duration-300">
-                  {logo}
-                </div>
+              <div className="scale-110 flex items-center justify-center p-3  transition-all duration-300 grayscale hover:grayscale-0">
+                {logo}
               </div>
+            </div>
             ))}
           </Slider>
         </div>

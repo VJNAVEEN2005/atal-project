@@ -29,9 +29,9 @@ const About = () => {
         initial="hidden"
         animate="visible"
         variants={fadeIn}
-        className="max-w-full flex justify-center my-8 overflow-hidden rounded-xl shadow-lg mx-5"
+        className="max-w-3/4 flex justify-center my-8 overflow-hidden rounded-xl shadow-sm mx-5"
       >
-        <div className="w-full aspect-video">
+        <div className="w-3/4 aspect-video">
           <ReactPlayer
             ref={playerRef}
             url={Video1}
