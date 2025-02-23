@@ -5,6 +5,8 @@ import {nitLogo,ifetlogo,pip,river,rj,smvec,achariya,balaji,chirst,kingston,kris
 } from '../assets/Partnerspage/Academic/AcadamicPartner';
 import {di,digi,Easy,idea,kris,ktech,lucas,re,schneider,tele,touch,zoho,ip,periyar,raksha,tally, startup,aic,appasamy,artilab,beehive,boudiik,conf,socio,startupBuddy,eagle10,mr,puthra,uav
 } from '../assets/Partnerspage/Corporate/CooperatePartner';
+import {amits, anil, puru, rohit,manoj}
+from '../assets/Partnerspage/Investors/Investors';
 const images = import.meta.glob('../assets/Partnerspage/Mentors/*.jpg', { eager: true });
 
 const getImage = (name) => {
@@ -82,10 +84,11 @@ function App() {
   ];
   
   const ipPartners = [
-    { name: 'Facebook Research', logo: 'https://via.placeholder.com/150?text=FB' },
-    { name: 'Google AI', logo: 'https://via.placeholder.com/150?text=Google' },
-    { name: 'Microsoft Labs', logo: 'https://via.placeholder.com/150?text=MS' },
-    { name: 'OpenAI', logo: 'https://via.placeholder.com/150?text=OpenAI' }
+    { name: 'Puthran and Associates', logo: puthra },
+    { name: '4A IP Solutions', logo: ip },
+    { name: 'Ideation IP', logo: idea },
+    { name: 'Resurgent India', logo: re },
+    { name: 'Kris Hagan', logo: kris },
   ];
   
   const mentorPartnersDetailed = [
@@ -577,51 +580,43 @@ function App() {
   linkedin: 'https://www.linkedin.com/in/saurabh-trivedi',
 },
 
+
 ];
 
   const investmentPartnersDetailed = [
     {
-      name: 'Sequoia Capital',
-      logo: 'https://via.placeholder.com/150?text=Sequoia',
-      role: 'Lead Venture Capital Partner',
-      description: 'Sequoia Capital is a leading venture capital firm with a track record of backing revolutionary companies.',
-      portfolio: ['Apple', 'Google', 'Airbnb'],
-      investmentRange: '$1M - $50M',
-      focus: 'Series A to Late Stage',
-      location: 'Menlo Park, USA',
+      name: 'Amit Singal',
+      logo: amits,
+      role:'Founding Partner,Fluid Ventures,Director,ASR Business Advisor & Startup Buddy',
+      Company_name:'Fluid Ventures',
       type: 'Investment'
     },
     {
-      name: 'Andreessen Horowitz',
-      logo: 'https://via.placeholder.com/150?text=A16Z',
-      role: 'Strategic Investment Partner',
-      description: 'A16Z combines deep technical knowledge with practical company-building expertise to help founders succeed.',
-      portfolio: ['Facebook', 'Twitter', 'Coinbase'],
-      investmentRange: '$500K - $100M',
-      focus: 'Seed to Growth Stage',
-      location: 'Menlo Park, USA',
+      name: 'Anil Joshi',
+      role: 'Founder Partner,Founder and Managing Partner,Unicorn India Ventures',
+      logo: anil,
+      Company_name:'Unicorn India Ventures',
       type: 'Investment'
     },
     {
-      name: 'SoftBank Vision Fund',
-      logo: 'https://via.placeholder.com/150?text=SoftBank',
-      role: 'Growth Capital Partner',
-      description: 'SoftBank Vision Fund focuses on transformative technologies and business models that are leading innovation.',
-      portfolio: ['Uber', 'WeWork', 'ByteDance'],
-      investmentRange: '$100M+',
-      focus: 'Late Stage and Growth',
-      location: 'Tokyo, Japan',
+      name: 'Puru Modani',
+      logo: puru,
+      role:'Director,The Marwari Angels',
+      Company_name:'The Marwari Angels',
       type: 'Investment'
     },
     {
-      name: 'Accel Partners',
-      logo: 'https://via.placeholder.com/150?text=Accel',
-      role: 'Early-Stage Investment Partner',
-      description: 'Accel Partners specializes in early-stage startup investments across technology sectors globally.',
-      portfolio: ['Slack', 'Dropbox', 'Spotify'],
-      investmentRange: '$1M - $25M',
-      focus: 'Seed to Series B',
-      location: 'Palo Alto, USA',
+      name: 'Rohit',
+      role:'Senior Manager,The Chennai Angels',
+      Company_name:'The Chennai Angels',
+      logo: rohit,
+      type: 'Investment'
+    },
+    {
+      name: 'Manoj Kumar Agarwal',
+      role:'Managing Partner, SEAFUND',
+      Company_name:'SEAFUND',
+      logo: manoj,
       type: 'Investment'
     }
     
@@ -769,16 +764,12 @@ function App() {
                     {selectedPartner.type === 'Investment' && (
                       <div className="space-y-4">
                         <div>
-                          <h4 className="text-lg font-semibold mb-2">Notable Portfolio Companies</h4>
-                          <p className="text-gray-700">{selectedPartner.portfolio.join(', ')}</p>
+                          <h4 className="text-lg font-semibold mb-2">Startup</h4>
+                          <p className="text-gray-700">{selectedPartner.Company_name}</p>
                         </div>
                         <div>
-                          <h4 className="text-lg font-semibold mb-2">Investment Focus</h4>
-                          <p className="text-gray-700">{selectedPartner.focus}</p>
-                        </div>
-                        <div>
-                          <h4 className="text-lg font-semibold mb-2">Investment Range</h4>
-                          <p className="text-gray-700">{selectedPartner.investmentRange}</p>
+                          <h4 className="text-lg font-semibold mb-2">Role</h4>
+                          <p className="text-gray-700">{selectedPartner.role}</p>
                         </div>
                       </div>
                     )}

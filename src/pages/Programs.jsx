@@ -6,6 +6,7 @@ import {
   Handshake,
   GraduationCap,
   FileBadge,
+  User,
 } from "lucide-react";
 import {
   nitLogo,
@@ -35,7 +36,7 @@ import Acceleration from "../components/Programs/Acceleration";
 import Skill_Pattara from "../components/Programs/Skill_Pattara";
 import Dass from "../components/Programs/Dass";
 import Sisfs from "../components/Programs/Sisfs";
-
+import PropleX from "../components/Programs/PropleX";
 function Programs() {
   const [activeSection, setActiveSection] = useState("Puduvai Startup Sprint");
   const [program, setProgram] = useState("Puduvai Startup Sprint");
@@ -70,6 +71,11 @@ function Programs() {
       name: "SISFS",
       icon: <FileBadge className="w-6 h-6" />,
       path: "Sisfs",
+    },
+    {
+      name: "Prople-X",
+      icon: <User className="w-6 h-6" />,
+      path: "PropleX",
     },
   ];
 
@@ -189,6 +195,9 @@ function Programs() {
       )}
       {activeSection === "Sisfs" && (
         <div><Sisfs/></div>
+      )}
+      {activeSection === "PropleX" && (
+        <div><PropleX/></div>
       )}
       </div>
 
