@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X } from "lucide-react";
+import { X,ChevronDown, ChevronUp } from "lucide-react";
 import {
   BFIT,
   BFIT_logo,
@@ -342,10 +342,10 @@ const Sisfs = () => {
     >
       <motion.div variants={staggerChildren} className="max-w-4xl mx-auto">
         {/* Header Section */}
-        <motion.div variants={fadeIn} className="flex items-center gap-8 mb-12">
+        <motion.div variants={fadeIn} className="flex flex-col items-center gap-8 mb-12">
           <div className="">
             <img
-              className="h-16 p-2 rounded-xl shadow-xl"
+              className="h-48 p-2 rounded-xl shadow-xl"
               src={sisfslogo}
               alt=""
             />
@@ -354,7 +354,7 @@ const Sisfs = () => {
             variants={fadeIn}
             className="text-4xl font-bold text-[#3f6197]"
           >
-            SISFS
+            Startup India Seed Fund Scheme (SISFS)
           </motion.h1>
         </motion.div>
 
@@ -393,70 +393,9 @@ const Sisfs = () => {
         </motion.div>
 
         {/* Program Structure Section */}
-        <motion.div variants={fadeIn} className="mb-12">
-          <h2 className="text-2xl font-semibold text-[#3f6197] mb-6">
-            Program Structure
-          </h2>
-          <motion.ul className="space-y-4 text-gray-700">
-            {[
-              [
-                "Funding Support",
-                "Seed capital for product development & scaling.",
-              ],
-              [
-                "Mentorship & Guidance",
-                "Expert-led sessions for business growth.",
-              ],
-              [
-                "Investor & Market Access",
-                "Connecting startups with key stakeholders.",
-              ],
-              [
-                "Incubation Support",
-                "Infrastructure, networking, and strategic advisory.",
-              ],
-            ].map((item, index) => (
-              <motion.li
-                key={index}
-                variants={fadeIn}
-                className="flex items-start gap-2"
-              >
-                <div className="w-2 h-2 rounded-full bg-[#3f6197] mt-2" />
-                <div>
-                  <span className="font-semibold">{item[0]}</span> – {item[1]}
-                </div>
-              </motion.li>
-            ))}
-          </motion.ul>
-        </motion.div>
-
-        {/* Program Pedagogy Section */}
-        <motion.div variants={fadeIn} className="mb-12">
-          <h2 className="text-2xl font-semibold text-[#3f6197] mb-6">
-            Program Pedagogy
-          </h2>
-          <motion.ul className="space-y-4 text-gray-700">
-            {[
-              "Structured Funding Assistance",
-              "Business Model Validation",
-              "One-on-One Mentorship",
-              "Industry Networking & Collaboration",
-              "Go-to-Market & Scaling Strategy",
-            ].map((item, index) => (
-              <motion.li
-                key={index}
-                variants={fadeIn}
-                className="flex items-center gap-2"
-              >
-                <div className="w-2 h-2 rounded-full bg-[#3f6197]" />
-                {item}
-              </motion.li>
-            ))}
-          </motion.ul>
-        </motion.div>
-
+        <ProgramSections />
         {/* Funding Sections */}
-        <div className="grid md:grid-cols-2 gap-8 mb-12">
+        <div className="grid md:grid-cols-2 gap-8 my-12">
           {/* Grant Funding */}
           <motion.div
             variants={fadeIn}
@@ -625,5 +564,88 @@ const FloatCardSuccess = ({ image }) => {
         image={image}
       />
     </>
+  );
+};
+
+const DropdownCard = ({ title, items }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <motion.div
+      variants={{
+        initial: { opacity: 0, y: 20 },
+        animate: { opacity: 1, y: 0 }
+      }}
+      className="border rounded-lg shadow-md overflow-hidden bg-white"
+    >
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full px-6 py-4 flex items-center justify-between bg-[#3f6197] text-white"
+      >
+        <h2 className="text-2xl font-semibold">{title}</h2>
+        {isOpen ? (
+          <ChevronUp className="w-6 h-6" />
+        ) : (
+          <ChevronDown className="w-6 h-6" />
+        )}
+      </button>
+
+      <motion.div
+        initial={false}
+        animate={{
+          height: isOpen ? 'auto' : 0,
+          opacity: isOpen ? 1 : 0
+        }}
+        transition={{ duration: 0.3 }}
+        className="overflow-hidden"
+      >
+        <div className="p-6">
+          <ul className="space-y-4 text-gray-700">
+            {items.map((item, index) => (
+              <motion.li
+                key={index}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="flex items-center gap-2"
+              >
+                <div className="w-2 h-2 rounded-full bg-[#3f6197]" />
+                {Array.isArray(item) ? item[0] : item}
+              </motion.li>
+            ))}
+          </ul>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
+const ProgramSections = () => {
+  const programStructure = [
+    ["Funding Support"],
+    ["Mentorship & Guidance"],
+    ["Investor & Market Access"],
+    ["Incubation Support"]
+  ];
+
+  const programPedagogy = [
+    "Structured Funding Assistance",
+    "Business Model Validation",
+    "One-on-One Mentorship",
+    "Industry Networking & Collaboration",
+    "Go-to-Market & Scaling Strategy"
+  ];
+
+  return (
+    <div className="space-y-6">
+      <DropdownCard 
+        title="Program Structure" 
+        items={programStructure} 
+      />
+      <DropdownCard 
+        title="Program Pedagogy" 
+        items={programPedagogy} 
+      />
+    </div>
   );
 };
