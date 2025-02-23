@@ -90,160 +90,6 @@ function App() {
   
   const mentorPartnersDetailed = [
     {
-      name: 'Ms. Vaishali Chandrakant Shelar',
-      logo: getImage('Ms Vaishali Chandrakant Shelar'),
-      role: 'ATL Manager',
-      expertise: ['HR', 'Business Administration'],
-      Company_name: 'HOPE FOUNDATION',
-      type: 'Network',
-      mail:'vaishalishelar7@gmail.com',
-      linkedin:'https://www.linkedin.com/in/vaishali-shelar-625678150/'
-    },
-    {
-      name: 'Dr. S. Karthikrajan',
-      logo: getImage('Dr S Karthikrajan'),
-      role: 'Research Advisor - Product Development',
-      expertise: ['Product Development', 'Management'],
-      Company_name: 'REVOLTAXE INDIA PVT LTD',
-      type: 'Network',
-      linkedin:'https://www.linkedin.com/in/karthikrajansenthilnathan/',
-      mail:'skarthikrajan@live.com'
-    },
-    {
-      name: 'Mr. Saurabh Trivedi',
-      logo: getImage('Mr Saurabh Trivedi'),
-      role: 'Co-Founder & Director',
-      expertise: ['Intellectual Property'],
-      Company_name: 'Boudhik Ventures Pvt. Ltd.',
-      type: 'Network',
-      linkedin:'https://www.linkedin.com/in/saurabh-trivedi',
-      mail:'saurabh@boudhikventures.com'
-    },
-    {
-      name: 'Mr. R Ananda Natrajan',
-      logo: getImage('Mr R Ananda Natrajan'),
-      role: 'Professor',
-      expertise: ['Instrumentation'],
-      Company_name: 'Puducherry Technological University',
-      type: 'Network',
-      linkedin:'https://www.linkedin.com/in/ananda-r-634482/',
-      mail:'ananda_natrajan@yahoo.com'
-    },
-    {
-      name: 'Mr. Seyed M Buhari',
-      logo: getImage('Mr Seyed M Buhari'),
-      role: 'Professor',
-      expertise: ['Hardware-Software Integration', 'Internet of Things (IoT)'],
-      Company_name: 'King Abdulaziz University',
-      type: 'Network',
-      linkedin:'https://www.linkedin.com/in/seyed-m-buhari-3907508a/',
-      mail:'mibuhari@gmail.com'
-    },
-    {
-      name: 'Mr. M. Kalaiichelvan',
-      logo: getImage('Mr. M Kalaiichelvan'),
-      role: 'Managing Director',
-      expertise: ['Product Development and Management'],
-      Company_name: 'Manatec Electronics Private Limited',
-      type: 'Network',
-      linkedin:'http://linkedin.com/in/kalaiichelvan-mananathan-3641904',
-      mail:'kalaii.chelvan@manatec.in'
-    },
-    {
-      name: 'Mr. M. Nandakumar',
-      logo: getImage('Mr M Nandakumar'),
-      role: 'Managing Director',
-      expertise: ['Product Development and Management'],
-      Company_name: 'Lebracs Rubber Linings Pvt Ltd',
-      type: 'Network',
-      linkedin:'https://www.linkedin.com/in/nandakumar-menon-b92a7433/',
-      mail:'lebracsnandakr@gmail.com'
-    },
-    {
-      name: 'Mr. Syed Sajjadh Ali',
-      logo: getImage('Mr I Syed Sajjadh Ali'),
-      role: 'Managing Director',
-      expertise: ['Product Development and Management'],
-      Company_name: 'Eaton Power Quality Pvt Ltd',
-      linkedin: 'http://linkedin.com/in/syed-sajjadh-ali-34b89313',
-      type: 'Network',
-      mail:'syedsajjadh@eaton.com'
-    },
-    {
-      name: 'Mr. Upamshu Singhal',
-      logo: getImage('Mr Upamshu Singhal'),
-      role: 'Product Architect',
-      expertise: ['Product Development and Management'],
-      Company_name: 'Dell Technologies',
-      linkedin: 'https://www.linkedin.com/in/upanshu/',
-      type: 'Network',
-      mail:'upanshu@hotmail.com'
-    },
-    {
-      name: 'Mr. Niranjan Agarwal',
-      logo: getImage('Mr Niranjan Agarwal'),
-      role: 'Co-Founder',
-      expertise: ['Product Development and Management'],
-      Company_name: 'Seed Funds (Ganges Consultancies LLP)',
-      type: 'Network',
-    },
-    {
-      name: 'Dr. R. Krishnakumar',
-      logo: getImage('Dr R Krishna Kumar'),
-      role: 'Professor & Head, EEE',
-      expertise: ['Product Development and Management'],
-      Company_name: 'Vels Institute of Science Technology and Advanced Studies (VISTAS)',
-      type: 'Network'
-    },
-    {
-      name: 'Dr. S. Sudalai',
-      logo: getImage('Dr S Sudalai'),
-      role: 'Assistant Professor',
-      expertise: ['Pollution Control and Environmental Engineering'],
-      Company_name: 'Pondicherry University',
-      type: 'Network'
-    },
-    {
-      name: 'Mr. Manoj Kumar Wada',
-      logo: getImage('Mr Manoj Kumar Wada'),
-      role: 'Startup Coach & Mentor',
-      expertise: ['Prototype Development and MVP'],
-      Company_name: 'BGW Tech',
-      email: 'manoj@bgwtech.com',
-      phone: '9642038383',
-      type: 'Network'
-    },
-    {
-      name: 'Mr. L. Djody Bascarane',
-      logo: getImage('Mr L Djody Bascarane'),
-      role: 'Senior Consultant',
-      expertise: ['Telecommunications'],
-      Company_name: 'Telecommunications Consultants India Limited',
-      type: 'Network',
-      mail: '', 
-      linkedin: '', 
-    },
-    {
-      name: 'Mr. Adarsh Krishnamurthy',
-      logo: getImage('Mr Adarsh Krishnamurthy'),
-      role: 'Assistant Professor',
-      expertise: ['Engineering Education'],
-      Company_name: 'Mangalore Institute of Technology & Engineering',
-      type: 'Network',
-      mail: '', 
-      linkedin: '', 
-    },
-    {
-      name: 'Dr. S. Ramachandran',
-      logo: getImage('Dr S Ramachandran'),
-      role: 'COO',
-      expertise: ['Educational Management'],
-      Company_name: 'Achariya Group of Educational Institutions',
-      type: 'Network',
-      mail: '',
-      linkedin: '', 
-    },
-    {
       name: 'Mr. Raj Bharat',
       logo: getImage('Mr Raj Bharat'),
       role: 'Founder - Director',
@@ -283,6 +129,161 @@ function App() {
       mail: '', 
       linkedin: '', 
     },
+    {
+      name: 'Ms. Vaishali Chandrakant Shelar',
+      logo: getImage('Ms. Vaishali Chandrakant Shelar'),
+      role: 'ATL Manager',
+      expertise: ['HR', 'Business Administration','Information & Communication Technology (ICT)'],
+      Company_name: 'HOPE FOUNDATION',
+      type: 'Network',
+      mail:'vaishalishelar7@gmail.com',
+      linkedin:'https://www.linkedin.com/in/vaishali-shelar-625678150/'
+    },
+    {
+      name: 'Dr. S. Karthikrajan',
+      logo: getImage('Dr S Karthikrajan'),
+      role: 'Research Advisor - Product Development',
+      expertise: ['Product Development', 'Management'],
+      Company_name: 'REVOLTAXE INDIA PVT LTD',
+      type: 'Network',
+      linkedin:'https://www.linkedin.com/in/karthikrajansenthilnathan/',
+      mail:'skarthikrajan@live.com'
+    },
+    {
+      name: 'Mr. Saurabh Trivedi',
+      logo: getImage('Mr Saurabh Trivedi'),
+      role: 'Co-Founder & Director',
+      expertise: ['Intellectual Property'],
+      Company_name: 'Boudhik Ventures Pvt. Ltd.',
+      type: 'Network',
+      linkedin:'https://www.linkedin.com/in/saurabh-trivedi',
+      mail:'saurabh@boudhikventures.com'
+    },
+    {
+      name: 'Mr. R Ananda Natrajan',
+      logo: getImage('Mr R Ananda Natrajan'),
+      role: 'Professor',
+      expertise: ['Instrumentation'],
+      Company_name: 'Puducherry Technological University',
+      type: 'Network',
+      linkedin:'https://www.linkedin.com/in/ananda-r-634482/',
+      mail:'ananda_natrajan@yahoo.com'
+    },
+    {
+      name: 'Mr. Seyed M Buhari',
+      logo: getImage('Mr Seyed M Buhari'),
+      role: 'Professor',
+      expertise: ['Hardware-Software Integration', 'Internet of Things (IoT)','Product Development and Management'],
+      Company_name: 'King Abdulaziz University',
+      type: 'Network',
+      linkedin:'https://www.linkedin.com/in/seyed-m-buhari-3907508a/',
+      mail:'mibuhari@gmail.com'
+    },
+    {
+      name: 'Mr. M. Kalaiichelvan',
+      logo: getImage('Mr. M Kalaiichelvan'),
+      role: 'Managing Director',
+      expertise: ['Product Development and Management','Manufacturing and Engineering'],
+      Company_name: 'Manatec Electronics Private Limited',
+      type: 'Network',
+      linkedin:'http://linkedin.com/in/kalaiichelvan-mananathan-3641904',
+      mail:'kalaii.chelvan@manatec.in'
+    },
+    {
+      name: 'Mr. M. Nandakumar',
+      logo: getImage('Mr M Nandakumar'),
+      role: 'Jt. Managing Director & CEO',
+      expertise: ['Product Development and Management','Manufacturing and Engineering'],
+      Company_name: 'Lebracs Rubber Linings Pvt Ltd',
+      type: 'Network',
+      linkedin:'https://www.linkedin.com/in/nandakumar-menon-b92a7433/',
+      mail:'lebracsnandakr@gmail.com'
+    },
+    {
+      name: 'Mr. Syed Sajjadh Ali',
+      logo: getImage('Mr I Syed Sajjadh Ali'),
+      role: 'Managing Director',
+      expertise: ['Product Development and Management','Energy'],
+      Company_name: 'Eaton Power Quality Pvt Ltd',
+      linkedin: 'http://linkedin.com/in/syed-sajjadh-ali-34b89313',
+      type: 'Network',
+      mail:'syedsajjadh@eaton.com'
+    },
+    {
+      name: 'Mr. Upamshu Singhal',
+      logo: getImage('Mr. Upamshu Singhal'),
+      role: 'Senior Software Principal Engineer',
+      expertise: ['Product Development and Management','Information & Communication Technology (ICT)'],
+      Company_name: 'Dell Technologies',
+      linkedin: 'https://www.linkedin.com/in/upanshu/',
+      type: 'Network',
+      mail:'upanshu@hotmail.com'
+    },
+    {
+      name: 'Mr. Niranjan Agarwal',
+      logo: getImage('Mr Niranjan Agarwal'),
+      role: 'Co-Founder',
+      expertise: ['Product Development and Management'],
+      Company_name: 'Seed Funds (Ganges Consultancies LLP)',
+      type: 'Network',
+    },
+    {
+      name: 'Dr. R. Krishnakumar',
+      logo: getImage('Dr R Krishna Kumar'),
+      role: 'Professor & Head, EEE',
+      expertise: ['Product Development and Management'],
+      Company_name: 'Vels Institute of Science Technology and Advanced Studies (VISTAS)',
+      type: 'Network'
+    },
+    {
+      name: 'Dr. S. Sudalai',
+      logo: getImage('Dr S Sudalai'),
+      role: 'Assistant Professor',
+      expertise: ['Pollution Control and Environmental Engineering'],
+      Company_name: 'Pondicherry University',
+      type: 'Network'
+    },
+    {
+      name: 'Mr. Manoj Kumar Wada',
+      logo: getImage('Manoj-Kumar-bada-ghar-wala'),
+      role: 'Startup Coach & Mentor',
+      expertise: ['Prototype Development and MVP'],
+      Company_name: 'BGW Tech',
+      email: 'manoj@bgwtech.com',
+      phone: '9642038383',
+      type: 'Network'
+    },
+    {
+      name: 'Mr. L. Djody Bascarane',
+      logo: getImage('Mr L Djody Bascarane'),
+      role: 'Senior Consultant',
+      expertise: ['Telecommunications'],
+      Company_name: 'Telecommunications Consultants India Limited',
+      type: 'Network',
+      mail: '', 
+      linkedin: '', 
+    },
+    {
+      name: 'Mr. Adarsh Krishnamurthy',
+      logo: getImage('Mr.Adarsh Krishnamurthy'),
+      role: 'Assistant Professor',
+      expertise: ['Engineering Education'],
+      Company_name: 'Mangalore Institute of Technology & Engineering',
+      type: 'Network',
+      mail: '', 
+      linkedin: '', 
+    },
+    {
+      name: 'Dr. S. Ramachandran',
+      logo: getImage('Dr S Ramachandran'),
+      role: 'COO',
+      expertise: ['Educational Management'],
+      Company_name: 'Achariya Group of Educational Institutions',
+      type: 'Network',
+      mail: '',
+      linkedin: '', 
+    },
+    
     {
       name: 'Mr. Santhosh Nair',
       logo: getImage('Mr Santosh S Nair'),
@@ -405,7 +406,7 @@ function App() {
     },
     {
       name: 'Dr. Sivakumar N',
-      logo: getImage('Dr Sivakumar N'),
+      logo: getImage('Dr. Sivakumar N'),
       role: 'Assistant Professor',
       expertise: ['Polymer Science'],
       Company_name: 'Indian Institute of Technology, Madras',
@@ -425,14 +426,157 @@ function App() {
     },
     {
       name: 'Dr. N. Rajendran',
-      logo: getImage('Dr N Rajendran'),
+      logo: getImage('Dr. N. Rajendran'),
       role: 'Professor & Dean',
       expertise: ['Materials Science'],
       Company_name: 'Anna University',
       type: 'Network',
       mail: '', 
       linkedin: '', 
-    }
+    },
+    {
+      name: 'Shree Harish',
+      logo: getImage('Shree Harish'),
+      role: 'Co-Founder & Chief Operating Officer',
+      expertise: ['Sales and Marketing Strategy', 'Information & Communication Technology (ICT)'],
+      Company_name: 'aahaa Stores',
+      type: 'Network',
+      mail: 'harishshri@gmail.com', 
+      linkedin: 'http://linkedin.com/in/shriharish', 
+    },
+    {
+      name: 'Dr.S.Ramkumar',
+      logo: getImage('Dr.S.Ramkumar'),
+      role: 'Director',
+      expertise: ['Agriculture and Allied Fields'],
+      Company_name: 'Entrepreneurship Development Cell Government of Puducherry',
+      type: 'Network',
+      mail: 'directedc@gmail.com', 
+      linkedin: 'http://linkedin.com/in/ramkumar-sukumaran-42a71428',
+
+    },
+    {
+      name:'K.Senthilkumar',
+      role: 'Professor & Director In-charge CASR',
+      expertise: ['Product Development and Management','Unmanned aerial vehicle systems'],
+      Company_name: 'MIT Centre for Aerospace Research',
+      type: 'Network',
+      mail: 'ksk.mit@gmail.com', 
+      linkedin: '',
+
+    },
+    {
+      name: 'Mr. Joseph Prakash',
+      logo: getImage('Mr Joseph Prakash'),
+      role: 'Associate Director',
+      expertise: ['Go to Market Strategy','Other emerging areas or of social / national importance'],
+      Company_name: 'Meghraj Capital',
+      type: 'Network',
+      mail: 'Joseph@meghrajindia.com',
+      linkedin: 'https://www.linkedin.com/in/joseph-prakash-5442b46/',
+  },
+  {
+      name: 'Vengat Prabhu Padmanaban',
+      logo: getImage('Vengat Prabhu Padmanaban'),
+      role: 'Founder ,CEO',
+      expertise: ['Sales and Marketing Strategy','Information & Communication Technology (ICT)'],
+      Company_name: 'Atlas Research Consulting',
+      type: 'Network',
+      mail: 'vengat@atlasresearch.in',
+      linkedin: 'https://www.linkedin.com/in/vengat-prabhu-padmanaban-3b09a8157/',
+  },
+  {
+      name: 'Elizabeth Puthran',
+      logo: getImage('Elizabeth Puthran'),
+      role: 'Founder Partner',
+      expertise: ['Intellectual Property Rights'],
+      Company_name: 'Puthran & Associates',
+      type: 'Network',
+      mail: 'elizabeth@iplexglobal.in',
+      linkedin: 'https://www.linkedin.com/in/elizabethputhran/',
+  },
+  {
+    name: 'Meenakshi Kumar',
+    logo: getImage('Meenakshi Kumar'),
+    role: 'Managing Partner',
+    expertise: ['Brand Communication','Sensor Technology'],
+    Company_name: 'UK GEMS',
+    type: 'Network',
+    mail: 'meenakshi.k@ukgems.com',
+    linkedin: 'https://www.linkedin.com/in/meenakshi-kumar-39a68224',
+},
+{
+    name: 'Sriram Subramanya',
+    logo: getImage('Sriram Subramanya'),
+    role: 'Founder, MD & CEO',
+    expertise: ['Business Model Canvassing','Information & Communication Technology (ICT)'],
+    Company_name: 'Integra Software Services',
+    type: 'Network',
+    mail: 'sriram@integra.co.in',
+    linkedin: 'https://www.linkedin.com/in/sriram-subramanya-2386b79/',
+},
+{
+  name: 'S Narasimhan',
+  logo: getImage('S Narasimhan'),
+  role: 'Managing Director',
+  expertise: ['Sales and Marketing Strategy','Transportation'],
+  Company_name: 'Sattva Logistics Pvt. Ltd.',
+  type: 'Network',
+  mail: 'narsi@sattva.in',
+  linkedin: 'https://www.linkedin.com/in/narasimhan-santhanam-2150454/',
+},
+{
+  name: 'Dr. Zuleika Homavazir',
+  logo: getImage('Dr Zuleika Homavazir'),
+  role: 'Assistant Professor & Coordinator- Self Financing courses, Certificate courses, International Collaborations, Member- Board of Management',
+  expertise: ['Go to Market Strategy'],
+  Company_name: 'Wilson College',
+  type: 'Network',
+  mail: 'zuleikahomavazir@gmail.com',
+  linkedin: '',
+},
+{
+  name: 'Urvashi Baid',
+  logo: getImage('Urvashi Baid'),
+  role: 'Director',
+  expertise: ['Brand Communication','Water, Sanitation and Solid Waste Management'],
+  Company_name: 'Amel Services & Consultancy Pvt. Ltd.',
+  type: 'Network',
+  mail: 'urvashi.baid@amelconsultancy.com',
+  linkedin: 'https://www.linkedin.com/in/urvashibaid/',
+},
+ 
+{
+  name: 'Daniel Prabhakaran G',
+  logo: getImage('Daniel Prabhakaran G'),
+  role: 'Project Executive',
+  expertise: ['Product Development and Management','Energy'],
+  Company_name: 'TN Startup & Innovation Mission',
+  type: 'Network',
+  mail: 'daniel.litj@gmail.com',
+  linkedin: 'https://www.linkedin.com/in/daniel-prabhakaran-b04bb480/',
+},
+{
+  name: 'Christopher Sequeira',
+  logo: getImage('Christopher Sequeira'),
+  role: 'ATL Trainer',
+  expertise: ['HR and Business Administration'],
+  Company_name: 'Dell-Hope Foundation',
+  type: 'Network',
+  mail: 'christophersequeira10@gmail.com',
+  linkedin: 'https://www.linkedin.com/in/christopher-sequeira-596412182/',
+},
+{
+  name: 'Saurabh Trivedi',
+  logo: getImage('Saurabh Trivedi'),
+  role: 'Managing Director',
+  expertise: ['Intellectual Property Rights','Information & Communication Technology (ICT)'],
+  Company_name: 'Boudhik Ventures Pvt. Ltd.',
+  type: 'Network',
+  mail: 'saurabh@boudhikventures.com',
+  linkedin: 'https://www.linkedin.com/in/saurabh-trivedi',
+},
+
 ];
 
   const investmentPartnersDetailed = [
@@ -480,6 +624,7 @@ function App() {
       location: 'Palo Alto, USA',
       type: 'Investment'
     }
+    
   ];
 
   const openModal = (partner) => {
@@ -527,7 +672,7 @@ function App() {
                 className="group flex flex-col items-center cursor-pointer"
                 onClick={() => openModal(partner)}
               >
-                <div className="relative w-20 h-20 sm:w-30 sm:h-30 md:w-48 md:h-48 lg:w-56 lg:h-56">
+                <div className="relative w-20 h-20 sm:w-30 sm:h-30 md:w-48 md:h-48 lg:w-48 lg:h-48">
                   <div className="absolute inset-0 rounded-full overflow-hidden border-4 border-[#3F6197] hover:border-[#1e3f75] transition-colors">
                     {partner.logo ? (
                       <img
