@@ -18,10 +18,11 @@ import {
   home11,
   home12,
 } from "../../assets/Homepage/image_carousel/image_carousel";
+import { co_working_space2 } from "../../assets/Infrastucture_Services/images/infrastucture_services";
 
 const Landing = () => {
   const image = [
-    home1,
+    co_working_space2,
     home2,
     home3,
     home4,
@@ -32,7 +33,7 @@ const Landing = () => {
     home9,
     home10,
     home11,
-    home12,
+    home12
   ];
 
   return (
