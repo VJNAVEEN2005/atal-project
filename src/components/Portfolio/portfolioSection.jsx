@@ -64,7 +64,7 @@ const Button = styled.button`
 const ITEMS_PER_PAGE = 15;
 
 const PortfolioSection = () => {
-  const [activeCategory, setActiveCategory] = useState('All');
+  const [activeCategory, setActiveCategory] = useState('Ongoing');
   const [selectedStartup, setSelectedStartup] = useState(null);
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
   const [isAdvancedFilterOpen, setIsAdvancedFilterOpen] = useState(false);
@@ -89,7 +89,7 @@ const PortfolioSection = () => {
 
         <Suspense fallback={<div>Loading filters...</div>}>
           <PortfolioFilters
-            categories={['All', 'Ongoing', 'Graduated']}
+            categories={['Ongoing', 'Graduated']}
             activeCategory={activeCategory}
             onCategoryChange={setActiveCategory}
           />

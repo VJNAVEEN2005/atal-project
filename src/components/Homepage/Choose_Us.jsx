@@ -46,7 +46,7 @@ const Choose_Us = () => {
     <div className="mt-6 sm:mt-8 lg:mt-10 mx-4 sm:mx-6 lg:mx-10">
       <div className="w-full block px-2 sm:px-4 lg:px-8">
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 text-start mx-2 sm:mx-6 lg:mx-10">
-          Partners With Us
+          Partner
         </h1>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mt-4 sm:mt-6 lg:mt-8">
