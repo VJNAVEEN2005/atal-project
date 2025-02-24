@@ -26,11 +26,14 @@ interface TeamMember {
   name: string;
   role: string;
   image?: string;
+  linkedin?: string;
+  email?: string;
 }
 
-const TeamMemberCard = ({ member }: { member: TeamMember }) => {
+const TeamMemberCard = ({ member }: { member: TeamMember }, {index}) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
+  console.log(index);
 
   return (
     <div className="group flex flex-col items-center">
@@ -61,10 +64,10 @@ const TeamMemberCard = ({ member }: { member: TeamMember }) => {
           )}
           <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center rounded-full">
             <div className="flex space-x-4 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
-              <a href="#" className="hover:scale-110 transition-transform duration-200">
+              <a href={member.linkedin} target="_blank" className="hover:scale-110 transition-transform duration-200">
                 <Linkedin size={24} className="text-white hover:text-[#0077b5] transition-colors duration-200" />
               </a>
-              <a href="#" className="hover:scale-110 transition-transform duration-200">
+              <a href={`mailto:${member.email}`} className="hover:scale-110 transition-transform duration-200">
                 <Mail size={24} className="text-white hover:text-[#E4405F] transition-colors duration-200" />
               </a>
             </div>
@@ -74,7 +77,10 @@ const TeamMemberCard = ({ member }: { member: TeamMember }) => {
       <div className="mt-4 text-center">
          
             <h3 className="text-lg font-semibold text-gray-900">{member.name}</h3>
-            <p className="text-sm text-gray-500">{member.role}</p>
+            {member.role.split(",").map((item,index)=>{
+              return <p key={index} className="text-sm  text-gray-500">{item}</p>
+            })}
+            
          
      
       </div>
@@ -97,6 +103,8 @@ const teamMembers: TeamMember[] = [
     name: "Mr. V Vishnu Varadan",
     role: "Chief Executive Officer",
     image: Vishnu_CEO,
+    linkedin: "https://www.linkedin.com/in/vishnuvaradan/?originalSubdomain=in",
+    email: "ceo@aicpecf.org"
   },
   {
     name: "Mr. S Rajakumar",
@@ -125,7 +133,7 @@ const teamMembers: TeamMember[] = [
   },
   {
     name: "Dr.A.Muthadhi",
-    role: "Member - AICPECF / CE",
+    role: "Associate Professor, Dept of Civil Engineering, Puducherry Technological University",
     image: Dr_A_Muthadhi,
   },
   {
@@ -260,6 +268,7 @@ const Team = () => {
             <h3 className="text-2xl font-bold text-gray-900 text-center mb-8">
               Executive Team
             </h3>
+
             <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {executiveTeam.map((member, index) => (
                 <TeamMemberCard key={index} member={member} />

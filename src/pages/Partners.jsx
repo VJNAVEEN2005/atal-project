@@ -23,7 +23,7 @@ function App() {
     { name: 'Corporate', icon: <Handshake className="w-6 h-6" />, path: 'Corporate' },
     { name: 'IP Partners', icon: <Lightbulb className="w-6 h-6" />, path: 'IP Supporters' },
     { name: 'Mentors', icon: <Network className="w-6 h-6" />, path: 'Mentors' },
-    { name: 'Investment', icon: <Building2 className="w-6 h-6" />, path: 'Investment' }
+    { name: 'External Investors', icon: <Building2 className="w-6 h-6" />, path: 'Investment' }
   ];
 
   const academicPartners = [

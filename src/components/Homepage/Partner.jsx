@@ -71,11 +71,11 @@ const DirectionalPartnerCarousel = ({ title, logos, direction }) => {
           <h2 className="text-xl font-semibold">{title}</h2>
         </div>
 
-        <div className="pt-5 pb-4 px-2">
+        <div className="pt-10 pb-4 px-2">
           <Slider {...settings}>
             {logos.map((logo, index) => (
               <div key={index} className="px-2">
-              <div className="scale-110 flex items-center justify-center p-3  transition-all duration-300 grayscale hover:grayscale-0">
+              <div className="scale-110 flex items-center justify-center p-3  transition-all duration-300 ">
                 {logo}
               </div>
             </div>
@@ -200,7 +200,7 @@ const Partner = () => {
       <DirectionalPartnerCarousel 
         title="Academic Partners" 
         logos={academicLogos} 
-        direction="right" 
+        direction="left" 
       />
       
     </div>

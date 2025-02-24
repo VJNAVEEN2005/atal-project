@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { bridge, wadhwani } from "../../assets/Programs/Pre_Incubation/data";
+import { Navigate } from "react-router-dom";
 
 const Pre_Incubation = () => {
   const containerVariants = {
@@ -13,6 +14,8 @@ const Pre_Incubation = () => {
       },
     },
   };
+
+
 
   const itemVariants = {
     hidden: { y: 20, opacity: 0 },
@@ -157,7 +160,7 @@ const Pre_Incubation = () => {
         {/* Program Partners */}
         <motion.div variants={containerVariants} className="mb-12">
           <h2 className="text-2xl font-bold text-[#3f6197] mb-6 text-center">Program Partners</h2>
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="">
             {/* Partner 1 */}
             {/* <motion.div
               className="bg-[#f5f8ff] p-8 rounded-xl shadow-lg border-2 border-[#3f6197]"
@@ -187,13 +190,13 @@ const Pre_Incubation = () => {
                 boxShadow: "0 10px 25px -5px rgba(63, 97, 151, 0.3)",
               }}
             >
-              <div className="">
+              <div className=" w-full flex items-center justify-center flex-col">
                 <img className="h-24 bg-white rounded-lg mb-6 flex items-center justify-center" src={wadhwani} alt="" />
               </div>
-              <h3 className="text-xl font-semibold text-[#3f6197] mb-3">
+              <h3 className="text-xl text-center font-semibold text-[#3f6197] mb-3">
                 Wadhwani Foundation
               </h3>
-              <p className="text-gray-700">
+              <p className="text-gray-700 text-center">
                 A global non-profit organization accelerating economic development through entrepreneurship and innovation.
               </p>
             </motion.div>
@@ -206,8 +209,9 @@ const Pre_Incubation = () => {
             className="px-8 py-3 bg-[#3f6197] text-white font-medium rounded-lg shadow-md"
             whileHover={{ scale: 1.05, backgroundColor: "#5b84c0" }}
             whileTap={{ scale: 0.95 }}
+           
           >
-            Apply Now
+            Apply Now In Advance
           </motion.button>
         </motion.div>
       </div>

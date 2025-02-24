@@ -30,7 +30,6 @@ const Landing = () => {
     home6,
     home7,
     home8,
-    home9,
     home10,
     home11,
     home12

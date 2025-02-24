@@ -1,13 +1,13 @@
-import React, { useState, Suspense } from 'react';
-import styled from 'styled-components';
-import { portfolioData } from './data/portfolioData';
-import PortfolioCard from './PortfolioCards';
-import Modal from './UI/Modal';
-import StartupDetails from './StartupDetail';
-import AdvancedFilterForm from './AdvancedFilterForm';
+import React, { useState, Suspense } from "react";
+import styled from "styled-components";
+import { portfolioData } from "./data/portfolioData";
+import PortfolioCard from "./PortfolioCards";
+import Modal from "./UI/Modal";
+import StartupDetails from "./StartupDetail";
+import AdvancedFilterForm from "./AdvancedFilterForm";
 
 // Lazy loading PortfolioFilters
-const PortfolioFilters = React.lazy(() => import('./PortfolioFilter'));
+const PortfolioFilters = React.lazy(() => import("./PortfolioFilter"));
 
 const Section = styled.section`
   padding: 4rem 1rem;
@@ -64,39 +64,52 @@ const Button = styled.button`
 const ITEMS_PER_PAGE = 15;
 
 const PortfolioSection = () => {
-  const [activeCategory, setActiveCategory] = useState('Ongoing');
+  const [activeCategory, setActiveCategory] = useState("Ongoing");
   const [selectedStartup, setSelectedStartup] = useState(null);
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
   const [isAdvancedFilterOpen, setIsAdvancedFilterOpen] = useState(false);
 
   const filteredData =
-    activeCategory === 'All'
+    activeCategory === "All"
       ? portfolioData
-      : portfolioData.filter(item => item.category === activeCategory);
+      : portfolioData.filter((item) => item.category === activeCategory);
 
   const visibleData = filteredData.slice(0, visibleCount);
 
-  const handleKnowMore = () => setVisibleCount(prev => prev + ITEMS_PER_PAGE);
+  const handleKnowMore = () => setVisibleCount((prev) => prev + ITEMS_PER_PAGE);
 
-  console.log(portfolioData.length)
+  console.log(portfolioData.length);
 
   return (
     <Section>
       <Container>
         <Header>
-          <Title>Our Portfolio</Title>
+          <Title>Welcome to Our Startup Portfolio</Title>
+          {/* <div className=" font-bold text-lg text-center">
+            Meet Our Incubatees
+          </div> */}
         </Header>
 
-        <Suspense fallback={<div>Loading filters...</div>}>
+        <div className=" w-full flex justify-center items-center">
+          <p className=" shadow-lg p-4 text-lg text-center bg-white mb-10 rounded-xl"> 
+            Our portfolio features startups that are not only pioneering in
+            their industries but are also making significant contributions to
+            solving real-world problems. From technology and sustainability to
+            healthcare and consumer products, our startups are at the forefront
+            of innovation.
+          </p>
+        </div>
+
+        {/* <Suspense fallback={<div>Loading filters...</div>}>
           <PortfolioFilters
             categories={['Ongoing', 'Graduated']}
             activeCategory={activeCategory}
             onCategoryChange={setActiveCategory}
           />
-        </Suspense>
+        </Suspense> */}
 
         <Grid>
-          {visibleData.map(item => (
+          {visibleData.map((item) => (
             <PortfolioCard
               key={item.id}
               {...item}
@@ -112,11 +125,17 @@ const PortfolioSection = () => {
         )}
       </Container>
 
-      <Modal isOpen={!!selectedStartup} onClose={() => setSelectedStartup(null)}>
+      <Modal
+        isOpen={!!selectedStartup}
+        onClose={() => setSelectedStartup(null)}
+      >
         {selectedStartup && <StartupDetails startup={selectedStartup} />}
       </Modal>
 
-      <Modal isOpen={isAdvancedFilterOpen} onClose={() => setIsAdvancedFilterOpen(false)}>
+      <Modal
+        isOpen={isAdvancedFilterOpen}
+        onClose={() => setIsAdvancedFilterOpen(false)}
+      >
         <AdvancedFilterForm onConfirm={() => setIsAdvancedFilterOpen(false)} />
       </Modal>
     </Section>

@@ -218,7 +218,7 @@ const NewNav = () => {
               whileTap={{ scale: 0.95 }}
               className="text-white bg-[#0F1F2C] px-3 py-2 rounded-lg shadow-lg transition-all"
             >
-              Register
+              Login
             </motion.button>
           </div>
 
@@ -328,7 +328,7 @@ const NewNav = () => {
               whileTap={{ scale: 0.95 }}
               className="w-full text-white bg-[#0F1F2C] px-3 py-2 rounded-lg shadow-lg transition-all text-center text-sm sm:text-base"
             >
-              Register
+              Login
             </motion.button>
           </div>
         </div>

@@ -26,7 +26,12 @@ import microbear from './microbear logo.png'
 import syncbio from './Syncbio.png'
 import infab from './Infab.png'
 import jesvid from './Jesvid logo.png'
+import Onei2_innovations from './Onei2_innovations.png'
+import desi_village from './desi_village.jpg'
+import railmet from './railmet.png'
+import xagrotor_tek from './xagrotor_tek.png'
+import introhive from './introhive.png'
 
 export { warar , raatai,aeda,eroyal,bfit,gurukals,oli,indi,nevar,sss,senmax,lectronic,flowget,exor,techmyth,arios,scalejet,silverfox,verob,
-    marche, nilaiyana,rh,yuvmi,microbear,syncbio,infab,jesvid
+    marche, nilaiyana,rh,yuvmi,microbear,syncbio,infab,jesvid, Onei2_innovations, desi_village, railmet, xagrotor_tek, introhive
 };
