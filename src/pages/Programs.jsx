@@ -7,6 +7,7 @@ import {
   GraduationCap,
   FileBadge,
   User,
+  TrendingUp
 } from "lucide-react";
 import {
   nitLogo,
@@ -37,6 +38,7 @@ import Skill_Pattara from "../components/Programs/Skill_Pattara";
 import Dass from "../components/Programs/Dass";
 import Sisfs from "../components/Programs/Sisfs";
 import PropleX from "../components/Programs/PropleX";
+import Startup_Sprouting from "../components/Programs/StartupSprouting";
 function Programs() {
   const [activeSection, setActiveSection] = useState("Puduvai Startup Sprint");
   const [program, setProgram] = useState("Puduvai Startup Sprint");
@@ -77,6 +79,11 @@ function Programs() {
       icon: <User className="w-6 h-6" />,
       path: "PropleX",
     },
+    {
+      name: "Startup Sprouting",
+      icon:<TrendingUp className="w-6 h-6"/>,
+      path:"Startup Sprouting"
+    }
   ];
 
   const preIncubate = [
@@ -141,6 +148,8 @@ function Programs() {
       case "Dass":
         programs = ipFacilities;
         break;
+      case "Startup Sprouting":
+        programs = ipFacilities;
       default:
         programs = [];
     }
@@ -199,6 +208,11 @@ function Programs() {
       {activeSection === "PropleX" && (
         <div><PropleX/></div>
       )}
+      {
+        activeSection === "Startup Sprouting" && (
+          <div><Startup_Sprouting/></div>
+        )
+      }
       </div>
 
 
