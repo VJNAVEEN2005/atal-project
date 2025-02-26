@@ -5,7 +5,12 @@ import { warar, raatai,bfit,oli,indi,nevar,sss,senmax,gurukals,lectronic,flowget
   desi_village,
   railmet,
   xagrotor_tek,
-  introhive
+  introhive,
+  Neural_organics,
+  Livelehood,
+  Novelmed,
+  Yourbackers,
+  Aero_Knotz
 } from '../../../assets/startupLogos/startupLogos'
 
 export const portfolioData = [
@@ -390,7 +395,7 @@ export const portfolioData = [
     title: 'LIVELEHOOD HABITAT SOLUTIONS PRIVATE LIMITED ',
     description: 'Revolutionary healthcare technology platform',
     category: 'Ongoing',
-    image: "",
+    image: Livelehood,
     founded: '2023',
     revenue: '10+',
     sector: 'Sustainable Living',
@@ -405,7 +410,7 @@ export const portfolioData = [
     title: 'NEURAL ORGANICS PRIVATE LIMITED',
     description: 'Revolutionary healthcare technology platform',
     category: 'Ongoing',
-    image: "",
+    image: Neural_organics,
     founded: '2023',
     revenue: '10+',
     sector: 'Agri & Allied',
@@ -420,7 +425,7 @@ export const portfolioData = [
     title: 'Novelmed Research Pvt Ltd',
     description: 'Revolutionary healthcare technology platform',
     category: 'Ongoing',
-    image: "",
+    image: Novelmed,
     founded: '2023',
     revenue: '10+',
     sector: 'Biotech',
@@ -435,7 +440,7 @@ export const portfolioData = [
     title: 'YOURBACKERS AEROMODELLING PRIVATE LIMITED',
     description: 'Revolutionary healthcare technology platform',
     category: 'Ongoing',
-    image: "",
+    image: Yourbackers,
     founded: '2023',
     revenue: '10+',
     sector: 'UAV',
@@ -450,7 +455,7 @@ export const portfolioData = [
     title: 'Aero Knotz Drones India Pvt Ltd',
     description: 'Revolutionary healthcare technology platform',
     category: 'Ongoing',
-    image: "",
+    image: Aero_Knotz,
     founded: '2023',
     revenue: '10+',
     sector: 'UAV',

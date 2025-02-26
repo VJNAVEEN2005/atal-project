@@ -61,7 +61,7 @@ const Button = styled.button`
   }
 `;
 
-const ITEMS_PER_PAGE = 15;
+const ITEMS_PER_PAGE = 9;
 
 const PortfolioSection = () => {
   const [activeCategory, setActiveCategory] = useState("Ongoing");

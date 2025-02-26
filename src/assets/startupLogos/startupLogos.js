@@ -31,7 +31,12 @@ import desi_village from './desi_village.jpg'
 import railmet from './railmet.png'
 import xagrotor_tek from './xagrotor_tek.png'
 import introhive from './introhive.png'
+import Livelehood from './Livelehood.jpg'
+import Neural_organics from './Neural_organics.jpg'
+import Novelmed from './Novelmed.jpg'
+import Yourbackers from './Yourbackers.jpg'
+import Aero_Knotz from './Aero_Knotz.jpg'
 
 export { warar , raatai,aeda,eroyal,bfit,gurukals,oli,indi,nevar,sss,senmax,lectronic,flowget,exor,techmyth,arios,scalejet,silverfox,verob,
-    marche, nilaiyana,rh,yuvmi,microbear,syncbio,infab,jesvid, Onei2_innovations, desi_village, railmet, xagrotor_tek, introhive
+    marche, nilaiyana,rh,yuvmi,microbear,syncbio,infab,jesvid, Onei2_innovations, desi_village, railmet, xagrotor_tek, introhive, Livelehood, Neural_organics, Novelmed, Yourbackers, Aero_Knotz
 };
