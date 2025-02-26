@@ -19,7 +19,7 @@ const Skill_Pattara = () => {
     // Simulate image loading
     const timer = setTimeout(() => {
       setImagesLoaded(true);
-    }, 1000);
+    }, 100);
     
     return () => clearTimeout(timer);
   }, []);
