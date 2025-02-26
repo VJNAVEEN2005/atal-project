@@ -161,13 +161,13 @@ const Footer = () => {
             <Column>
               <h3>Contact Us</h3>
               <p>
-                <FaRegUserCircle /> Name
+                <FaRegUserCircle /> Mr. V Vishnu Varadan
               </p>
               <p>
                 <FaEnvelope /> ceo@aicpecf.org
               </p>
               <p>
-                <FaPhoneAlt /> +91 123456789
+                <FaPhoneAlt /> +91-8903467223
               </p>
               <SocialIcons>
                 <a

@@ -8,6 +8,7 @@ import vImage from '../assets/Aboutpage/Vision.json';
 import mImage from '../assets/Aboutpage/Mision.json';
 import Video1 from '../assets/Aboutpage/aic-pecf.mp4';
 import Image from '../assets/Aboutpage/a.jpg';
+import { mission, vision } from '../assets/Aboutpage/data';
 
 const About = () => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -77,12 +78,13 @@ const About = () => {
       >
         <div className="flex flex-col md:flex-row items-center gap-8 bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl shadow-sm">
           <div className="md:w-1/2 flex justify-center">
-            <Lottie
+            {/* <Lottie
               loop
               animationData={vImage}
               play
               className="w-[280px] h-[280px]"
-            />
+            /> */}
+            <img src={vision} alt="" className=" h-[280px]" />
           </div>
           <div className="md:w-1/2 space-y-4">
             <h2 className="text-3xl font-bold text-indigo-900">Our Vision</h2>
@@ -103,12 +105,13 @@ const About = () => {
       >
         <div className="flex flex-col md:flex-row-reverse items-center gap-8 bg-gradient-to-r from-green-50 to-teal-50 p-6 rounded-xl shadow-sm">
           <div className="md:w-1/2 flex justify-center">
-            <Lottie
+            {/* <Lottie
               loop
               animationData={mImage}
               play
               className="w-[280px] h-[280px]"
-            />
+            /> */}
+            <img src={mission} alt="" className="h-[280px]" />
           </div>
           <div className="md:w-1/2 space-y-4">
             <h2 className="text-3xl font-bold text-teal-900">Our Mission</h2>
