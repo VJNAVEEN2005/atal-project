@@ -34,7 +34,7 @@ const Startup_Sprouting = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-4">
+    <div className="w-full  mx-auto px-4 py-8 bg-white shadow-xl rounded-lg mb-10">
       <div className="max-w-6xl mx-auto">
         {/* Hero Section */}
         <header className="bg-white rounded-xl shadow-md overflow-hidden mb-8">

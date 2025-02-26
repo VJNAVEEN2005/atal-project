@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import Skeleton from 'react-loading-skeleton';
+import "react-loading-skeleton/dist/skeleton.css";
 import { acceleration } from '../../assets/Programs/Acceleration/data';
 
 // Animation variants
@@ -17,13 +19,36 @@ const staggerContainer = {
 };
 
 const buttonAnimation = {
-  rest: { scale: 1, backgroundColor: "#3f6197" },
+  rest: { scale: 1, backgroundColor: "#E31B23" },
   hover: { 
     scale: 1.05, 
-    backgroundColor: "#2a4a80",
+    backgroundColor: "#C41019",
     boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
   },
   tap: { scale: 0.95 }
+};
+
+// Image loader component
+const ImageWithLoader = ({ src, alt, className }) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+  
+  return (
+    <div className="relative">
+      {!imageLoaded && (
+        <div className={`${className} bg-gray-200 animate-pulse flex items-center justify-center`}>
+          <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+        </div>
+      )}
+      <img 
+        className={`${className} ${imageLoaded ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`} 
+        src={src} 
+        alt={alt} 
+        onLoad={() => setImageLoaded(true)}
+      />
+    </div>
+  );
 };
 
 const Acceleration = () => {
@@ -66,13 +91,13 @@ const Acceleration = () => {
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.8 }}
           >
-            <span className="inline-block px-4 py-1 bg-[#3f6197]/10 text-[#3f6197] rounded-full text-sm font-medium mb-4">
+            <span className="inline-block px-4 py-1 bg-red-500/10 text-red-600 rounded-full text-sm font-medium mb-4">
               STARTUP REVIVE
             </span>
-            <h1 className="text-5xl font-bold text-[#3f6197] mb-4">
+            <h1 className="text-5xl font-bold text-red-600 mb-4">
               Acceleration
             </h1>
-            <div className="h-1 w-20 bg-[#3f6197] mb-6"></div>
+            <div className="h-1 w-20 bg-red-600 mb-6"></div>
             <motion.p 
               className="text-lg text-gray-700 mb-6"
               initial={{ opacity: 0 }}
@@ -89,7 +114,7 @@ const Acceleration = () => {
               className="inline-block"
             >
               <motion.button
-                className="px-8 py-3 bg-[#3f6197] text-white font-bold rounded-lg shadow-md"
+                className="px-8 py-3 bg-red-600 text-white font-bold rounded-lg shadow-md"
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
               >
                 Apply Now
@@ -116,14 +141,10 @@ const Acceleration = () => {
             whileHover={{ y: -10, boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)" }}
             transition={{ duration: 0.4 }}
           >
-            <motion.img 
+            <ImageWithLoader 
               src={acceleration} 
               alt="Acceleration Program" 
               className="w-80 md:w-96 object-contain rounded-lg"
-              animate={{ 
-                boxShadow: ["0px 0px 0px rgba(63, 97, 151, 0)", "0px 0px 20px rgba(63, 97, 151, 0.3)", "0px 0px 0px rgba(63, 97, 151, 0)"]
-              }}
-              transition={{ duration: 3, repeat: Infinity }}
             />
           </motion.div>
         </motion.div>
@@ -139,9 +160,9 @@ const Acceleration = () => {
       >
         <motion.div 
           variants={fadeInUp}
-          className="bg-white p-8 rounded-xl shadow-lg border-l-4 border-[#3f6197]"
+          className="bg-white p-8 rounded-xl shadow-lg border-l-4 border-red-600"
         >
-          <h3 className="text-xl font-semibold text-[#3f6197] mb-4">The Revival Mission</h3>
+          <h3 className="text-xl font-semibold text-red-600 mb-4">The Revival Mission</h3>
           <p className="text-gray-700 leading-relaxed mb-4">
             Startup Revive is a flagship initiative to support and revive the existing startups in Puducherry to accelerate their growth. This 3-month program provides comprehensive support to help startups overcome challenges and reach their full potential.
           </p>
@@ -152,9 +173,9 @@ const Acceleration = () => {
 
         <motion.div 
           variants={fadeInUp}
-          className="bg-white p-8 rounded-xl shadow-lg border-l-4 border-[#3f6197]"
+          className="bg-white p-8 rounded-xl shadow-lg border-l-4 border-red-600"
         >
-          <h3 className="text-xl font-semibold text-[#3f6197] mb-4">Designed for Growth</h3>
+          <h3 className="text-xl font-semibold text-red-600 mb-4">Designed for Growth</h3>
           <p className="text-gray-700 leading-relaxed mb-4">
             Revive accelerator programme is exclusively designed for growth-stage startups with initial market traction. Our goal is to help you build a scalable business around your product or services.
           </p>
@@ -177,7 +198,7 @@ const Acceleration = () => {
           whileInView={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2 }}
           viewport={{ once: true }}
-          className="text-3xl font-bold text-[#3f6197] text-center mb-12"
+          className="text-3xl font-bold text-red-600 text-center mb-12"
         >
           Program Components
         </motion.h2>
@@ -203,7 +224,7 @@ const Acceleration = () => {
               >
                 {feature.icon}
               </motion.div>
-              <h3 className="text-xl font-semibold text-[#3f6197] mb-2">{feature.title}</h3>
+              <h3 className="text-xl font-semibold text-red-600 mb-2">{feature.title}</h3>
               <p className="text-gray-600">{feature.description}</p>
             </motion.div>
           ))}
@@ -216,7 +237,7 @@ const Acceleration = () => {
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
         viewport={{ once: true }}
-        className="mb-16 bg-[#3f6197] text-white rounded-lg p-8"
+        className="mb-16 bg-red-600 text-white rounded-lg p-8"
       >
         <h2 className="text-3xl font-bold mb-8 text-center">3-Month Journey</h2>
         <div className="flex flex-col md:flex-row justify-between items-start relative">
@@ -231,10 +252,10 @@ const Acceleration = () => {
               whileInView={{ y: 0, opacity: 1 }}
               transition={{ delay: index * 0.2, duration: 0.5 }}
               viewport={{ once: true }}
-              className="flex flex-col items-center text-center mb-8 md:mb-0 relative z-10 bg-[#3f6197] p-4 rounded-lg"
+              className="flex flex-col items-center text-center mb-8 md:mb-0 relative z-10 bg-red-600 p-4 rounded-lg"
             >
               <motion.div 
-                className="w-12 h-12 rounded-full bg-white text-[#3f6197] flex items-center justify-center text-xl font-bold mb-4"
+                className="w-12 h-12 rounded-full bg-white text-red-600 flex items-center justify-center text-xl font-bold mb-4"
                 animate={{ scale: [1, 1.1, 1] }}
                 transition={{ duration: 3, repeat: Infinity }}
               >
@@ -260,7 +281,7 @@ const Acceleration = () => {
         className="text-center py-12 bg-gray-50 rounded-xl shadow-inner"
       >
         <motion.h3 
-          className="text-2xl font-bold text-[#3f6197] mb-4"
+          className="text-2xl font-bold text-red-600 mb-4"
           initial={{ y: 20, opacity: 0 }}
           whileInView={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2 }}
@@ -285,7 +306,7 @@ const Acceleration = () => {
           className="inline-block rounded-full"
         >
           <motion.button
-            className="px-10 py-4 bg-[#3f6197] text-white font-bold rounded-full text-lg shadow-lg flex items-center mx-auto"
+            className="px-10 py-4 bg-red-600 text-white font-bold rounded-full text-lg shadow-lg flex items-center mx-auto"
             transition={{ type: "spring", stiffness: 400, damping: 17 }}
             animate={{ y: [0, -5, 0] }}
           >

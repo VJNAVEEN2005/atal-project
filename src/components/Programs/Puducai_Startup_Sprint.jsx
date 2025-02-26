@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { arduino, drone, puduvai_Startup_Sprint, rasparipi, solidworks } from "../../assets/Programs/Puduvai_Startup_Sprint/data";
 import { bootcamp, demo, hackathon, idea, OP1, OP2, OP3, OP4, outreach1, pitch, preinc, startup } from "../../assets/logos/dataPrograms";
@@ -45,6 +45,29 @@ const floatingAnimation = {
   }
 };
 
+// Image loader component
+const ImageWithLoader = ({ src, alt, className }) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+  
+  return (
+    <div className="relative">
+      {!imageLoaded && (
+        <div className={`${className} bg-gray-200 animate-pulse flex items-center justify-center`}>
+          <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+        </div>
+      )}
+      <img 
+        className={`${className} ${imageLoaded ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`} 
+        src={src} 
+        alt={alt} 
+        onLoad={() => setImageLoaded(true)}
+      />
+    </div>
+  );
+};
+
 const PuduvaiStartupSprint = () => {
   const programPillars = [
     {
@@ -88,7 +111,7 @@ const PuduvaiStartupSprint = () => {
   ];
 
   return (
-    <div className="w-full  mx-auto px-4 py-8 bg-white shadow-xl rounded-lg mb-10">
+    <div className="w-full mx-auto px-4 py-8 bg-white shadow-xl rounded-lg mb-10">
       <motion.div 
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -99,7 +122,7 @@ const PuduvaiStartupSprint = () => {
           animate="animate"
           className="bg-white rounded-lg shadow-lg overflow-hidden"
         >
-          <img 
+          <ImageWithLoader 
             className="w-72 object-cover" 
             src={puduvai_Startup_Sprint} 
             alt="Puduvai Startup Sprint" 
@@ -113,7 +136,7 @@ const PuduvaiStartupSprint = () => {
         transition={{ delay: 0.3 }}
         className="text-center mb-16"
       >
-        <h1 className="text-4xl font-bold text-[#3f6197] mb-6">
+        <h1 className="text-4xl font-bold text-red-600 mb-6">
           FOSTERING INNOVATION AND ENTREPRENEURSHIP
         </h1>
         <p className="text-lg text-gray-700 max-w-3xl mx-auto">
@@ -141,20 +164,19 @@ const PuduvaiStartupSprint = () => {
           {programPillars.map((pillar, index) => (
             <motion.div
               key={index}
-   
               initial="rest"
               whileHover="hover"
               variants={cardHover}
               className="bg-white rounded-lg p-6 shadow-lg cursor-pointer"
             >
-              <motion.img 
-                src={pillar.icon} 
-                alt={pillar.title} 
-                className="w-16 h-16 mx-auto mb-4"
-                animate={{ rotate: [0, 5, -5, 0] }}
-                transition={{ duration: 5, repeat: Infinity }}
-              />
-              <h3 className="text-xl font-semibold text-[#3f6197] mb-2">{pillar.title}</h3>
+              <motion.div className="w-16 h-16 mx-auto mb-4">
+                <ImageWithLoader 
+                  src={pillar.icon} 
+                  alt={pillar.title} 
+                  className="w-16 h-16"
+                />
+              </motion.div>
+              <h3 className="text-xl font-semibold text-red-600 mb-2">{pillar.title}</h3>
               <p className="text-gray-600">{pillar.description}</p>
             </motion.div>
           ))}
@@ -181,20 +203,18 @@ const PuduvaiStartupSprint = () => {
               whileHover={{ y: -5 }}
               className="bg-white rounded-lg p-4 shadow-lg text-center cursor-pointer"
             >
-              <motion.img 
-                src={item.logo} 
-                alt={item.name} 
-                className="w-16 h-16 mx-auto mb-3"
-                whileHover={{ scale: 1.1 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              />
-              <h4 className="text-[#3f6197] font-semibold">{item.name}</h4>
+              <motion.div className="w-16 h-16 mx-auto mb-3">
+                <ImageWithLoader 
+                  src={item.logo} 
+                  alt={item.name} 
+                  className="w-16 h-16"
+                />
+              </motion.div>
+              <h4 className="text-red-600 font-semibold">{item.name}</h4>
             </motion.div>
           ))}
         </motion.div>
       </section>
-
-      
 
       <motion.section 
         initial={{ opacity: 0, y: 20 }}

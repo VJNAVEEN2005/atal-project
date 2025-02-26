@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 import {
   arduino,
   drone,
@@ -10,7 +12,18 @@ import { skill_patara } from "../../assets/Programs/SkillPattara/data";
 import { useNavigate } from "react-router-dom";
 
 const Skill_Pattara = () => {
-  const navigate = new useNavigate();
+  const navigate = useNavigate();
+  const [imagesLoaded, setImagesLoaded] = useState(false);
+  
+  useEffect(() => {
+    // Simulate image loading
+    const timer = setTimeout(() => {
+      setImagesLoaded(true);
+    }, 1000);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -32,7 +45,7 @@ const Skill_Pattara = () => {
     },
     hover: {
       y: -5,
-      boxShadow: "0 10px 25px rgba(63, 97, 151, 0.3)",
+      boxShadow: "0 10px 25px rgba(255, 204, 0, 0.3)",
       transition: { duration: 0.3 },
     },
   };
@@ -50,24 +63,28 @@ const Skill_Pattara = () => {
       image: drone,
       description: "Learn drone design, assembly and flight operations",
       link: "/drone_technology",
+      icon: "🚁",
     },
     {
       title: "Arduino Programming",
       image: arduino,
       description: "Build electronic projects with Arduino",
       link: "/arduino_programming",
+      icon: "🔌",
     },
     {
       title: "3D Modeling with SolidWorks",
       image: solidworks,
       description: "Create precision 3D models for manufacturing",
       link: "/solid_works",
+      icon: "🔧",
     },
     {
       title: "Raspberry Pi Development",
       image: rasparipi,
       description: "Develop IoT solutions using Raspberry Pi",
       link: "/raspberry_pi_development",
+      icon: "💻",
     },
   ];
 
@@ -77,13 +94,17 @@ const Skill_Pattara = () => {
         {/* Header Section */}
         <div className="text-center mb-12">
           <div className="flex justify-center mb-8">
-            <motion.img
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              src={skill_patara}
-              alt="Skill Pattara Logo"
-              className="h-32 md:h-40 shadow-xl rounded-lg"
-            />
+            {!imagesLoaded ? (
+              <Skeleton height={160} width={300} className="rounded-lg" />
+            ) : (
+              <motion.img
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                src={skill_patara}
+                alt="Skill Pattara Logo"
+                className="h-32 md:h-40 shadow-xl rounded-lg"
+              />
+            )}
           </div>
 
           {/* Added content about Skill Pattarai */}
@@ -91,17 +112,17 @@ const Skill_Pattara = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="max-w-4xl mx-auto mb-10 mt-6 bg-gradient-to-r from-blue-50 to-gray-50 p-6 rounded-xl shadow-sm"
+            className="max-w-4xl mx-auto mb-10 mt-6 bg-gradient-to-r from-yellow-50 to-gray-50 p-6 rounded-xl shadow-sm"
           >
-            <h2 className="text-2xl font-bold text-[#3f6197] mb-4 flex items-center">
-              <span className="w-2 h-8 bg-[#3f6197] mr-3 rounded-full"></span>
+            <h2 className="text-2xl font-bold text-black mb-4 flex items-center">
+              <span className="w-2 h-8 bg-yellow-400 mr-3 rounded-full"></span>
               What is Skill Pattarai
             </h2>
 
             <div className="grid md:grid-cols-2 gap-6">
-              <div className="bg-white p-5 rounded-lg shadow-sm border-l-4 border-[#3f6197]">
+              <div className="bg-white p-5 rounded-lg shadow-sm border-l-4 border-yellow-400">
                 <p className="text-gray-700 leading-relaxed">
-                  <span className="font-semibold text-[#3f6197]">
+                  <span className="font-semibold text-black">
                     Skill Pattarai
                   </span>{" "}
                   is a Grassroot Technical program organized by Atal Incubation
@@ -114,7 +135,7 @@ const Skill_Pattara = () => {
                 </p>
               </div>
 
-              <div className="bg-white p-5 rounded-lg shadow-sm border-l-4 border-[#3f6197]">
+              <div className="bg-white p-5 rounded-lg shadow-sm border-l-4 border-yellow-400">
                 <p className="text-gray-700 leading-relaxed">
                   Skill Pattarai offers an immersive experience that bridges the
                   gap between theoretical knowledge and practical application.
@@ -138,7 +159,7 @@ const Skill_Pattara = () => {
               ].map((tech, index) => (
                 <span
                   key={index}
-                  className="bg-[#3f6197]/10 text-[#3f6197] px-3 py-1 rounded-full text-sm font-medium"
+                  className="bg-yellow-400/20 text-black px-3 py-1 rounded-full text-sm font-medium border border-yellow-400/30"
                 >
                   {tech}
                 </span>
@@ -164,31 +185,40 @@ const Skill_Pattara = () => {
               key={index}
               variants={itemVariants}
               whileHover="hover"
-              className="bg-white rounded-lg overflow-hidden shadow-md border border-gray-100"
+              className="bg-white rounded-lg overflow-hidden shadow-md border border-gray-100 relative"
             >
+              <div className="absolute top-4 right-4 bg-yellow-400 text-black w-10 h-10 rounded-full flex items-center justify-center text-xl z-10">
+                {program.icon}
+              </div>
               <motion.div
                 className="relative h-60 overflow-hidden"
                 variants={imageVariants}
               >
-                <img
-                  src={program.image}
-                  alt={program.title}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#3f6197]/80 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-end">
-                  <p className="p-4 text-white text-sm">
-                    {program.description}
-                  </p>
-                </div>
+                {!imagesLoaded ? (
+                  <Skeleton height={240} width="100%" />
+                ) : (
+                  <>
+                    <img
+                      src={program.image}
+                      alt={program.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-end">
+                      <p className="p-4 text-white text-sm">
+                        {program.description}
+                      </p>
+                    </div>
+                  </>
+                )}
               </motion.div>
               <div className="p-6">
-                <h3 className="text-xl font-semibold text-[#3f6197] mb-2">
+                <h3 className="text-xl font-semibold text-black mb-2">
                   {program.title}
                 </h3>
-                <div className="w-10 h-1 bg-[#3f6197] mb-4"></div>
+                <div className="w-10 h-1 bg-yellow-400 mb-4"></div>
                 <motion.button
                   whileHover={{ scale: 1.03 }}
-                  className="text-sm font-medium text-[#3f6197] hover:text-[#2a4268] flex items-center"
+                  className="text-sm font-medium text-black hover:text-yellow-600 flex items-center"
                   onClick={() => navigate(program.link)}
                 >
                   Learn more
@@ -216,9 +246,9 @@ const Skill_Pattara = () => {
         <div className="mt-16 text-center">
           <motion.button
             whileHover={{ scale: 1.05 }}
-            className="bg-[#3f6197] text-white px-8 py-3 rounded-md font-medium shadow-lg hover:bg-[#2a4268] transition-colors"
+            className="bg-yellow-400 text-black px-8 py-3 rounded-md font-medium shadow-lg hover:bg-yellow-500 transition-colors"
           >
-            Apply Now
+            Be a Tech Star⭐Up
           </motion.button>
         </div>
       </div>
