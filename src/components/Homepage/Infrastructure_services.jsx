@@ -96,6 +96,7 @@ const Infrastructure_services = () => {
               ].map((val, index) => (
                 <div key={index} className="font-semibold text-xl md:text-2xl flex justify-start hover:text-customBlue hover:scale-105 transition-all">
                   <motion.li
+                  style={{ listStyleType: 'none' }}
                     variants={popOnView}
                     initial="initial"
                     whileInView="animate"
@@ -197,6 +198,7 @@ const Infrastructure_services = () => {
             ].map((val, index) => (
               <div key={index} className="font-semibold text-lg md:text-xl lg:text-2xl flex justify-start hover:text-customBlue hover:scale-105 transition-all">
                 <motion.li
+                  style={{ listStyleType: "none" }}
                   variants={popOnView}
                   initial="initial"
                   whileInView="animate"
