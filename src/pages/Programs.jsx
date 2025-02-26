@@ -7,7 +7,11 @@ import {
   GraduationCap,
   FileBadge,
   User,
-  TrendingUp
+  TrendingUp,
+  Rocket,
+  Brain,
+  FileText,
+  PlaneTakeoffIcon
 } from "lucide-react";
 import {
   nitLogo,
@@ -39,6 +43,10 @@ import Dass from "../components/Programs/Dass";
 import Sisfs from "../components/Programs/Sisfs";
 import PropleX from "../components/Programs/PropleX";
 import Startup_Sprouting from "../components/Programs/StartupSprouting";
+import { GiSprint } from "react-icons/gi";
+import { FaSeedling } from "react-icons/fa";
+import { TbPropeller } from "react-icons/tb";
+import { IoBulbOutline } from "react-icons/io5";
 function Programs() {
   const [activeSection, setActiveSection] = useState("Puduvai Startup Sprint");
   const [program, setProgram] = useState("Puduvai Startup Sprint");
@@ -46,42 +54,42 @@ function Programs() {
   const programsSections = [
     {
       name: "Puduvai Startup Sprint",
-      icon: <GraduationCap className="w-6 h-6" />,
+      icon: <GiSprint className="w-6 h-6" />,
       path: "Puduvai Startup Sprint",
     },
     {
       name: "Pre-Incubation",
-      icon: <Handshake className="w-6 h-6" />,
+      icon: <FaSeedling className="w-6 h-6" />,
       path: "Pre-Incubation",
     },
     {
       name: "Acceleration",
-      icon: <Lightbulb className="w-6 h-6" />,
+      icon: <Rocket className="w-6 h-6" />,
       path: "Acceleration",
     },
     {
       name: "Skill Pattara",
-      icon: <Network className="w-6 h-6" />,
+      icon: <GraduationCap className="w-6 h-6" />,
       path: "Skill Pattara",
     },
     {
       name: "Dass",
-      icon: <FileBadge className="w-6 h-6" />,
+      icon: <FileText className="w-6 h-6" />,
       path: "Dass",
     },
     {
       name: "SISFS",
-      icon: <FileBadge className="w-6 h-6" />,
+      icon: <IoBulbOutline className="w-6 h-6" />,
       path: "Sisfs",
     },
     {
       name: "Propel-X",
-      icon: <User className="w-6 h-6" />,
+      icon: <TbPropeller className="w-6 h-6" />,
       path: "PropleX",
     },
     {
       name: "Startup Sprouting",
-      icon:<TrendingUp className="w-6 h-6"/>,
+      icon:<PlaneTakeoffIcon className="w-6 h-6"/>,
       path:"Startup Sprouting"
     }
   ];

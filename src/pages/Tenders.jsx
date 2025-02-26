@@ -19,9 +19,9 @@ function Tenders() {
       });
   }, []);
 
-  if (loading) {
-    return <div>Loading tenders...</div>; // Display while loading
-  }
+  // if (loading) {
+  //   return <div>Loading tenders...</div>; // Display while loading
+  // }
 
   if (!Array.isArray(tenders)) {
     return <div>Error: Tenders data is not an array!</div>; // Handle invalid data

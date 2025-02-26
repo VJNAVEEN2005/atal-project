@@ -191,7 +191,7 @@ const Testimonials = () => {
         transition={{ delay: 0.4, duration: 0.7 }}
         whileHover={{ boxShadow: "0 10px 25px rgba(0,0,0,0.1)" }}
       >
-        <div className="flex flex-col md:flex-row justify-center sm:justify-between items-center gap-4 sm:gap-6 md:gap-10">
+        <div className="flex overflow-hidden flex-col md:flex-row justify-center sm:justify-between items-center gap-4 sm:gap-6 md:gap-10">
           {/* Photo Section with Animation */}
           <AnimatePresence mode="wait">
             <motion.div
