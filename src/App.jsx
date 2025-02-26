@@ -36,6 +36,7 @@ import Page_Not_Found from "./pages/Page_Not_Found.jsx";
 import Drone_Technology from "./components/Programs/Skill_Pattara/Drone_Technology.jsx";
 import Arduino_Programming from "./components/Programs/Skill_Pattara/Arduino_Programming.jsx";
 import Raspberry_Pi_Development from "./components/Programs/Skill_Pattara/Raspberry_Pi_Development.jsx";
+import MoveToTop from "./components/MoveToTop.jsx";
 
 
 function App() {
@@ -45,6 +46,7 @@ function App() {
       <Header />
     */}
       <NewNav/>
+      <MoveToTop/>
       {/* <NavbarOG /> */}
       <Routes>
 
