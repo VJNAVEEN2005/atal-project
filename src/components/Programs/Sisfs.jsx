@@ -1,6 +1,8 @@
 import React, { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X,ChevronDown, ChevronUp } from "lucide-react";
+import { X, ChevronDown, ChevronUp } from "lucide-react";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 import {
   BFIT,
   BFIT_logo,
@@ -41,7 +43,18 @@ import {
   WARAR_ENERGY_logo,
 } from "../../assets/Programs/Sisfs/data";
 
+// Theme colors matching the SISFS logo
+const themeColors = {
+  yellow: "#FFD029",
+  blue: "#273B8B",
+  lightBlue: "#3B55C5",
+  orange: "#E1703A",
+  lightGray: "#F5F5F7",
+};
+
 const BeneficiaryModal = ({ beneficiary, isOpen, onClose }) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+  
   if (!isOpen) return null;
 
   return (
@@ -68,7 +81,7 @@ const BeneficiaryModal = ({ beneficiary, isOpen, onClose }) => {
                   alt={beneficiary.company}
                   className="w-20 h-20 object-contain"
                 />
-                <h2 className="text-2xl font-bold text-[#3f6197]">
+                <h2 className="text-2xl font-bold" style={{ color: themeColors.blue }}>
                   {beneficiary.company}
                 </h2>
               </div>
@@ -85,7 +98,7 @@ const BeneficiaryModal = ({ beneficiary, isOpen, onClose }) => {
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <div className="flex items-center gap-3 bg-gray-50 p-4 rounded-lg">
-                  <div className="bg-yellow-400 p-2 rounded-lg">
+                  <div className="p-2 rounded-lg" style={{ backgroundColor: themeColors.yellow }}>
                     <img src={Revenue} alt="Revenue icon" className="w-6 h-6" />
                   </div>
                   <div>
@@ -98,7 +111,7 @@ const BeneficiaryModal = ({ beneficiary, isOpen, onClose }) => {
                 </div>
 
                 <div className="flex items-center gap-3 bg-gray-50 p-4 rounded-lg">
-                  <div className="bg-yellow-400 p-2 rounded-lg">
+                  <div className="p-2 rounded-lg" style={{ backgroundColor: themeColors.yellow }}>
                     <img src={Grant} alt="Grant icon" className="w-6 h-6" />
                   </div>
                   <div>
@@ -110,7 +123,7 @@ const BeneficiaryModal = ({ beneficiary, isOpen, onClose }) => {
                 </div>
 
                 <div className="flex items-center gap-3 bg-gray-50 p-4 rounded-lg">
-                  <div className="bg-yellow-400 p-2 rounded-lg">
+                  <div className="p-2 rounded-lg" style={{ backgroundColor: themeColors.yellow }}>
                     <img src={Sector} alt="Sector icon" className="w-6 h-6" />
                   </div>
                   <div>
@@ -122,11 +135,15 @@ const BeneficiaryModal = ({ beneficiary, isOpen, onClose }) => {
                 </div>
               </div>
 
-              <div>
+              <div className="relative">
+                {!imageLoaded && (
+                  <Skeleton height={256} width="100%" className="rounded-lg" />
+                )}
                 <img
                   src={beneficiary.image}
                   alt={`${beneficiary.company} product`}
-                  className="w-full h-64 object-contain rounded-lg"
+                  className={`w-full h-64 object-contain rounded-lg ${!imageLoaded ? 'hidden' : ''}`}
+                  onLoad={() => setImageLoaded(true)}
                 />
               </div>
             </div>
@@ -141,7 +158,7 @@ const BeneficiaryCard = ({ beneficiary, onClick }) => {
   return (
     <motion.div
       whileHover={{ y: -5 }}
-      className="bg-white rounded-xl shadow-lg cursor-pointer overflow-hidden aspect-square"
+      className="bg-white rounded-xl shadow-lg cursor-pointer overflow-hidden aspect-square border border-gray-200"
       onClick={onClick}
     >
       <div className="p-4 h-full flex flex-col">
@@ -151,17 +168,14 @@ const BeneficiaryCard = ({ beneficiary, onClick }) => {
             alt={beneficiary.company}
             className="w-20 h-20 object-contain mb-4"
           />
-          <h3 className="text-xl font-bold text-[#3f6197] mb-2">
+          <h3 className="text-xl font-bold mb-2" style={{ color: themeColors.blue }}>
             {beneficiary.company} PVT
           </h3>
-          {/* <p className="text-gray-700 line-clamp-3">
-            {beneficiary.description}
-          </p> */}
         </div>
 
-        <div className=" py-4 border-t border-gray-100">
+        <div className="py-4 border-t border-gray-100">
           <div className="flex items-center gap-2">
-            <div className="bg-yellow-400 p-1.5 rounded-lg">
+            <div className="p-1.5 rounded-lg" style={{ backgroundColor: themeColors.yellow }}>
               <img src={Sector} alt="Sector icon" className="w-4 h-4" />
             </div>
             <span className="font-medium text-gray-800">
@@ -176,6 +190,8 @@ const BeneficiaryCard = ({ beneficiary, onClick }) => {
 
 const Sisfs = () => {
   const [selectedBeneficiary, setSelectedBeneficiary] = useState(null);
+  const [logoLoaded, setLogoLoaded] = useState(false);
+  const [schemeImageLoaded, setSchemeImageLoaded] = useState(false);
 
   const fadeIn = {
     initial: { opacity: 0, y: 20 },
@@ -235,7 +251,7 @@ const Sisfs = () => {
     {
       company: "WARAR ENERGY",
       description:
-        "Warar Energy is working on XEV project an EV trike solution upgrading bike to highspeed EV 3- Wheeler. With our innovative and insightful technology, we strive to enhance our users’ everyday experiences.",
+        "Warar Energy is working on XEV project an EV trike solution upgrading bike to highspeed EV 3- Wheeler. With our innovative and insightful technology, we strive to enhance our users' everyday experiences.",
       revenue: "Pre-Revenue Stage",
       grant: "10.60 Lakhs",
       sector: "EV",
@@ -343,16 +359,23 @@ const Sisfs = () => {
       <motion.div variants={staggerChildren} className="max-w-4xl mx-auto">
         {/* Header Section */}
         <motion.div variants={fadeIn} className="flex flex-col items-center gap-8 mb-12">
-          <div className="">
+          <div className="relative">
+            {!logoLoaded && (
+              <div className="h-48 w-64">
+                <Skeleton height="100%" width="100%" />
+              </div>
+            )}
             <img
-              className="h-48 p-2 rounded-xl shadow-xl"
+              className={`h-48 p-2 rounded-xl shadow-xl ${!logoLoaded ? 'hidden' : ''}`}
               src={sisfslogo}
-              alt=""
+              alt="SISFS Logo"
+              onLoad={() => setLogoLoaded(true)}
             />
           </div>
           <motion.h1
             variants={fadeIn}
-            className="text-4xl font-bold text-[#3f6197]"
+            className="text-4xl font-bold"
+            style={{ color: themeColors.blue }}
           >
             Startup India Seed Fund Scheme (SISFS)
           </motion.h1>
@@ -370,7 +393,10 @@ const Sisfs = () => {
 
         {/* Eligibility Criteria Section */}
         <motion.div variants={fadeIn} className="mb-12">
-          <h2 className="text-2xl font-semibold text-[#3f6197] mb-6">
+          <h2 
+            className="text-2xl font-semibold mb-6"
+            style={{ color: themeColors.blue }}
+          >
             Eligibility Criteria
           </h2>
           <motion.ul className="space-y-4 text-gray-700">
@@ -385,7 +411,7 @@ const Sisfs = () => {
                 variants={fadeIn}
                 className="flex items-center gap-2"
               >
-                <div className="w-2 h-2 rounded-full bg-[#3f6197]" />
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: themeColors.blue }} />
                 {item}
               </motion.li>
             ))}
@@ -393,15 +419,20 @@ const Sisfs = () => {
         </motion.div>
 
         {/* Program Structure Section */}
-        <ProgramSections />
+        <ProgramSections themeColors={themeColors} />
+        
         {/* Funding Sections */}
         <div className="grid md:grid-cols-2 gap-8 my-12">
           {/* Grant Funding */}
           <motion.div
             variants={fadeIn}
-            className="bg-white p-6 rounded-lg shadow-lg border border-[#3f6197]/20"
+            className="bg-white p-6 rounded-lg shadow-lg border"
+            style={{ borderColor: `${themeColors.blue}20` }}
           >
-            <h2 className="text-2xl font-semibold text-[#3f6197] mb-6">
+            <h2 
+              className="text-2xl font-semibold mb-6"
+              style={{ color: themeColors.blue }}
+            >
               Grant Funding
             </h2>
             <h3 className="text-lg font-medium text-gray-700 mb-4">
@@ -423,9 +454,13 @@ const Sisfs = () => {
           {/* Debt Funding */}
           <motion.div
             variants={fadeIn}
-            className="bg-white p-6 rounded-lg shadow-lg border border-[#3f6197]/20"
+            className="bg-white p-6 rounded-lg shadow-lg border"
+            style={{ borderColor: `${themeColors.blue}20` }}
           >
-            <h2 className="text-2xl font-semibold text-[#3f6197] mb-6">
+            <h2 
+              className="text-2xl font-semibold mb-6"
+              style={{ color: themeColors.blue }}
+            >
               Debt Funding
             </h2>
             <h3 className="text-lg font-medium text-gray-700 mb-4">
@@ -445,13 +480,24 @@ const Sisfs = () => {
           </motion.div>
         </div>
 
-        <div className="mb-12">
-          <img className="p-3 shadow-xl rounded-xl" src={sisfs} alt="" />
+        <div className="mb-12 relative">
+          {!schemeImageLoaded && (
+            <Skeleton height={300} width="100%" className="rounded-xl" />
+          )}
+          <img 
+            className={`p-3 shadow-xl rounded-xl w-full ${!schemeImageLoaded ? 'hidden' : ''}`} 
+            src={sisfs} 
+            alt="SISFS Scheme" 
+            onLoad={() => setSchemeImageLoaded(true)}
+          />
         </div>
 
         {/* Beneficiaries Section */}
         <motion.div variants={fadeIn}>
-          <h2 className="text-2xl font-bold py-2 px-6 bg-yellow-400 inline-block rounded-r-full text-black mb-8">
+          <h2 
+            className="text-2xl font-bold py-2 px-6 inline-block rounded-r-full text-black mb-8"
+            style={{ backgroundColor: themeColors.yellow }}
+          >
             SISFS GRANT BENEFICIARIES
           </h2>
 
@@ -468,7 +514,10 @@ const Sisfs = () => {
 
         {/*Success Stories */}
         <motion.div variants={fadeIn}>
-          <h2 className="text-2xl font-bold py-2 px-6 mt-10 bg-yellow-400 inline-block rounded-r-full text-black mb-8">
+          <h2 
+            className="text-2xl font-bold py-2 px-6 mt-10 inline-block rounded-r-full text-black mb-8"
+            style={{ backgroundColor: themeColors.yellow }}
+          >
             SUCCESS STORIES
           </h2>
 
@@ -493,6 +542,8 @@ const Sisfs = () => {
 export default Sisfs;
 
 const ImageModal = ({ isOpen, onClose, image }) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+  
   if (!isOpen) return null;
 
   return (
@@ -515,11 +566,17 @@ const ImageModal = ({ isOpen, onClose, image }) => {
 
           {/* Image container */}
           <div className="relative w-full h-[calc(100vh-8rem)] overflow-auto">
+            {!imageLoaded && (
+              <div className="w-full h-full">
+                <Skeleton height="100%" width="100%" />
+              </div>
+            )}
             <img
               src={image}
               alt=""
-              className="w-full h-full object-contain"
+              className={`w-full h-full object-contain ${!imageLoaded ? 'hidden' : ''}`}
               loading="lazy"
+              onLoad={() => setImageLoaded(true)}
             />
           </div>
         </div>
@@ -530,6 +587,7 @@ const ImageModal = ({ isOpen, onClose, image }) => {
 
 const FloatCardSuccess = ({ image }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
   
   const handleOpen = useCallback(() => setIsOpen(true), []);
   const handleClose = useCallback(() => setIsOpen(false), []);
@@ -546,12 +604,16 @@ const FloatCardSuccess = ({ image }) => {
       >
         {/* Card content */}
         <div className="absolute inset-0 bg-white shadow-2xl border rounded-lg transition-transform group-hover:scale-105">
-          <div className="h-full p-5">
+          <div className="h-full p-5 relative">
+            {!imageLoaded && (
+              <Skeleton height="100%" width="100%" />
+            )}
             <img 
-              className="w-full h-full object-contain border" 
+              className={`w-full h-full object-contain border ${!imageLoaded ? 'hidden' : ''}`} 
               src={image} 
               alt="" 
               loading="lazy"
+              onLoad={() => setImageLoaded(true)}
             />
           </div>
         </div>
@@ -567,7 +629,7 @@ const FloatCardSuccess = ({ image }) => {
   );
 };
 
-const DropdownCard = ({ title, items }) => {
+const DropdownCard = ({ title, items, themeColors }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -580,7 +642,8 @@ const DropdownCard = ({ title, items }) => {
     >
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-6 py-4 flex items-center justify-between bg-[#3f6197] text-white"
+        className="w-full px-6 py-4 flex items-center justify-between text-white"
+        style={{ backgroundColor: themeColors.blue }}
       >
         <h2 className="text-2xl font-semibold">{title}</h2>
         {isOpen ? (
@@ -609,7 +672,7 @@ const DropdownCard = ({ title, items }) => {
                 transition={{ delay: index * 0.1 }}
                 className="flex items-center gap-2"
               >
-                <div className="w-2 h-2 rounded-full bg-[#3f6197]" />
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: themeColors.blue }} />
                 {Array.isArray(item) ? item[0] : item}
               </motion.li>
             ))}
@@ -620,7 +683,7 @@ const DropdownCard = ({ title, items }) => {
   );
 };
 
-const ProgramSections = () => {
+const ProgramSections = ({ themeColors }) => {
   const programStructure = [
     ["Funding Support"],
     ["Mentorship & Guidance"],
@@ -640,11 +703,13 @@ const ProgramSections = () => {
     <div className="space-y-6">
       <DropdownCard 
         title="Program Structure" 
-        items={programStructure} 
+        items={programStructure}
+        themeColors={themeColors}
       />
       <DropdownCard 
         title="Program Pedagogy" 
-        items={programPedagogy} 
+        items={programPedagogy}
+        themeColors={themeColors}
       />
     </div>
   );

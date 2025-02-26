@@ -1,8 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { daas } from '../../assets/Programs/Dass/data';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 const Dass = () => {
+  const [imageLoaded, setImageLoaded] = React.useState(false);
+  
   // Animation variants
   const fadeIn = {
     initial: { opacity: 0, y: 20 },
@@ -22,10 +26,15 @@ const Dass = () => {
     hover: { scale: 1.05, transition: { duration: 0.3 } }
   };
 
+  // Updated colors to match the logo theme
+  const primaryOrange = "#FF6534"; // DaaS logo orange
+  const primaryBlue = "#0069B4";   // DaaS logo blue
+  const darkGray = "#333333";      // For text
+  
   const supportCategories = [
     {
       title: "Data Processing Support",
-      color: "#34b3a6",
+      color: primaryBlue,
       items: [
         { name: "Agrisoft Metashape", detail: "100 Sq.km of 2D data per day" },
         { name: "Bentley Content Capture", detail: "20 sq. km of 3D data per day" }
@@ -33,7 +42,7 @@ const Dass = () => {
     },
     {
       title: "Prototyping Support",
-      color: "#d81b60",
+      color: primaryOrange,
       items: [
         { name: "FDM 3D Printers", detail: "" },
         { name: "Laser Cutting", detail: "" },
@@ -44,10 +53,10 @@ const Dass = () => {
     },
     {
       title: "Drone / Payload Support",
-      color: "#f5a623",
+      color: primaryBlue,
       items: [
         { name: "Thermal Camera", detail: "Flir Vue pro 13mm 640x512" },
-        { name: "Mapping Camera", detail: "Sony 24.1 mp" },
+        { name: "Sony 24.1 mp", detail: "Mapping Camera" },
         { name: "Surveillance Camera", detail: "10xZoom Camera 24.1" }
       ]
     }
@@ -62,14 +71,26 @@ const Dass = () => {
       {/* Header Section */}
       <motion.div 
         variants={fadeIn}
-        className="max-w-6xl mx-auto mb-16 text-center "
+        className="max-w-6xl mx-auto mb-16 text-center"
       >
-        <motion.div className="flex justify-center mb-8 ">
-          <img className="w-full max-w-2xl shadow-xl rounded-lg" src={daas} alt="DaaS Logo" />
+        <motion.div className="flex justify-center mb-8 relative">
+          {!imageLoaded && (
+            <div className="w-full max-w-2xl h-64">
+              <Skeleton height="100%" width="100%" />
+            </div>
+          )}
+          <img 
+            className={`w-full max-w-2xl shadow-xl rounded-lg ${!imageLoaded ? 'hidden' : ''}`} 
+            src={daas} 
+            alt="DaaS Logo" 
+            onLoad={() => setImageLoaded(true)}
+            style={{ display: imageLoaded ? 'block' : 'none' }}
+          />
         </motion.div>
         <motion.p 
           variants={fadeIn}
           className="text-lg text-gray-700 max-w-4xl mx-auto"
+          style={{ color: darkGray }}
         >
           DaaS offers comprehensive incubation and technology development programs specifically designed for drone startups and GIS mapping companies. Our suite of support services spans data processing, prototyping, and specialized drone/payload options.
         </motion.p>
@@ -150,7 +171,7 @@ const Dass = () => {
       >
         <motion.h3 
           className="text-2xl font-bold text-gray-800 mb-6"
-          animate={{ color: ['#f15a29', '#0069b4', '#f15a29'] }}
+          animate={{ color: [primaryOrange, primaryBlue, primaryOrange] }}
           transition={{ duration: 4, repeat: Infinity }}
         >
           Join Our Incubation Program
@@ -161,7 +182,8 @@ const Dass = () => {
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="bg-[#3f6197] text-white px-8 py-3 rounded-md font-medium shadow-lg"
+          className="text-white px-8 py-3 rounded-md font-medium shadow-lg"
+          style={{ backgroundColor: primaryOrange }}
         >
           Apply Now
         </motion.button>
