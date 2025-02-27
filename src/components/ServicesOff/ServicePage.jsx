@@ -119,43 +119,43 @@ const services = [
     title: '3DPRINTER',
     logo: Pic1,
     details: ``,
-    type: 'Student innvation',
+    type: 'Student innovation',
   },
   {
     title: 'CNC PLOTTER',
     logo: Pic2,
     details: ``,
-    type: 'Student innvation',
+    type: 'Student innovation',
   },
   {
     title: '3DSCANNER',
     logo: Pic3,
     details: ``,
-    type: 'Student innvation',
+    type: 'Student innovation',
   },
   {
     title: 'E-CUBE',
     logo: Pic4,
     details: ``,
-    type: 'Student innvation',
+    type: 'Student innovation',
   },
   {
     title: 'SOLAR DRYER',
     logo: Pic5,
     details: ``,
-    type: 'Student innvation',
+    type: 'Student innovation',
   },
 ];
 
 export default function Service() {
-  const [filter, setFilter] = useState('All');
+  const [filter, setFilter] = useState('Prototype');
   const [expandedSection, setExpandedSection] = useState(null);
 
   const handleFilter = (filterType) => {
     setFilter(filterType);
   };
 
-  const filterOptions = ['All', 'Prototype', 'Software', 'Student innvation'];
+  const filterOptions = ['Prototype', 'Software', 'Student innovation'];
 
   const filteredServices = filter === 'All' ? services : services.filter(service => service.type === filter);
 
@@ -196,8 +196,8 @@ export default function Service() {
                 alt={service.title}
                 className="w-full h-48 object-contain mb-4 rounded-md"
               />
-              <h3 className="text-xl font-semibold mb-3">{service.title}</h3>
-              <p className="text-gray-600 text-sm flex-grow">{service.details}</p>
+              <h3 className="text-xl font-semibold mb-3 ">{service.title}</h3>
+              <p className="text-gray-600 text-sm mbau flex-grow">{service.details}</p>
             </div>
           ))}
         </div>

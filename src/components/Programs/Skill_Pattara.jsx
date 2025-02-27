@@ -251,6 +251,7 @@ const Skill_Pattara = () => {
             Apply For Skill Pattarai
           </motion.button>
         </div>
+        
       </div>
     </div>
   );

@@ -20,6 +20,8 @@ import {
   Dr_N_Sivakumar,
   Dr_R_Sridar,
   Dr_S_Jeevananthan,
+  Dr_S_Tamilselvan,
+  Dr_V_Govindasamy,
 } from "../../assets/Team/executiveTeam/images/data";
 
 interface TeamMember {
@@ -149,6 +151,7 @@ const teamMembers: TeamMember[] = [
   {
     name: "Dr. S. Tamilselvan",
     role: "Member - AICPECF / ECE",
+    image: Dr_S_Tamilselvan
   },
   {
     name: "Dr.N. Sivakumar",
@@ -163,6 +166,7 @@ const teamMembers: TeamMember[] = [
   {
     name: "Dr. V. Govindasamy",
     role: "Member - IEDC / IT",
+    image: Dr_V_Govindasamy
   },
   {
     name: "Dr.R.Sridar",

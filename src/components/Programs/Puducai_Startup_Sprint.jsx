@@ -221,9 +221,10 @@ const PuduvaiStartupSprint = () => {
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         viewport={{ once: true }}
-        className="bg-[#3f6197] text-white rounded-lg p-8"
+        className=" w-full flex justify-center items-center"
+        // className="bg-[#3f6197] text-white rounded-lg p-8"
       >
-        <h2 className="text-3xl font-bold mb-6 text-center">Recap</h2>
+        {/* <h2 className="text-3xl font-bold mb-6 text-center">Recap</h2>
         <motion.div 
           variants={staggerContainer}
           initial="initial"
@@ -251,7 +252,8 @@ const PuduvaiStartupSprint = () => {
               </motion.p>
             </motion.div>
           ))}
-        </motion.div>
+        </motion.div> */}
+        <button className=" bg-[#3f6197] rounded-2xl p-4 text-white font-bold">Apply Now In Advance</button>
       </motion.section>
     </div>
   );
