@@ -15,7 +15,7 @@ const Testimonials = () => {
       occupation: "Chief Executive Officer",
       company: "Atal Incubation Centre, PEC Foundation",
       message:
-        "AIC-PECF has been instrumental in our startup journey. The support we have received, including expert mentorship, crucial resources, and valuable networking opportunities, has been vital for our product development. Their dedication continues to play a key role as we advance in our development process.",
+        "A strong incubation ecosystem is the foundation of every successful startup. At AIC-PECF, we bridge the gap between ideas and execution, offering a structured environment where startups can validate, build, and scale with confidence.",
       photo: Vishnu_CEO,
     },
     {
@@ -24,7 +24,7 @@ const Testimonials = () => {
       occupation: "Chief Operating Officer",
       company: "Atal Incubation Centre, PEC Foundation",
       message:
-        "The strategic guidance from AIC-PECF helped us navigate critical challenges in our business. The team's hands-on approach ensured we had access to essential resources and connections that accelerated our growth.",
+        "Technology is at the heart of every startup’s journey. We provide the necessary technical support, industry insights, and access to cutting-edge tools that enable startups to innovate, prototype, and commercialize their solutions effectively.",
       photo: Rajkumar_COO,
     },
     {
@@ -33,7 +33,7 @@ const Testimonials = () => {
       occupation: "Executive Director",
       company: "Atal Incubation Centre, PEC Foundation",
       message:
-        "AIC-PECF provided us with a nurturing environment to innovate and grow. Their mentorship and resources have been invaluable in helping us reach new milestones in our journey.",
+        "Our goal is to create a thriving ecosystem where entrepreneurs receive the right mentorship, resources, and opportunities to scale their ventures successfully.",
       photo: Sundhara_Moorthy_Director,
     },
   ];
@@ -191,7 +191,7 @@ const Testimonials = () => {
         transition={{ delay: 0.4, duration: 0.7 }}
         whileHover={{ boxShadow: "0 10px 25px rgba(0,0,0,0.1)" }}
       >
-        <div className="flex overflow-hidden flex-col md:flex-row justify-center sm:justify-between items-center gap-4 sm:gap-6 md:gap-10">
+        <div className="flex flex-col md:flex-row justify-center sm:justify-between items-center gap-4 sm:gap-6 md:gap-10">
           {/* Photo Section with Animation */}
           <AnimatePresence mode="wait">
             <motion.div
@@ -223,68 +223,70 @@ const Testimonials = () => {
           </AnimatePresence>
 
           {/* Message Section with Animation */}
-          <AnimatePresence mode="wait" custom={direction}>
-            <motion.div
-              key={currentSlide}
-              custom={direction}
-              variants={getVariants()}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{
-                duration: 0.6,
-                type: transition === "flip" ? "spring" : "tween",
-                stiffness: transition === "flip" ? 200 : null,
-              }}
-              className="flex-col flex justify-between bg-slate-100 p-4 sm:p-6 md:p-10 rounded-md w-full md:max-w-[60%] relative"
-              style={{ perspective: 1000 }}
-            >
-              <motion.p
-                className="text-sm sm:text-base md:text-lg lg:text-xl text-left sm:text-justify"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2, duration: 0.5 }}
-              >
-                {testimonials[currentSlide].message}
-              </motion.p>
+          <div className=" overflow-hidden w-full">
+            <AnimatePresence mode="wait" custom={direction}>
               <motion.div
-                className="gap-2 sm:gap-5 text-center font-medium text-xs sm:text-sm md:text-base lg:text-lg mt-3 sm:mt-4"
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.4, duration: 0.5 }}
+                key={currentSlide}
+                custom={direction}
+                variants={getVariants()}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{
+                  duration: 0.6,
+                  type: transition === "flip" ? "spring" : "tween",
+                  stiffness: transition === "flip" ? 200 : null,
+                }}
+                className="flex-col flex justify-between bg-slate-100 p-4 sm:p-6 md:p-10 rounded-md w-full relative"
+                style={{ perspective: 1000 }}
               >
-                <motion.h4
-                  className="text-base sm:text-lg font-bold text-customBlue"
+                <motion.p
+                  className="text-sm sm:text-base md:text-lg lg:text-xl text-left sm:text-justify"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5 }}
+                  transition={{ delay: 0.2, duration: 0.5 }}
                 >
-                  {testimonials[currentSlide].name}
-                </motion.h4>
+                  {testimonials[currentSlide].message}
+                </motion.p>
                 <motion.div
-                  className="flex flex-col sm:flex-row gap-0 sm:gap-2 justify-center text-gray-600"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.6 }}
+                  className="gap-2 sm:gap-5 text-center font-medium text-xs sm:text-sm md:text-base lg:text-lg mt-3 sm:mt-4"
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.4, duration: 0.5 }}
                 >
-                  <h4 className="text-xs sm:text-sm">
-                    {testimonials[currentSlide].occupation}
-                    {window.innerWidth >= 640 ? "," : ""}
-                  </h4>
-                  <h4 className="text-xs sm:text-sm">
-                    {testimonials[currentSlide].company}
-                  </h4>
+                  <motion.h4
+                    className="text-base sm:text-lg font-bold text-customBlue"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.5 }}
+                  >
+                    {testimonials[currentSlide].name}
+                  </motion.h4>
+                  <motion.div
+                    className="flex flex-col sm:flex-row gap-0 sm:gap-2 justify-center text-gray-600"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.6 }}
+                  >
+                    <h4 className="text-xs sm:text-sm">
+                      {testimonials[currentSlide].occupation}
+                      {window.innerWidth >= 640 ? "," : ""}
+                    </h4>
+                    <h4 className="text-xs sm:text-sm">
+                      {testimonials[currentSlide].company}
+                    </h4>
+                  </motion.div>
                 </motion.div>
+                {/* Decorative Arrow with Animation - Only visible on MD+ screens */}
+                <motion.div
+                  className="min-w-4 min-h-4 sm:min-w-6 sm:min-h-6 md:min-w-7 md:min-h-7 hidden md:block bg-slate-100 absolute top-[50%] -left-2 sm:-left-3 rotate-45"
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0, rotate: 45 }}
+                  transition={{ delay: 0.3 }}
+                ></motion.div>
               </motion.div>
-              {/* Decorative Arrow with Animation - Only visible on MD+ screens */}
-              <motion.div
-                className="min-w-4 min-h-4 sm:min-w-6 sm:min-h-6 md:min-w-7 md:min-h-7 hidden md:block bg-slate-100 absolute top-[50%] -left-2 sm:-left-3 rotate-45"
-                initial={{ opacity: 0, x: 10 }}
-                animate={{ opacity: 1, x: 0, rotate: 45 }}
-                transition={{ delay: 0.3 }}
-              ></motion.div>
-            </motion.div>
-          </AnimatePresence>
+            </AnimatePresence>
+          </div>
         </div>
 
         {/* Enhanced Navigation Buttons - Repositioned for mobile */}

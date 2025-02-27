@@ -75,7 +75,7 @@ const DirectionalPartnerCarousel = ({ title, logos, direction }) => {
           <Slider {...settings}>
             {logos.map((logo, index) => (
               <div key={index} className="px-2">
-              <div className="scale-110 flex items-center justify-center p-3  transition-all duration-300 ">
+              <div className="scale-125 bg-white mx-16 rounded-2xl flex items-center justify-center p-3  transition-all duration-300 ">
                 {logo}
               </div>
             </div>

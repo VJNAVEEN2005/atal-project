@@ -4,7 +4,7 @@ import styled from "styled-components";
 const SocialMediaFeeds = () => {
   return (
     <SocialMediaContainer>
-      <Heading>Social Media</Heading>
+      <Heading>Connect With Us</Heading>
 
       <SocialMediaRow>
         {/* Instagram Feed */}
