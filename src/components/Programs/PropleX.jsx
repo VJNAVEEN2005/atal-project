@@ -286,7 +286,7 @@ export default function PropelX() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            Register Now
+            Apply Now in Advance
           </motion.button>
           <p className="mt-4 text-purple-500 text-sm">For inquiries: contact@propelx.com</p>
         </motion.div>

@@ -305,7 +305,7 @@ const Startup_Sprouting = () => {
               <h3 className="text-xl font-bold mb-3">Join the Program</h3>
               <p className="mb-4 opacity-90">Applications open for our next cohort. Submit your startup profile today.</p>
               <button className="w-full py-2 px-4 bg-white text-orange-600 font-medium rounded-lg hover:bg-orange-50 transition-colors duration-300">
-                Apply Now
+              Apply Now in Advance
               </button>
             </div>
 

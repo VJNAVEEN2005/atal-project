@@ -248,7 +248,7 @@ const Skill_Pattara = () => {
             whileHover={{ scale: 1.05 }}
             className="bg-yellow-400 text-black px-8 py-3 rounded-md font-medium shadow-lg hover:bg-yellow-500 transition-colors"
           >
-            Apply For Skill Pattarai
+            Apply Now in Advance
           </motion.button>
         </div>
         

@@ -36,7 +36,23 @@ import Neural_organics from './Neural_organics.jpg'
 import Novelmed from './Novelmed.jpg'
 import Yourbackers from './Yourbackers.jpg'
 import Aero_Knotz from './Aero_Knotz.jpg'
+import APJ from './APJ.jpg'
+import WIDEZO from './WIDEZO .jpg'
+import GANTHAM from './GANTHAM.jpg'
+import AAPTRO from './AAPTRO.webp'
+import YOWAN from './YOWAN.jpg'
+import Kempros_Solutions from './Kempros_Solutions.jpg'
+import LH_INTEGRATED from './LH_INTEGRATED.jpg'
+import PHYCORE_TECHNOLOGIES from './PHYCORE_TECHNOLOGIES.jpg'
+import SACDEEIL_AEROSPACE_PRIVATE_LIMITED from './SACDEEIL_AEROSPACE_PRIVATE_LIMITED.jpg'
+import Sri_Ramajayam_Projects from './Sri_Ramajayam_Projects.jpg'
+import VAAZHI_SOFTWARE from './VAAZHI_SOFTWARE.jpg'
+import Willdo from './Willdo.jpg'
+import TOLASING from './TOLASING.jpg'
+import VS_EV from './VS_EV.jpg'
 
 export { warar , raatai,aeda,eroyal,bfit,gurukals,oli,indi,nevar,sss,senmax,lectronic,flowget,exor,techmyth,arios,scalejet,silverfox,verob,
-    marche, nilaiyana,rh,yuvmi,microbear,syncbio,infab,jesvid, Onei2_innovations, desi_village, railmet, xagrotor_tek, introhive, Livelehood, Neural_organics, Novelmed, Yourbackers, Aero_Knotz
+    marche, nilaiyana,rh,yuvmi,microbear,syncbio,infab,jesvid, Onei2_innovations, desi_village, railmet, xagrotor_tek, introhive, Livelehood, Neural_organics, Novelmed, Yourbackers, Aero_Knotz, APJ,
+    WIDEZO, GANTHAM, AAPTRO, YOWAN, Kempros_Solutions, LH_INTEGRATED, PHYCORE_TECHNOLOGIES, SACDEEIL_AEROSPACE_PRIVATE_LIMITED, Sri_Ramajayam_Projects,
+    VAAZHI_SOFTWARE, Willdo, TOLASING, VS_EV
 };

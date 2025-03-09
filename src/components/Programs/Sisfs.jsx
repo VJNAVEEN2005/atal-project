@@ -449,6 +449,20 @@ const Sisfs = () => {
         {/* Program Structure Section */}
         <ProgramSections themeColors={themeColors} />
 
+        <div className="my-12 relative">
+          {!schemeImageLoaded && (
+            <Skeleton height={300} width="100%" className="rounded-xl" />
+          )}
+          <img
+            className={`p-3 shadow-xl rounded-xl w-full ${
+              !schemeImageLoaded ? "hidden" : ""
+            }`}
+            src={sisfs}
+            alt="SISFS Scheme"
+            onLoad={() => setSchemeImageLoaded(true)}
+          />
+        </div>
+
         {/* Funding Sections */}
         <div className="grid md:grid-cols-2 gap-8 my-12">
           {/* Grant Funding */}
@@ -508,19 +522,7 @@ const Sisfs = () => {
           </motion.div>
         </div>
 
-        <div className="mb-12 relative">
-          {!schemeImageLoaded && (
-            <Skeleton height={300} width="100%" className="rounded-xl" />
-          )}
-          <img
-            className={`p-3 shadow-xl rounded-xl w-full ${
-              !schemeImageLoaded ? "hidden" : ""
-            }`}
-            src={sisfs}
-            alt="SISFS Scheme"
-            onLoad={() => setSchemeImageLoaded(true)}
-          />
-        </div>
+        
 
         {/* Beneficiaries Section */}
         <motion.div variants={fadeIn}>
@@ -568,7 +570,7 @@ const Sisfs = () => {
 
       <div className=" flex w-full justify-center items-center mt-12">
         <button className=" bg-yellow-400 p-4 rounded-md text-white font-bold">
-          Apply Now
+        Apply Now in Advance
         </button>
       </div>
     </motion.div>

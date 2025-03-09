@@ -310,7 +310,7 @@ const Acceleration = () => {
             transition={{ type: "spring", stiffness: 400, damping: 17 }}
             animate={{ y: [0, -5, 0] }}
           >
-            <span>Apply for Startup Revive</span>
+            <span>Apply Now in Advance</span>
             <motion.svg 
               xmlns="http://www.w3.org/2000/svg" 
               width="24" 

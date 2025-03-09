@@ -185,7 +185,7 @@ const Dass = () => {
           className="text-white px-8 py-3 rounded-md font-medium shadow-lg"
           style={{ backgroundColor: primaryOrange }}
         >
-          Apply Now
+          Apply Now in Advance
         </motion.button>
       </motion.div>
     </motion.div>

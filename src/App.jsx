@@ -25,8 +25,8 @@ import Network from "./components/Partners/Network.jsx";
 import NavbarOG from "./layouts/NavbarOG.jsx";
 import Programs from "./pages/Programs.jsx";
 import Team from "./pages/Teams.jsx";
-import CoreTeam from './components/Teams/CoreTeam.tsx'
-import Executive_Committee from './components/Teams/Executive_Committee.tsx'
+import CoreTeam from "./components/Teams/CoreTeam.tsx";
+import Executive_Committee from "./components/Teams/Executive_Committee.tsx";
 import NewNav from "./components/ui/NewNav.jsx";
 import Events_Calendar from "./components/Events/Events_Calander.jsx";
 import Road_Map from "./components/Events/Road_Map.jsx";
@@ -37,7 +37,7 @@ import Drone_Technology from "./components/Programs/Skill_Pattara/Drone_Technolo
 import Arduino_Programming from "./components/Programs/Skill_Pattara/Arduino_Programming.jsx";
 import Raspberry_Pi_Development from "./components/Programs/Skill_Pattara/Raspberry_Pi_Development.jsx";
 import MoveToTop from "./components/MoveToTop.jsx";
-
+import Login from "./pages/Login.jsx";
 
 function App() {
   return (
@@ -45,11 +45,10 @@ function App() {
       {/*
       <Header />
     */}
-      <NewNav/>
-      <MoveToTop/>
+      <NewNav />
+      <MoveToTop />
       {/* <NavbarOG /> */}
       <Routes>
-
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
@@ -65,21 +64,29 @@ function App() {
         <Route path="/investmentPartner" element={<Investment />} />
         <Route path="/ipSupporters" element={<IP />} />
         <Route path="/networkingPartners" element={<Network />} />
-        <Route path="/team" element={<Team/>} />
-        <Route path="/team/coreteam" element={<CoreTeam/>} />
-        <Route path="/team/executive_committee" element={<Executive_Committee/>} />
-        <Route path="/upcoming_events" element={<Events_Calendar/>} />
-        <Route path="/road_map" element={<Road_Map/>} />
-        <Route path="/news_letter" element={<News_letter/>} />
-        <Route path="/press_media" element={<Press_Media_Coverage/>} />
-        
+        <Route path="/team" element={<Team />} />
+        <Route path="/team/coreteam" element={<CoreTeam />} />
+        <Route
+          path="/team/executive_committee"
+          element={<Executive_Committee />}
+        />
+        <Route path="/upcoming_events" element={<Events_Calendar />} />
+        <Route path="/road_map" element={<Road_Map />} />
+        <Route path="/news_letter" element={<News_letter />} />
+        <Route path="/press_media" element={<Press_Media_Coverage />} />
+        <Route path="/login" element={<Login />} />
+
 
         {/* Skill_Pattara */}
-        <Route path="/drone_technology" element={<Drone_Technology/>} />
-        <Route path="/arduino_programming" element={<Arduino_Programming/>} />
-        <Route path="/raspberry_pi_development" element={<Raspberry_Pi_Development/>} />
-        
-        <Route path="*" element={<Page_Not_Found/>} />
+        <Route path="/drone_technology" element={<Drone_Technology />} />
+        <Route path="/arduino_programming" element={<Arduino_Programming />} />
+        <Route
+          path="/raspberry_pi_development"
+          element={<Raspberry_Pi_Development />}
+        />
+
+        {/* 404 Page */}
+        <Route path="*" element={<Page_Not_Found />} />
       </Routes>
       <Footer />
     </Router>

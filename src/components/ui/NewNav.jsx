@@ -217,6 +217,7 @@ const NewNav = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="text-white bg-[#0F1F2C] px-3 py-2 rounded-lg shadow-lg transition-all"
+              onClick={() => navigate("/login")}
             >
               Login
             </motion.button>
@@ -327,6 +328,7 @@ const NewNav = () => {
             <motion.button 
               whileTap={{ scale: 0.95 }}
               className="w-full text-white bg-[#0F1F2C] px-3 py-2 rounded-lg shadow-lg transition-all text-center text-sm sm:text-base"
+              onClick={() => navigate("/login")}
             >
               Login
             </motion.button>
