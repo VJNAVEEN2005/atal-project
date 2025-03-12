@@ -10,19 +10,41 @@ const NewNav = () => {
   const navigate = useNavigate();
   const mobileMenuRef = useRef(null);
 
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  const checkAuth = () => {
+    const auth = window.localStorage.getItem("isAuthenticated");
+    if (auth) {
+      setIsAuthenticated(true);
+    }
+  };
+
   // Close mobile menu when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
-      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target)) {
+      if (
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(event.target)
+      ) {
         setIsOpen(false);
       }
     }
-    
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  const LogOut = () => {
+    setIsAuthenticated(false);
+    window.localStorage.removeItem("isAuthenticated");
+    window.location.href = "/";
+  };
 
   // Navigation items remain the same...
   const navItems = [
@@ -148,8 +170,16 @@ const NewNav = () => {
             transition={{ delay: 0.2, duration: 0.5 }}
             onClick={() => navigate("/")}
           >
-            <img src={Aic} alt="AIC-PECT Logo" className="h-12 sm:h-16 lg:h-24 object-cover" />
-            <img src={ptuLogo} alt="University Logo" className="h-8 sm:h-12 lg:h-16 object-cover" />
+            <img
+              src={Aic}
+              alt="AIC-PECT Logo"
+              className="h-12 sm:h-16 lg:h-24 object-cover"
+            />
+            <img
+              src={ptuLogo}
+              alt="University Logo"
+              className="h-8 sm:h-12 lg:h-16 object-cover"
+            />
           </motion.div>
 
           {/* Desktop Menu - now only shows on lg screens */}
@@ -172,7 +202,10 @@ const NewNav = () => {
                   >
                     <NavLink to={item.link}>{item.name}</NavLink>
                     {item.dropdown && (
-                      <ChevronDown className="ml-1 h-4 w-4" style={{ color: "#3f6197" }} />
+                      <ChevronDown
+                        className="ml-1 h-4 w-4"
+                        style={{ color: "#3f6197" }}
+                      />
                     )}
                   </motion.div>
 
@@ -212,16 +245,44 @@ const NewNav = () => {
           </div>
 
           {/* Desktop Register Button */}
-          <div className="hidden lg:flex items-center mr-5">
-            <motion.button 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="text-white bg-[#0F1F2C] px-3 py-2 rounded-lg shadow-lg transition-all"
-              onClick={() => navigate("/login")}
-            >
-              Login
-            </motion.button>
-          </div>
+          {!isAuthenticated && (
+            <div className="hidden lg:flex items-center mr-5">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="text-white bg-[#0F1F2C] px-3 py-2 rounded-lg shadow-lg transition-all"
+                onClick={() => navigate("/login")}
+              >
+                Login
+              </motion.button>
+            </div>
+          )}
+
+          {isAuthenticated && (
+            <div className="hidden lg:flex items-center mr-5">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="text-white bg-[#0F1F2C] px-3 py-2 rounded-lg shadow-lg transition-all"
+                onClick={LogOut}
+              >
+                Logout
+              </motion.button>
+            </div>
+          )}
+
+          {isAuthenticated && (
+            <div className="hidden lg:flex items-center mr-5">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="text-white bg-[#0F1F2C] px-3 py-2 rounded-lg shadow-lg transition-all"
+                onClick={() => navigate("/admin")}
+              >
+                Admin
+              </motion.button>
+            </div>
+          )}
 
           {/* Right Logo */}
           <motion.div
@@ -230,7 +291,11 @@ const NewNav = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
           >
-            <img src={Aim} alt="NITI Aayog Logo" className="h-8 sm:h-10 lg:h-14" />
+            <img
+              src={Aim}
+              alt="NITI Aayog Logo"
+              className="h-8 sm:h-10 lg:h-14"
+            />
           </motion.div>
 
           {/* Mobile/Tablet menu button - now shows on all screens below lg */}
@@ -270,9 +335,11 @@ const NewNav = () => {
                 className="flex justify-between items-center px-3 py-2 rounded-md text-sm sm:text-base font-medium hover:bg-gray-50"
                 style={{ color: "#3f6197" }}
               >
-                <NavLink 
+                <NavLink
                   to={item.link}
-                  onClick={() => !item.dropdown && handleMobileItemClick(index, false)}
+                  onClick={() =>
+                    !item.dropdown && handleMobileItemClick(index, false)
+                  }
                   className="flex-grow"
                 >
                   {item.name}
@@ -309,7 +376,7 @@ const NewNav = () => {
                       className="block px-3 py-2 text-xs sm:text-sm rounded-md hover:bg-gray-100"
                       style={{ color: "#3f6197" }}
                     >
-                      <NavLink 
+                      <NavLink
                         to={subItem.link}
                         onClick={() => setIsOpen(false)}
                         className="block w-full"
@@ -322,17 +389,42 @@ const NewNav = () => {
               )}
             </div>
           ))}
-          
+
           {/* Mobile/Tablet Register Button */}
-          <div className="px-3 py-4">
-            <motion.button 
-              whileTap={{ scale: 0.95 }}
-              className="w-full text-white bg-[#0F1F2C] px-3 py-2 rounded-lg shadow-lg transition-all text-center text-sm sm:text-base"
-              onClick={() => navigate("/login")}
-            >
-              Login
-            </motion.button>
-          </div>
+          {!isAuthenticated && (
+            <div className="px-3 py-4">
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                className="w-full text-white bg-[#0F1F2C] px-3 py-2 rounded-lg shadow-lg transition-all text-center text-sm sm:text-base"
+                onClick={() => navigate("/login")}
+              >
+                Login
+              </motion.button>
+            </div>
+          )}
+
+          {isAuthenticated && (
+            <div className="px-3 py-4">
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                className="w-full text-white bg-[#0F1F2C] px-3 py-2 rounded-lg shadow-lg transition-all text-center text-sm sm:text-base"
+                onClick={LogOut}
+              >
+                Logout
+              </motion.button>
+            </div>
+          )}
+          {isAuthenticated && (
+            <div className="px-3 py-4">
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                className="w-full text-white bg-[#0F1F2C] px-3 py-2 rounded-lg shadow-lg transition-all text-center text-sm sm:text-base"
+                onClick={() => navigate("/admin")}
+              >
+                Admin
+              </motion.button>
+            </div>
+          )}
         </div>
       </motion.div>
     </motion.nav>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Tilt } from "react-tilt";
 import { Home1, Home2, Home3 } from "../../assets/Homepage/images";
 import Image_Carousel from "./Image_Carousel";
@@ -32,7 +32,7 @@ const Landing = () => {
     home8,
     home10,
     home11,
-    home12
+    home12,
   ];
 
   return (
@@ -40,7 +40,7 @@ const Landing = () => {
       {/* Decorative circles - visible only on larger screens with better positioning */}
       <div className="hidden md:block absolute border-4 border-gray-300 rounded-full min-h-screen w-[850px] lg:w-[1000px] -left-[650px] lg:-left-[700px] top-0 -z-10 opacity-50"></div>
       <div className="hidden md:block absolute border-4 border-gray-300 rounded-full min-h-screen w-[850px] lg:w-[1000px] -right-[650px] lg:-right-[700px] top-0 -z-10 opacity-50"></div>
-      
+
       {/* Title Section - Responsive text sizing */}
       <div className="mt-4 sm:mt-6 md:mt-8 text-gray-700 flex flex-col items-center">
         <h1 className="font-semibold text-3xl sm:text-4xl md:text-5xl text-center title">
