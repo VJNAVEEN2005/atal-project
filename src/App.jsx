@@ -38,6 +38,7 @@ import Arduino_Programming from "./components/Programs/Skill_Pattara/Arduino_Pro
 import Raspberry_Pi_Development from "./components/Programs/Skill_Pattara/Raspberry_Pi_Development.jsx";
 import MoveToTop from "./components/MoveToTop.jsx";
 import Login from "./pages/Login.jsx";
+import SignUp from "./pages/SignUp.jsx";
 
 function App() {
   return (
@@ -74,7 +75,10 @@ function App() {
         <Route path="/road_map" element={<Road_Map />} />
         <Route path="/news_letter" element={<News_letter />} />
         <Route path="/press_media" element={<Press_Media_Coverage />} />
+
+        {/* Login */}
         <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<SignUp/>} />
 
 
         {/* Skill_Pattara */}

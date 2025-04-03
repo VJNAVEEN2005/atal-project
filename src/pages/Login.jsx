@@ -65,11 +65,11 @@ const Login = () => {
             Login
           </button>
         </form>
-        <p className="mt-4 text-sm text-gray-500">
+        <p className="mt-4 text-sm text-gray-500 flex gap-1">
           Don't have an account?{" "}
-          <a href="#" className="text-[#3f6197] font-semibold hover:underline">
+          <div onClick={()=>navigate('/signup')} className="text-[#3f6197] hover:cursor-pointer font-semibold hover:underline">
             Sign up
-          </a>
+          </div>
         </p>
       </div>
     </div>
