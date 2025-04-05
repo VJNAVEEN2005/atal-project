@@ -57,7 +57,7 @@ const Profile = () => {
       cityStatePostal: "Bangalore, Karnataka, 560001",
       productDescription: "AI-powered automation solutions for enterprises",
       businessType: "Product",
-      websiteUrl: "https://aic.com",
+      websiteUrl: "http://www.aicpecf.org/",
       displayProduct: "Yes",
       profilePhoto: null
     };
