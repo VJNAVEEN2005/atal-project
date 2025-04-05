@@ -39,6 +39,7 @@ import Raspberry_Pi_Development from "./components/Programs/Skill_Pattara/Raspbe
 import MoveToTop from "./components/MoveToTop.jsx";
 import Login from "./pages/Login.jsx";
 import SignUp from "./pages/SignUp.jsx";
+import Profile from "./pages/Profile.jsx";
 
 function App() {
   return (
@@ -79,6 +80,7 @@ function App() {
         {/* Login */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp/>} />
+        <Route path="/profile" element={<Profile/>} />
 
 
         {/* Skill_Pattara */}

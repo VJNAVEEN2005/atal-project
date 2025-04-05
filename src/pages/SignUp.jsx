@@ -1,13 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const SignUp = () => {
   const navigate = useNavigate();
-  
-  // Track current step
   const [step, setStep] = useState(1);
-  
-  // Form data
+  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     domain: "",
     name: "",
@@ -17,97 +15,219 @@ const SignUp = () => {
     phoneNumber: "",
     organizationName: "",
     organizationSize: "",
-    organizationIndustry: ""
+    organizationIndustry: "",
+    founderName: "",
+    founderWhatsApp: "",
+    representativeName: "",
+    representativeDesignation: "",
+    representativeWhatsApp: "",
+    dpiitNumber: "",
+    sector: "",
+    womenLed: "",
+    panNumber: "",
+    gstNumber: "",
+    address: "",
+    cityStatePostal: "",
+    productDescription: "",
+    businessType: "",
+    websiteUrl: "",
+    growthPotential: "",
+    pwdRelated: "",
+    displayProduct: ""
   });
-  
-  // Error handling
-  const [error, setError] = useState("");
-  
+
   // Handle input changes
   const handleChange = (e) => {
     const { id, value } = e.target;
     setFormData({
       ...formData,
-      [id]: value
+      [id]: value,
     });
   };
-  
-  // Handle next step
-  const handleNextStep = (e) => {
-    e.preventDefault();
-    
-    // Reset error
+
+  // Validation for each step
+  const validateStep = () => {
     setError("");
     
-    // Validation for each step
     if (step === 1) {
       if (!formData.domain) {
         setError("Please select a domain");
-        return;
+        return false;
       }
     } else if (step === 2) {
       if (!formData.name || !formData.email || !formData.password || !formData.phoneNumber) {
         setError("All fields are required");
-        return;
+        return false;
       }
       if (formData.password !== formData.confirmPassword) {
         setError("Passwords do not match");
-        return;
+        return false;
+      }
+      // Email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        setError("Please enter a valid email address");
+        return false;
+      }
+    } else if (step === 3) {
+      // Only validate required organization fields
+      const requiredFields = {
+        organizationName: "Name of the Startup",
+        sector: "Sector",
+        businessType: "Business Type"
+      };
+      
+      for (const [field, label] of Object.entries(requiredFields)) {
+        if (!formData[field]) {
+          setError(`${label} is required`);
+          return false;
+        }
       }
     }
     
-    setStep(step + 1);
+    return true;
   };
-  
+
+  // Handle next step
+  const handleNextStep = (e) => {
+    e.preventDefault();
+    if (validateStep()) {
+      setStep(step + 1);
+    }
+  };
+
   // Handle previous step
   const handlePrevStep = () => {
     setStep(step - 1);
   };
-  
+
   // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    // Reset error
-    setError("");
-    
-    // Final validation
-    if (!formData.organizationName || !formData.organizationIndustry) {
-      setError("Organization information is required");
-      return;
+    if (validateStep()) {
+      console.log(formData);
+      alert("Account created successfully!");
+      navigate("/login");
     }
-    
-    // Successful signup
-    alert("Account created successfully!");
-    navigate("/login");
   };
-  
+
+  //axios
+  const handleAxios = async () => {
+    try {
+      const response = await axios.post("https://api.example.com/signup", formData);
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error:", error.response.data);
+    }
+  };
+
+  // Form field renderer to reduce repetition
+  const renderField = (id, label, type = "text", placeholder = "", options = null, required = false) => {
+    // Change this line to separate the asterisk and make it red
+    const labelText = required ? (
+      <span>
+        {label} <span className="text-red-500">*</span>
+      </span>
+    ) : label;
+    
+    if (options) {
+      return (
+        <div className="flex flex-col gap-2">
+          <label htmlFor={id} className="text-lg font-semibold text-gray-700">
+            {labelText}
+          </label>
+          <select
+            id={id}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3f6197] text-gray-700 bg-white"
+            value={formData[id] || ""}
+            onChange={handleChange}
+            required={required}
+          >
+            <option value="">Select {label}</option>
+            {options.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex flex-col gap-2">
+        <label htmlFor={id} className="text-lg font-semibold text-gray-700">
+          {labelText}
+        </label>
+        <input
+          type={type}
+          id={id}
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3f6197] text-gray-700"
+          placeholder={placeholder || `Enter ${label.toLowerCase()}`}
+          value={formData[id] || ""}
+          onChange={handleChange}
+          required={required}
+        />
+      </div>
+    );
+  };
+
+  // Domain options
+  const domainOptions = [
+    { value: "Startups", label: "Startups" },
+    { value: "Aspirant (or) Individual", label: "Aspirant (or) Individual" },
+    { value: "Mentors", label: "Mentors" },
+    { value: "Startup Ecosystem Enablers", label: "Startup Ecosystem Enablers" },
+    { value: "Investors", label: "Investors" },
+    { value: "Innovators", label: "Innovators" },
+    { value: "Startups Service Providers", label: "Startups Service Providers" }
+  ];
+
+  // Entity nature options
+  const entityOptions = [
+    { value: "Private Limited", label: "Private Limited" },
+    { value: "Partnership", label: "Partnership" },
+    { value: "Other", label: "Other" }
+  ];
+
+  // Sector options
+  const sectorOptions = [
+    { value: "AI, Deeptech & Cybersecurity", label: "AI, Deeptech & Cybersecurity" },
+    { value: "Agritech", label: "Agritech" },
+    { value: "B2B & Precision Manufacturing", label: "B2B & Precision Manufacturing" },
+    { value: "Biotech & Health Tech", label: "Biotech & Health Tech" },
+    { value: "Climate Tech", label: "Climate Tech" },
+    { value: "D2C", label: "D2C" },
+    { value: "Defence & Space Tech", label: "Defence & Space Tech" },
+    { value: "Fintech", label: "Fintech" },
+    { value: "Gaming & Sports", label: "Gaming & Sports" },
+    { value: "Incubators & Accelerators", label: "Incubators & Accelerators" },
+    { value: "Mobility", label: "Mobility" },
+    { value: "Other", label: "Other" }
+  ];
+
+  // Yes/No options
+  const yesNoOptions = [
+    { value: "Yes", label: "Yes" },
+    { value: "No", label: "No" }
+  ];
+
+  // Business type options
+  const businessTypeOptions = [
+    { value: "Product", label: "Product" },
+    { value: "Service Based", label: "Service Based" }
+  ];
+
   // Render current step content
   const renderStepContent = () => {
     switch (step) {
       case 1:
         return (
           <div className="w-full space-y-4">
-            <h2 className="text-2xl font-bold text-[#3f6197] mb-2">Select Your Domain</h2>
-            <div className="flex flex-col gap-2">
-              <label htmlFor="domain" className="text-lg font-semibold text-gray-700">
-                Domain Type
-              </label>
-              <select
-                id="domain"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3f6197] text-gray-700 bg-white"
-                value={formData.domain}
-                onChange={handleChange}
-              >
-                <option value="">Select a domain</option>
-                <option value="business">Business</option>
-                <option value="education">Education</option>
-                <option value="healthcare">Healthcare</option>
-                <option value="nonprofit">Non-Profit</option>
-                <option value="government">Government</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
+            <h2 className="text-2xl font-bold text-[#3f6197] mb-2">
+              Select Your Domain
+            </h2>
+            {renderField("domain", "Domain Type", "select", "", domainOptions, true)}
             <button
               onClick={handleNextStep}
               className="w-full bg-[#3f6197] text-white font-semibold py-3 mt-4 rounded-lg shadow-md hover:bg-[#2e4b78] transition-all duration-300"
@@ -116,78 +236,23 @@ const SignUp = () => {
             </button>
           </div>
         );
-      
+
       case 2:
         return (
           <div className="w-full space-y-4">
-            <h2 className="text-2xl font-bold text-[#3f6197] mb-2">Personal Information</h2>
-            <div className="flex flex-col gap-2">
-              <label htmlFor="name" className="text-lg font-semibold text-gray-700">
-                Full Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3f6197] text-gray-700"
-                placeholder="Enter your full name"
-                value={formData.name}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <label htmlFor="email" className="text-lg font-semibold text-gray-700">
-                Email Address
-              </label>
-              <input
-                type="email"
-                id="email"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3f6197] text-gray-700"
-                placeholder="Enter your email"
-                value={formData.email}
-                onChange={handleChange}
-              />
-            </div>
+            <h2 className="text-2xl font-bold text-[#3f6197] mb-2">
+              Personal Information
+            </h2>
+            {renderField("name", "Full Name", "text", "Enter your full name", null, true)}
+            {renderField("email", "Email Address", "email", "Enter your email", null, true)}
+            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex flex-col gap-2">
-                <label htmlFor="password" className="text-lg font-semibold text-gray-700">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  id="password"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3f6197] text-gray-700"
-                  placeholder="Create a password"
-                  value={formData.password}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <label htmlFor="confirmPassword" className="text-lg font-semibold text-gray-700">
-                  Confirm Password
-                </label>
-                <input
-                  type="password"
-                  id="confirmPassword"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3f6197] text-gray-700"
-                  placeholder="Confirm your password"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                />
-              </div>
+              {renderField("password", "Password", "password", "Create a password", null, true)}
+              {renderField("confirmPassword", "Confirm Password", "password", "Confirm your password", null, true)}
             </div>
-            <div className="flex flex-col gap-2">
-              <label htmlFor="phoneNumber" className="text-lg font-semibold text-gray-700">
-                Phone Number
-              </label>
-              <input
-                type="tel"
-                id="phoneNumber"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3f6197] text-gray-700"
-                placeholder="Enter your phone number"
-                value={formData.phoneNumber}
-                onChange={handleChange}
-              />
-            </div>
+            
+            {renderField("phoneNumber", "Phone Number", "tel", "Enter your phone number", null, true)}
+            
             <div className="flex gap-4 mt-4">
               <button
                 onClick={handlePrevStep}
@@ -204,64 +269,36 @@ const SignUp = () => {
             </div>
           </div>
         );
-      
+
       case 3:
         return (
           <div className="w-full space-y-4">
-            <h2 className="text-2xl font-bold text-[#3f6197] mb-2">Organization Details</h2>
-            <div className="flex flex-col gap-2">
-              <label htmlFor="organizationName" className="text-lg font-semibold text-gray-700">
-                Organization Name
-              </label>
-              <input
-                type="text"
-                id="organizationName"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3f6197] text-gray-700"
-                placeholder="Enter organization name"
-                value={formData.organizationName}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex flex-col gap-2">
-                <label htmlFor="organizationSize" className="text-lg font-semibold text-gray-700">
-                  Organization Size
-                </label>
-                <select
-                  id="organizationSize"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3f6197] text-gray-700 bg-white"
-                  value={formData.organizationSize}
-                  onChange={handleChange}
-                >
-                  <option value="">Select size</option>
-                  <option value="1-10">1-10 employees</option>
-                  <option value="11-50">11-50 employees</option>
-                  <option value="51-200">51-200 employees</option>
-                  <option value="201-500">201-500 employees</option>
-                  <option value="501+">501+ employees</option>
-                </select>
-              </div>
-              <div className="flex flex-col gap-2">
-                <label htmlFor="organizationIndustry" className="text-lg font-semibold text-gray-700">
-                  Industry
-                </label>
-                <select
-                  id="organizationIndustry"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3f6197] text-gray-700 bg-white"
-                  value={formData.organizationIndustry}
-                  onChange={handleChange}
-                >
-                  <option value="">Select industry</option>
-                  <option value="technology">Technology</option>
-                  <option value="healthcare">Healthcare</option>
-                  <option value="education">Education</option>
-                  <option value="finance">Finance</option>
-                  <option value="retail">Retail</option>
-                  <option value="manufacturing">Manufacturing</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-            </div>
+            <h2 className="text-2xl font-bold text-[#3f6197] mb-2">
+              Organization Details
+            </h2>
+            <p className="text-sm text-gray-500 mb-4">Fields marked with <span className="text-red-500">*</span> are required</p>
+            
+            {renderField("displayProduct", "Are you willing to display your product at Startup Mahakumbh", "select", "", yesNoOptions)}
+            {renderField("organizationName", "Name of the Startup", "text", null, null, true)}
+            {renderField("organizationSize", "Nature of Entity", "select", "", entityOptions)}
+            {renderField("founderName", "Founder Name", "text")}
+            {renderField("founderWhatsApp", "Founder WhatsApp No.", "text")}
+            {renderField("representativeName", "Representative Name", "text")}
+            {renderField("representativeDesignation", "Representative Designation", "text")}
+            {renderField("representativeWhatsApp", "Representative WhatsApp Number", "text")}
+            {renderField("dpiitNumber", "DPIIT Recognition Number", "text")}
+            {renderField("sector", "Sector", "select", "", sectorOptions, true)}
+            {renderField("womenLed", "Women Led Startup", "select", "", yesNoOptions)}
+            {renderField("panNumber", "PAN Number", "text")}
+            {renderField("gstNumber", "GST Number", "text")}
+            {renderField("address", "Address", "text")}
+            {renderField("cityStatePostal", "City, State, Postal Code", "text")}
+            {renderField("productDescription", "Describe Your Product/Service", "text")}
+            {renderField("businessType", "Are you a Product based startup or a Service based startup", "select", "", businessTypeOptions, true)}
+            {renderField("websiteUrl", "Website URL", "text")}
+            {renderField("growthPotential", "Why does your company have high growth potential?", "text")}
+            {renderField("pwdRelated", "Is your startup working on projects related to Persons with Disabilities (PWD)?", "select", "", yesNoOptions)}
+            
             <div className="flex items-center gap-2 mt-4">
               <input
                 type="checkbox"
@@ -271,11 +308,15 @@ const SignUp = () => {
               />
               <label htmlFor="terms" className="text-gray-600 text-sm">
                 I agree to the{" "}
-                <a href="#" className="text-[#3f6197] font-semibold hover:underline">
+                <a
+                  href="#"
+                  className="text-[#3f6197] font-semibold hover:underline"
+                >
                   Terms and Conditions
                 </a>
               </label>
             </div>
+            
             <div className="flex gap-4 mt-4">
               <button
                 onClick={handlePrevStep}
@@ -292,84 +333,87 @@ const SignUp = () => {
             </div>
           </div>
         );
-      
+
       default:
         return null;
     }
   };
-  
+
+  // Progress step component to reduce repetition
+  const ProgressStep = ({ number, label, active }) => (
+    <div className="flex flex-col items-center">
+      <div
+        className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
+          active
+            ? "border-[#3f6197] bg-[#3f6197] text-white"
+            : "border-gray-300 text-gray-400"
+        }`}
+      >
+        {number}
+      </div>
+      <span
+        className={`text-xs mt-1 font-medium ${
+          active ? "text-[#3f6197]" : "text-gray-400"
+        }`}
+      >
+        {label}
+      </span>
+    </div>
+  );
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
       <div className="bg-white shadow-2xl shadow-black rounded-2xl p-8 w-full max-w-md">
-        <h1 className="text-4xl font-bold text-[#3f6197] text-center mb-6">Create Account</h1>
-        
+        <h1 className="text-4xl font-bold text-[#3f6197] text-center mb-6">
+          Create Account
+        </h1>
+
         {/* Progress Steps */}
         <div className="flex justify-between items-center mb-8 px-2">
-          <div className="flex flex-col items-center">
-            <div 
-              className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
-                step >= 1 
-                  ? 'border-[#3f6197] bg-[#3f6197] text-white' 
-                  : 'border-gray-300 text-gray-400'
-              }`}
-            >
-              1
-            </div>
-            <span className={`text-xs mt-1 font-medium ${step >= 1 ? 'text-[#3f6197]' : 'text-gray-400'}`}>Domain</span>
-          </div>
+          <ProgressStep number={1} label="Domain" active={step >= 1} />
           
-          <div className={`flex-1 h-1 mx-2 ${step >= 2 ? 'bg-[#3f6197]' : 'bg-gray-200'}`} />
+          <div className={`flex-1 h-1 mx-2 ${step >= 2 ? "bg-[#3f6197]" : "bg-gray-200"}`} />
           
-          <div className="flex flex-col items-center">
-            <div 
-              className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
-                step >= 2 
-                  ? 'border-[#3f6197] bg-[#3f6197] text-white' 
-                  : 'border-gray-300 text-gray-400'
-              }`}
-            >
-              2
-            </div>
-            <span className={`text-xs mt-1 font-medium ${step >= 2 ? 'text-[#3f6197]' : 'text-gray-400'}`}>Personal</span>
-          </div>
+          <ProgressStep number={2} label="Personal" active={step >= 2} />
           
-          <div className={`flex-1 h-1 mx-2 ${step >= 3 ? 'bg-[#3f6197]' : 'bg-gray-200'}`} />
+          <div className={`flex-1 h-1 mx-2 ${step >= 3 ? "bg-[#3f6197]" : "bg-gray-200"}`} />
           
-          <div className="flex flex-col items-center">
-            <div 
-              className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
-                step >= 3 
-                  ? 'border-[#3f6197] bg-[#3f6197] text-white' 
-                  : 'border-gray-300 text-gray-400'
-              }`}
-            >
-              3
-            </div>
-            <span className={`text-xs mt-1 font-medium ${step >= 3 ? 'text-[#3f6197]' : 'text-gray-400'}`}>Organization</span>
-          </div>
+          <ProgressStep number={3} label="Organization" active={step >= 3} />
         </div>
-        
+
         {/* Error message */}
         {error && (
           <div className="w-full bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-6">
             <p className="flex items-center">
-              <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9z" clipRule="evenodd" />
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9z"
+                  clipRule="evenodd"
+                />
               </svg>
               {error}
             </p>
           </div>
         )}
-        
+
         {/* Step Content */}
         {renderStepContent()}
-        
+
         {/* Login Link */}
         <p className="mt-8 text-sm text-gray-500 text-center">
           Already have an account?{" "}
-          <div onClick={()=>navigate('/login')} className="text-[#3f6197] font-semibold hover:underline hover:cursor-pointer">
+          <span
+            onClick={() => navigate("/login")}
+            className="text-[#3f6197] font-semibold hover:underline cursor-pointer"
+          >
             Sign in
-          </div>
+          </span>
         </p>
       </div>
     </div>

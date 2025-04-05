@@ -258,18 +258,7 @@ const NewNav = () => {
             </div>
           )}
 
-          {isAuthenticated && (
-            <div className="hidden lg:flex items-center mr-5">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="text-white bg-[#0F1F2C] px-3 py-2 rounded-lg shadow-lg transition-all"
-                onClick={LogOut}
-              >
-                Logout
-              </motion.button>
-            </div>
-          )}
+          
 
           {isAuthenticated && (
             <div className="hidden lg:flex items-center mr-5">
@@ -277,9 +266,9 @@ const NewNav = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="text-white bg-[#0F1F2C] px-3 py-2 rounded-lg shadow-lg transition-all"
-                onClick={() => navigate("/admin")}
+                onClick={() => navigate("/Profile")}
               >
-                Admin
+                Profile
               </motion.button>
             </div>
           )}
@@ -403,25 +392,15 @@ const NewNav = () => {
             </div>
           )}
 
+          
           {isAuthenticated && (
             <div className="px-3 py-4">
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 className="w-full text-white bg-[#0F1F2C] px-3 py-2 rounded-lg shadow-lg transition-all text-center text-sm sm:text-base"
-                onClick={LogOut}
+                onClick={() => navigate("/profile")}
               >
-                Logout
-              </motion.button>
-            </div>
-          )}
-          {isAuthenticated && (
-            <div className="px-3 py-4">
-              <motion.button
-                whileTap={{ scale: 0.95 }}
-                className="w-full text-white bg-[#0F1F2C] px-3 py-2 rounded-lg shadow-lg transition-all text-center text-sm sm:text-base"
-                onClick={() => navigate("/admin")}
-              >
-                Admin
+                Profile
               </motion.button>
             </div>
           )}
