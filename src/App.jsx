@@ -41,6 +41,7 @@ import Login from "./pages/Login.jsx";
 import SignUp from "./pages/SignUp.jsx";
 import Profile from "./pages/Profile.jsx";
 import Admin from "./pages/Admin.jsx";
+import TendersControl from "./Admin/TendersControl.jsx";
 
 function App() {
   return (
@@ -85,6 +86,7 @@ function App() {
 
         {/* Admin - Works */}
         <Route path="/admin" element={<Admin/>} />
+        <Route path="/admin/tenderscontrol" element={<TendersControl/>} />
 
         {/* Skill_Pattara */}
         <Route path="/drone_technology" element={<Drone_Technology />} />

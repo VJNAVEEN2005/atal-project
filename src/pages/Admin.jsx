@@ -24,7 +24,12 @@ const Admin = () => {
         name:"Teams Control",
         link:"/admin/teamcontrol",
         icon:"T"
-    }
+    },
+    {
+        name:"Tenders Control",
+        link:"/admin/tenderscontrol",
+        icon:"T"
+    },
   ];
 
   return (
