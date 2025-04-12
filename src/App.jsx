@@ -40,6 +40,7 @@ import MoveToTop from "./components/MoveToTop.jsx";
 import Login from "./pages/Login.jsx";
 import SignUp from "./pages/SignUp.jsx";
 import Profile from "./pages/Profile.jsx";
+import Admin from "./pages/Admin.jsx";
 
 function App() {
   return (
@@ -82,6 +83,8 @@ function App() {
         <Route path="/signup" element={<SignUp/>} />
         <Route path="/profile" element={<Profile/>} />
 
+        {/* Admin - Works */}
+        <Route path="/admin" element={<Admin/>} />
 
         {/* Skill_Pattara */}
         <Route path="/drone_technology" element={<Drone_Technology />} />

@@ -95,43 +95,55 @@ const teamMembers: TeamMember[] = [
     name: "Dr. G Gerald Moses",
     role: "Director",
     image: Gerald_Director,
+    linkedin:"https://www.linkedin.com/in/gerald-moses-b3b05b18?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+    email:"ggeraldmoses@ptuniv.edu.in"
   },
   {
     name: "Dr. R Sundaramurthy",
     role: "Executive Director",
     image: Sundhara_Moorthy_Director,
+    email:"sundar@ptuniv.edu.in",
   },
   {
     name: "Mr. V Vishnu Varadan",
     role: "Chief Executive Officer",
     image: Vishnu_CEO,
     linkedin: "https://www.linkedin.com/in/vishnuvaradan/?originalSubdomain=in",
-    email: "ceo@aicpecf.org"
+    email: "ceo@aicpecf.org",
   },
   {
     name: "Mr. S Rajakumar",
     role: "Chief Operating Officer",
     image: Rajkumar_COO,
+    linkedin:"https://www.linkedin.com/in/rajakumar-sundarapandian?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+    email:"coo@aicpecf.org",
   },
   {
     name: "Mr. S Kameswaran",
     role: "Incubation Manager",
     image: Kamesh_IM,
+    linkedin:"https://www.linkedin.com/in/kameswaran-swaminathan-startupmarketingstrategist?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+    email:"Kameswaran.s@aicpecf.org",
   },
   {
     name: "Mr. T Uthaya Kumar",
     role: "Program Executive",
     image: Udhaya_PE,
+    linkedin:"https://www.linkedin.com/in/uthaya-kumar-4a43a0191?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+    email:"peo@aicpecf.org",
   },
   {
     name: "Mr. Iyonstan",
     role: "Embedded System Intern",
     image: Iyonstan_GET,
+    linkedin:"https://www.linkedin.com/in/uthaya-kumar-4a43a0191?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+    email:"edm@aicpecf.org",
   },
   {
     name: "Mr. R Parthiban",
     role: "Tech Assistant",
     image: Parthiban_MTS,
+    email:"uav@aicpecf.org",
   },
   {
     name: "Dr.A.Muthadhi",

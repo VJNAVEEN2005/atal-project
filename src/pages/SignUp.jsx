@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import api from "../Api/api";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -18,9 +19,6 @@ const SignUp = () => {
     organizationIndustry: "",
     founderName: "",
     founderWhatsApp: "",
-    representativeName: "",
-    representativeDesignation: "",
-    representativeWhatsApp: "",
     dpiitNumber: "",
     sector: "",
     womenLed: "",
@@ -32,8 +30,6 @@ const SignUp = () => {
     businessType: "",
     websiteUrl: "",
     growthPotential: "",
-    pwdRelated: "",
-    displayProduct: ""
   });
 
   // Handle input changes
@@ -48,14 +44,19 @@ const SignUp = () => {
   // Validation for each step
   const validateStep = () => {
     setError("");
-    
+
     if (step === 1) {
       if (!formData.domain) {
         setError("Please select a domain");
         return false;
       }
     } else if (step === 2) {
-      if (!formData.name || !formData.email || !formData.password || !formData.phoneNumber) {
+      if (
+        !formData.name ||
+        !formData.email ||
+        !formData.password ||
+        !formData.phoneNumber
+      ) {
         setError("All fields are required");
         return false;
       }
@@ -74,9 +75,9 @@ const SignUp = () => {
       const requiredFields = {
         organizationName: "Name of the Startup",
         sector: "Sector",
-        businessType: "Business Type"
+        businessType: "Business Type",
       };
-      
+
       for (const [field, label] of Object.entries(requiredFields)) {
         if (!formData[field]) {
           setError(`${label} is required`);
@@ -84,7 +85,7 @@ const SignUp = () => {
         }
       }
     }
-    
+
     return true;
   };
 
@@ -106,30 +107,43 @@ const SignUp = () => {
     e.preventDefault();
     if (validateStep()) {
       console.log(formData);
-      alert("Account created successfully!");
+      axios
+        .post(`${api.web}api/v1/register`, formData)
+        .then((res) => {
+          if(res.data.success){
+            localStorage.setItem("user_id", res.data.user._id);
+            localStorage.setItem("user_name", res.data.user.email);
+            localStorage.setItem("user_isLogin", res.data.success);
+          }
+        })
+        .catch((err) => {
+          console.log(err.response.data);
+          setError(err.response.data.message);
+        });
+
       navigate("/login");
     }
   };
 
-  //axios
-  const handleAxios = async () => {
-    try {
-      const response = await axios.post("https://api.example.com/signup", formData);
-      console.log(response.data);
-    } catch (error) {
-      console.error("Error:", error.response.data);
-    }
-  };
 
   // Form field renderer to reduce repetition
-  const renderField = (id, label, type = "text", placeholder = "", options = null, required = false) => {
+  const renderField = (
+    id,
+    label,
+    type = "text",
+    placeholder = "",
+    options = null,
+    required = false
+  ) => {
     // Change this line to separate the asterisk and make it red
     const labelText = required ? (
       <span>
         {label} <span className="text-red-500">*</span>
       </span>
-    ) : label;
-    
+    ) : (
+      label
+    );
+
     if (options) {
       return (
         <div className="flex flex-col gap-2">
@@ -177,24 +191,36 @@ const SignUp = () => {
     { value: "Startups", label: "Startups" },
     { value: "Aspirant (or) Individual", label: "Aspirant (or) Individual" },
     { value: "Mentors", label: "Mentors" },
-    { value: "Startup Ecosystem Enablers", label: "Startup Ecosystem Enablers" },
+    {
+      value: "Startup Ecosystem Enablers",
+      label: "Startup Ecosystem Enablers",
+    },
     { value: "Investors", label: "Investors" },
     { value: "Innovators", label: "Innovators" },
-    { value: "Startups Service Providers", label: "Startups Service Providers" }
+    {
+      value: "Startups Service Providers",
+      label: "Startups Service Providers",
+    },
   ];
 
   // Entity nature options
   const entityOptions = [
     { value: "Private Limited", label: "Private Limited" },
     { value: "Partnership", label: "Partnership" },
-    { value: "Other", label: "Other" }
+    { value: "Other", label: "Other" },
   ];
 
   // Sector options
   const sectorOptions = [
-    { value: "AI, Deeptech & Cybersecurity", label: "AI, Deeptech & Cybersecurity" },
+    {
+      value: "AI, Deeptech & Cybersecurity",
+      label: "AI, Deeptech & Cybersecurity",
+    },
     { value: "Agritech", label: "Agritech" },
-    { value: "B2B & Precision Manufacturing", label: "B2B & Precision Manufacturing" },
+    {
+      value: "B2B & Precision Manufacturing",
+      label: "B2B & Precision Manufacturing",
+    },
     { value: "Biotech & Health Tech", label: "Biotech & Health Tech" },
     { value: "Climate Tech", label: "Climate Tech" },
     { value: "D2C", label: "D2C" },
@@ -203,19 +229,19 @@ const SignUp = () => {
     { value: "Gaming & Sports", label: "Gaming & Sports" },
     { value: "Incubators & Accelerators", label: "Incubators & Accelerators" },
     { value: "Mobility", label: "Mobility" },
-    { value: "Other", label: "Other" }
+    { value: "Other", label: "Other" },
   ];
 
   // Yes/No options
   const yesNoOptions = [
     { value: "Yes", label: "Yes" },
-    { value: "No", label: "No" }
+    { value: "No", label: "No" },
   ];
 
   // Business type options
   const businessTypeOptions = [
     { value: "Product", label: "Product" },
-    { value: "Service Based", label: "Service Based" }
+    { value: "Service Based", label: "Service Based" },
   ];
 
   // Render current step content
@@ -227,7 +253,14 @@ const SignUp = () => {
             <h2 className="text-2xl font-bold text-[#3f6197] mb-2">
               Select Your Domain
             </h2>
-            {renderField("domain", "Domain Type", "select", "", domainOptions, true)}
+            {renderField(
+              "domain",
+              "Domain Type",
+              "select",
+              "",
+              domainOptions,
+              true
+            )}
             <button
               onClick={handleNextStep}
               className="w-full bg-[#3f6197] text-white font-semibold py-3 mt-4 rounded-lg shadow-md hover:bg-[#2e4b78] transition-all duration-300"
@@ -243,16 +276,51 @@ const SignUp = () => {
             <h2 className="text-2xl font-bold text-[#3f6197] mb-2">
               Personal Information
             </h2>
-            {renderField("name", "Full Name", "text", "Enter your full name", null, true)}
-            {renderField("email", "Email Address", "email", "Enter your email", null, true)}
-            
+            {renderField(
+              "name",
+              "Full Name",
+              "text",
+              "Enter your full name",
+              null,
+              true
+            )}
+            {renderField(
+              "email",
+              "Email Address",
+              "email",
+              "Enter your email",
+              null,
+              true
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {renderField("password", "Password", "password", "Create a password", null, true)}
-              {renderField("confirmPassword", "Confirm Password", "password", "Confirm your password", null, true)}
+              {renderField(
+                "password",
+                "Password",
+                "password",
+                "Create a password",
+                null,
+                true
+              )}
+              {renderField(
+                "confirmPassword",
+                "Confirm Password",
+                "password",
+                "Confirm your password",
+                null,
+                true
+              )}
             </div>
-            
-            {renderField("phoneNumber", "Phone Number", "tel", "Enter your phone number", null, true)}
-            
+
+            {renderField(
+              "phoneNumber",
+              "Phone Number",
+              "tel",
+              "Enter your phone number",
+              null,
+              true
+            )}
+
             <div className="flex gap-4 mt-4">
               <button
                 onClick={handlePrevStep}
@@ -276,29 +344,56 @@ const SignUp = () => {
             <h2 className="text-2xl font-bold text-[#3f6197] mb-2">
               Organization Details
             </h2>
-            <p className="text-sm text-gray-500 mb-4">Fields marked with <span className="text-red-500">*</span> are required</p>
-            
-            {renderField("displayProduct", "Are you willing to display your product at Startup Mahakumbh", "select", "", yesNoOptions)}
-            {renderField("organizationName", "Name of the Startup", "text", null, null, true)}
-            {renderField("organizationSize", "Nature of Entity", "select", "", entityOptions)}
+            <p className="text-sm text-gray-500 mb-4">
+              Fields marked with <span className="text-red-500">*</span> are
+              required
+            </p>
+
+            {renderField(
+              "organizationName",
+              "Name of the Startup",
+              "text",
+              null,
+              null,
+              true
+            )}
+            {renderField(
+              "organizationSize",
+              "Nature of Entity",
+              "select",
+              "",
+              entityOptions
+            )}
             {renderField("founderName", "Founder Name", "text")}
             {renderField("founderWhatsApp", "Founder WhatsApp No.", "text")}
-            {renderField("representativeName", "Representative Name", "text")}
-            {renderField("representativeDesignation", "Representative Designation", "text")}
-            {renderField("representativeWhatsApp", "Representative WhatsApp Number", "text")}
             {renderField("dpiitNumber", "DPIIT Recognition Number", "text")}
             {renderField("sector", "Sector", "select", "", sectorOptions, true)}
-            {renderField("womenLed", "Women Led Startup", "select", "", yesNoOptions)}
+            {renderField(
+              "womenLed",
+              "Women Led Startup",
+              "select",
+              "",
+              yesNoOptions
+            )}
             {renderField("panNumber", "PAN Number", "text")}
             {renderField("gstNumber", "GST Number", "text")}
             {renderField("address", "Address", "text")}
             {renderField("cityStatePostal", "City, State, Postal Code", "text")}
-            {renderField("productDescription", "Describe Your Product/Service", "text")}
-            {renderField("businessType", "Are you a Product based startup or a Service based startup", "select", "", businessTypeOptions, true)}
+            {renderField(
+              "productDescription",
+              "Describe Your Product/Service",
+              "text"
+            )}
+            {renderField(
+              "businessType",
+              "Are you a Product based startup or a Service based startup",
+              "select",
+              "",
+              businessTypeOptions,
+              true
+            )}
             {renderField("websiteUrl", "Website URL", "text")}
-            {renderField("growthPotential", "Why does your company have high growth potential?", "text")}
-            {renderField("pwdRelated", "Is your startup working on projects related to Persons with Disabilities (PWD)?", "select", "", yesNoOptions)}
-            
+
             <div className="flex items-center gap-2 mt-4">
               <input
                 type="checkbox"
@@ -316,7 +411,7 @@ const SignUp = () => {
                 </a>
               </label>
             </div>
-            
+
             <div className="flex gap-4 mt-4">
               <button
                 onClick={handlePrevStep}
@@ -371,13 +466,21 @@ const SignUp = () => {
         {/* Progress Steps */}
         <div className="flex justify-between items-center mb-8 px-2">
           <ProgressStep number={1} label="Domain" active={step >= 1} />
-          
-          <div className={`flex-1 h-1 mx-2 ${step >= 2 ? "bg-[#3f6197]" : "bg-gray-200"}`} />
-          
+
+          <div
+            className={`flex-1 h-1 mx-2 ${
+              step >= 2 ? "bg-[#3f6197]" : "bg-gray-200"
+            }`}
+          />
+
           <ProgressStep number={2} label="Personal" active={step >= 2} />
-          
-          <div className={`flex-1 h-1 mx-2 ${step >= 3 ? "bg-[#3f6197]" : "bg-gray-200"}`} />
-          
+
+          <div
+            className={`flex-1 h-1 mx-2 ${
+              step >= 3 ? "bg-[#3f6197]" : "bg-gray-200"
+            }`}
+          />
+
           <ProgressStep number={3} label="Organization" active={step >= 3} />
         </div>
 

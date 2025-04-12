@@ -10,16 +10,16 @@ const NewNav = () => {
   const navigate = useNavigate();
   const mobileMenuRef = useRef(null);
 
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLogin, setIsLogin] = useState(false);
 
   useEffect(() => {
     checkAuth();
-  }, []);
+  }, [isLogin]);
 
   const checkAuth = () => {
-    const auth = window.localStorage.getItem("isAuthenticated");
-    if (auth) {
-      setIsAuthenticated(true);
+    const auth = window.localStorage.getItem("user_isLogin");
+    if (auth === "true") {
+      setIsLogin(true);
     }
   };
 
@@ -40,11 +40,6 @@ const NewNav = () => {
     };
   }, []);
 
-  const LogOut = () => {
-    setIsAuthenticated(false);
-    window.localStorage.removeItem("isAuthenticated");
-    window.location.href = "/";
-  };
 
   // Navigation items remain the same...
   const navItems = [
@@ -245,7 +240,7 @@ const NewNav = () => {
           </div>
 
           {/* Desktop Register Button */}
-          {!isAuthenticated && (
+          {!isLogin && (
             <div className="hidden lg:flex items-center mr-5">
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -260,7 +255,7 @@ const NewNav = () => {
 
           
 
-          {isAuthenticated && (
+          {isLogin && (
             <div className="hidden lg:flex items-center mr-5">
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -380,7 +375,7 @@ const NewNav = () => {
           ))}
 
           {/* Mobile/Tablet Register Button */}
-          {!isAuthenticated && (
+          {!isLogin && (
             <div className="px-3 py-4">
               <motion.button
                 whileTap={{ scale: 0.95 }}
@@ -393,7 +388,7 @@ const NewNav = () => {
           )}
 
           
-          {isAuthenticated && (
+          {isLogin && (
             <div className="px-3 py-4">
               <motion.button
                 whileTap={{ scale: 0.95 }}

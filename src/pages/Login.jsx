@@ -1,75 +1,166 @@
-import React,{useState} from "react";
+import axios from "axios";
+import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../Api/api";
 
 const Login = () => {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    rememberMe: false
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const [email , setEmail] = useState("");
-  const [password , setPassword] = useState("");
+  const navigate = useNavigate();
 
-  const navigate = useNavigate()
+  // Handle input changes
+  const handleChange = useCallback((e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value
+    }));
+  }, []);
 
-  function handleSubmit(e) {
-
-    if (email === "AIC" && password === "AIC") {
-      alert("Login Successful");
-      window.localStorage.setItem("isAuthenticated", true);
-      window.location.href = "/";
+  // Handle form submission
+  const handleSubmit = useCallback(async (e) => {
+    e.preventDefault();
+    
+    // Form validation
+    if (!formData.email || !formData.password) {
+      setError("Please fill in all required fields");
+      return;
     }
-  }
+    
+    setIsLoading(true);
+    setError("");
+    
+    try {
+      const response = await axios.post(
+        `${api.web}api/v1/login`, 
+        {
+          email: formData.email,
+          password: formData.password
+        }
+      );
+      
+      const { data } = response;
+      
+      if (data.success) {
+        // Store user data in localStorage
+        localStorage.setItem("user_id", data.user._id);
+        localStorage.setItem("user_name", data.user.email);
+        localStorage.setItem("user_isLogin", true);
+        
+        // Check if user is admin
+        if (data.user.admin === 1) {
+          localStorage.setItem("isAuthenticated", 1);
+        }
+        
+        // Remember me functionality
+        if (formData.rememberMe) {
+          // You could store a token with longer expiry or set a flag
+          localStorage.setItem("rememberUser", formData.email);
+        } else {
+          localStorage.removeItem("rememberUser");
+        }
+        
+        // Redirect to homepage
+        navigate("/");
+      } else {
+        setError(data.message || "Login failed");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      setError(err.response?.data?.message || "Invalid credentials");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [formData, navigate]);
+
+  // Navigate to signup page
+  const navigateToSignup = useCallback(() => {
+    navigate("/signup");
+  }, [navigate]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="bg-white shadow-2xl shadow-black rounded-2xl p-10 w-96 flex flex-col items-center">
-        <h1 className="text-4xl font-bold text-[#3f6197] mb-6">Login</h1>
-        <form className="w-full flex flex-col gap-4">
-          <div className="flex flex-col gap-2">
-            <label
-              htmlFor="email"
-              className="text-lg font-semibold text-gray-700"
-            >
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="bg-white shadow-lg rounded-xl p-8 w-full max-w-md">
+        <h1 className="text-3xl font-bold text-center text-[#3f6197] mb-6">Login</h1>
+        
+        {error && (
+          <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-4">
+            {error}
+          </div>
+        )}
+        
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label htmlFor="email" className="block text-gray-700 font-medium mb-2">
               Email
             </label>
             <input
               type="email"
               id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3f6197] text-gray-700"
               placeholder="Enter your email"
-              onChange={(e) => setEmail(e.target.value)}
+              required
             />
           </div>
-          <div className="flex flex-col gap-2">
-            <label
-              htmlFor="password"
-              className="text-lg font-semibold text-gray-700"
-            >
+          
+          <div>
+            <label htmlFor="password" className="block text-gray-700 font-medium mb-2">
               Password
             </label>
             <input
               type="password"
               id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3f6197] text-gray-700"
               placeholder="Enter your password"
-              onChange={(e) => setPassword(e.target.value)}
+              required
             />
           </div>
-          <div className="flex items-center gap-2">
-            <input type="checkbox" id="remember" className="accent-[#3f6197]" />
-            <label htmlFor="remember" className="text-gray-600 text-sm">
+          
+          <div className="flex items-center">
+            <input 
+              type="checkbox" 
+              id="rememberMe" 
+              name="rememberMe"
+              checked={formData.rememberMe}
+              onChange={handleChange}
+              className="w-4 h-4 accent-[#3f6197]" 
+            />
+            <label htmlFor="rememberMe" className="ml-2 text-gray-600">
               Remember me
             </label>
           </div>
+          
           <button
-            onClick={handleSubmit}
-            className="bg-[#3f6197] text-white font-semibold py-2 rounded-lg shadow-md hover:bg-[#2e4b78] transition-all duration-300"
+            type="submit"
+            disabled={isLoading}
+            className={`w-full py-2.5 px-4 rounded-lg font-medium text-white transition-colors duration-300 ${
+              isLoading ? "bg-gray-400 cursor-not-allowed" : "bg-[#3f6197] hover:bg-[#2e4b78]"
+            }`}
           >
-            Login
+            {isLoading ? "Logging in..." : "Login"}
           </button>
         </form>
-        <p className="mt-4 text-sm text-gray-500 flex gap-1">
+        
+        <p className="mt-6 text-center text-gray-600">
           Don't have an account?{" "}
-          <div onClick={()=>navigate('/signup')} className="text-[#3f6197] hover:cursor-pointer font-semibold hover:underline">
+          <button 
+            onClick={navigateToSignup}
+            className="text-[#3f6197] font-medium hover:underline focus:outline-none"
+          >
             Sign up
-          </div>
+          </button>
         </p>
       </div>
     </div>
