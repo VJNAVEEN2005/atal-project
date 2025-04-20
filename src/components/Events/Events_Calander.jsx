@@ -1,45 +1,33 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { motion, AnimatePresence } from "framer-motion";
-import { eventsp1, eventsp2, eventsp3, eventsp4, eventsp5 } from "../../assets/Events/data";
+import axios from "axios";
+import api from "../../Api/api";
 
 const Events_Calendar = () => {
   const [selectedDates, setSelectedDates] = useState([]);
   const [filteredDates, setFilteredDates] = useState([]);
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const events = [
-    {
-      date: "2025-01-11",
-      title: "Tech Conference 2024",
-      time: "10:00 AM",
-      poster: eventsp1,
-    },
-    {
-      date: "2025-01-10",
-      title: "Art Exhibition",
-      time: "3:00 PM",
-      poster: eventsp2,
-    },
-    {
-      date: "2025-01-15",
-      title: "Music Fest",
-      time: "7:00 PM",
-      poster: eventsp3,
-    },
-    {
-      date: "2025-01-07",
-      title: "Dance Fest",
-      time: "8:00 PM",
-      poster: eventsp4,
-    },
-    {
-      date: "2025-01-20",
-      title: "Tech Fest",
-      time: "9:00 PM",
-      poster: eventsp5,
-    },
-  ];
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  const fetchEvents = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${api.web}api/v1/events/`);
+      setEvents(response.data.events);
+      setLoading(false);
+    } catch (err) {
+      setError('Failed to fetch events');
+      setLoading(false);
+      console.error(err);
+    }
+  };
 
   const formatDate = (date) => {
     const year = date.getFullYear();
@@ -48,7 +36,7 @@ const Events_Calendar = () => {
     return `${year}-${month}-${day}`;
   };
 
-  // Modified to properly handle range selection
+  // Handle range selection
   const handleDateChange = (date) => {
     // If it's an array (range selection), convert all dates in the range
     if (Array.isArray(date)) {
@@ -85,7 +73,7 @@ const Events_Calendar = () => {
   };
 
   const displayedEvents = filteredDates.length
-    ? events.filter((event) => filteredDates.includes(event.date))
+    ? events.filter((event) => filteredDates.includes(event.date.split("T")[0]))
     : events;
 
   // Custom styles for the calendar
@@ -140,6 +128,30 @@ const Events_Calendar = () => {
       font-size: 0.9rem;
     }
   `;
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-6xl mx-auto p-4">
+        <div className="bg-red-100 text-red-700 p-4 rounded-xl">
+          <p className="font-medium">{error}</p>
+          <button 
+            onClick={fetchEvents}
+            className="mt-2 px-4 py-2 bg-red-700 text-white rounded-lg hover:bg-red-800"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto p-4">
@@ -198,9 +210,14 @@ const Events_Calendar = () => {
                 const currentDate = new Date();
                 const isExpired = eventDate < currentDate;
                 
+                // Create poster URL from base64 data if available
+                const posterUrl = event.poster && event.poster.data 
+                  ? `data:${event.poster.contentType};base64,${event.poster.data}`
+                  : null;
+                
                 return (
                   <motion.div 
-                    key={index}
+                    key={event._id || index}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ 
@@ -222,11 +239,17 @@ const Events_Calendar = () => {
                       
                       <div className={`absolute top-4 left-0 w-2 h-16 ${isExpired ? "bg-red-500" : "bg-green-500"} rounded-r-md`} />
                       
-                      <img 
-                        src={event.poster} 
-                        alt={event.title} 
-                        className="w-full h-52 object-cover"
-                      />
+                      {posterUrl ? (
+                        <img 
+                          src={posterUrl} 
+                          alt={event.title} 
+                          className="w-full h-52 object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-52 bg-gray-200 flex items-center justify-center">
+                          <span className="text-4xl font-bold text-gray-400">{event.title.charAt(0)}</span>
+                        </div>
+                      )}
                       
                       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent py-6 px-4">
                         <motion.div 
@@ -244,23 +267,36 @@ const Events_Calendar = () => {
                     </div>
                     
                     <div className="p-5">
-                      <h3 className="text-xl font-bold text-gray-800 mb-3">{event.title}</h3>
-                      <div className="flex justify-between items-center">
+                      <h3 className="text-xl font-bold text-gray-800 mb-2">{event.title}</h3>
+                      
+                      {event.location && (
+                        <p className="text-gray-600 text-sm mb-3">
+                          <span className="inline-block mr-1">📍</span> {event.location}
+                        </p>
+                      )}
+                      
+                      <div className="flex justify-between items-center mt-2">
                         <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
                           isExpired ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"
                         }`}>
-                          {isExpired ? "Over" : "Available"}
+                          {isExpired ? "Expired" : "Available"}
                         </span>
-                        {/* <motion.button 
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          className="text-[#3f6197] font-medium flex items-center gap-1 hover:underline"
-                        >
-                          View Details
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
-                        </motion.button> */}
+                        
+                        {!isExpired && event.registrationLink && (
+                          <motion.a 
+                            href={event.registrationLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="text-white bg-[#3f6197] px-3 py-1 rounded-lg font-medium text-sm flex items-center gap-1 hover:bg-[#355180] transition-colors"
+                          >
+                            Register
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </motion.a>
+                        )}
                       </div>
                     </div>
                   </motion.div>
