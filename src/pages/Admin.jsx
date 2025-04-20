@@ -21,13 +21,13 @@ const Admin = () => {
       icon: "📰"
     },
     {
-        name:"Teams Control",
-        link:"/admin/teamcontrol",
+        name:"Tenders Control",
+        link:"/admin/tenderscontrol",
         icon:"T"
     },
     {
-        name:"Tenders Control",
-        link:"/admin/tenderscontrol",
+        name:"Road Map Control",
+        link:"/admin/roadmapcontrol",
         icon:"T"
     },
   ];

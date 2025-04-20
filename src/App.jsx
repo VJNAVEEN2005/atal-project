@@ -44,6 +44,8 @@ import Admin from "./pages/Admin.jsx";
 import TendersControl from "./Admin/TendersControl.jsx";
 import EventsControl from "./Admin/EventsControl.jsx";
 import EditEvent from "./Admin/EditEvent.jsx";
+import PressMediaControl from "./Admin/PressMediaControl.jsx";
+import RoadMapControl from "./Admin/RoadMapControl.jsx";
 
 function App() {
   return (
@@ -91,6 +93,8 @@ function App() {
         <Route path="/admin/tenderscontrol" element={<TendersControl/>} />
         <Route path="/admin/eventscontrol" element={<EventsControl/>} />
         <Route path="/events/edit/:id" element={<EditEvent/>} />
+        <Route path="/admin/presscontrol" element={<PressMediaControl/>} />
+        <Route path="/admin/roadmapcontrol" element={<RoadMapControl/>} />
 
         {/* Skill_Pattara */}
         <Route path="/drone_technology" element={<Drone_Technology />} />
