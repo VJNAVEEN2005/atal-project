@@ -1,135 +1,237 @@
-import React, { useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { news2 } from "../../assets/Events/News_Letter/data";
+import React, { useState, useEffect } from "react";
+import { ChevronLeft, ChevronRight, Calendar, FileText, Download } from "lucide-react";
+import axios from "axios";
+import api from "../../Api/api";
 
 const NewsLetter = () => {
   const themeColor = "#3f6197";
-  
-  // Sample data with newsletters
-  const newsletters = [
-    {
-      year: "2024",
-      title: "November 2024",
-      coverImage: news2,
-      pdfUrl: "/pdfs/newsletter-2024.pdf",
-    },
-    {
-      year: "2024",
-      title: "August 2024",
-      coverImage: news2,
-      pdfUrl: "/pdfs/newsletter-august-2024.pdf",
-    },
-    {
-      year: "2023",
-      title: "February 2023",
-      coverImage: news2,
-      pdfUrl: "/pdfs/newsletter-2023.pdf",
-    },
-    {
-      year: "2022",
-      title: "April 2022",
-      coverImage: news2,
-      pdfUrl: "/pdfs/newsletter-2022.pdf",
+  const [newsletters, setNewsletters] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const itemsPerPage = 8; // Adjust based on your design needs
+
+  // Fetch newsletters on component mount
+  useEffect(() => {
+    fetchNewsletters();
+  }, []);
+
+  const fetchNewsletters = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await axios.get(`${api.web}api/v1/newsletter`);
+      if (response.data.newsletters) {
+        setNewsletters(response.data.newsletters);
+        setTotalPages(Math.ceil(response.data.newsletters.length / itemsPerPage));
+      } else {
+        setNewsletters([]);
+        setTotalPages(1);
+      }
+    } catch (err) {
+      console.error("Error fetching newsletters:", err);
+      setError("Failed to load newsletters. Please try again later.");
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  // Handle pagination
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handlePageClick = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  // Get current page items
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentNewsletters = newsletters.slice(indexOfFirstItem, indexOfLastItem);
+
+  // Generate page numbers
+  const pageNumbers = [];
+  for (let i = 1; i <= totalPages; i++) {
+    pageNumbers.push(i);
+  }
+
+  // Display at most 3 page numbers
+  const getPageNumbers = () => {
+    if (totalPages <= 3) {
+      return pageNumbers;
+    }
+    
+    if (currentPage <= 2) {
+      return [1, 2, 3];
+    }
+    
+    if (currentPage >= totalPages - 1) {
+      return [totalPages - 2, totalPages - 1, totalPages];
+    }
+    
+    return [currentPage - 1, currentPage, currentPage + 1];
+  };
+
+  const visiblePageNumbers = getPageNumbers();
 
   return (
-    <div className="min-h-screen bg-gray-100 py-16 px-4">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-16">
-          <h1 className="text-5xl font-bold mb-4" style={{ color: themeColor }}>
-            Newsletters
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-16 px-4">
+      <div className="max-w-6xl mx-auto">
+        {/* Header with animated underline */}
+        <div className="text-center mb-10 relative">
+          <h1 className="text-4xl font-bold mb-4 inline-block relative" style={{ color: themeColor }}>
+            Our Newsletters
+            <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-20 h-1 bg-yellow-400"></span>
           </h1>
-          <div className="w-24 h-1 mx-auto" style={{ backgroundColor: themeColor }}></div>
+          <p className="text-gray-600 max-w-2xl mx-auto text-sm">
+            Stay updated with the latest news and opportunities
+          </p>
         </div>
 
-        {/* Newsletter Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-          {newsletters.map((newsletter, index) => (
-            <div key={index} className="bg-white rounded-lg shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105 hover:shadow-xl">
-              <a href={newsletter.pdfUrl} target="_blank" rel="noopener noreferrer">
-                {/* Logo and Header */}
-                <div className="p-3" style={{ backgroundColor: themeColor }}>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className="bg-white p-1 rounded-full">
-                        <div className="h-6 w-6 rounded-full bg-gray-200 flex items-center justify-center">
-                          <span className="text-xs font-bold" style={{ color: themeColor }}>S</span>
+        {/* Loading and Error States */}
+        {loading && (
+          <div className="text-center py-16">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2" style={{ borderColor: themeColor }}></div>
+            <p className="mt-4 text-gray-600">Loading newsletters...</p>
+          </div>
+        )}
+
+        {error && (
+          <div className="text-center py-16">
+            <div className="mb-4 text-red-500">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <p className="text-gray-800 font-medium">{error}</p>
+            <button 
+              onClick={fetchNewsletters}
+              className="mt-4 px-4 py-2 rounded-md text-white hover:bg-opacity-90"
+              style={{ backgroundColor: themeColor }}
+            >
+              Try Again
+            </button>
+          </div>
+        )}
+
+        {/* Newsletter Grid - Portrait Layout */}
+        {!loading && !error && (
+          <>
+            {newsletters.length === 0 ? (
+              <div className="text-center py-16">
+                <p className="text-gray-600">No newsletters available at this time.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-10">
+                {currentNewsletters.map((newsletter, index) => (
+                  <div 
+                    key={newsletter._id || index} 
+                    className="group bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl flex flex-col"
+                  >
+                    <a 
+                      href={`data:${newsletter.pdfFile?.contentType};base64,${newsletter.pdfFile?.data}`} 
+                      download={`${newsletter.title}.pdf`} 
+                      className="block h-full flex flex-col"
+                    >
+                      {/* Top Banner */}
+                      <div className="p-2 flex items-center justify-between" style={{ backgroundColor: themeColor }}>
+                        <div className="flex items-center">
+                          <div className="h-6 w-6 rounded-full bg-white flex items-center justify-center">
+                            <span className="text-xs font-bold" style={{ color: themeColor }}>A</span>
+                          </div>
+                          <span className="text-white text-xs ml-1 font-medium">AIC_PECF</span>
+                        </div>
+                        <span className="text-white text-xs px-2 py-1 rounded-full bg-white/20">
+                          {newsletter.year}
+                        </span>
+                      </div>
+
+                      {/* Cover Image */}
+                      <div className="relative aspect-[3/4] overflow-hidden">
+                        {newsletter.coverImage ? (
+                          <img
+                            src={`data:${newsletter.coverImage.contentType};base64,${newsletter.coverImage.data}`}
+                            alt={`${newsletter.title} Newsletter Cover`}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                            <span className="text-gray-400">No image</span>
+                          </div>
+                        )}
+                        <div className="absolute bottom-0 left-0 right-0 h-1/4 bg-gradient-to-t from-black/60 to-transparent"></div>
+                      </div>
+                      
+                      {/* Content */}
+                      <div className="p-3 flex flex-col flex-grow">
+                        <h3 className="font-medium text-center mb-2" style={{ color: themeColor }}>{newsletter.title}</h3>
+                        
+                        {/* Bottom Action */}
+                        <div className="mt-auto flex items-center justify-center">
+                          <div className="px-3 py-1 rounded-full flex items-center space-x-1 text-xs font-medium transition-colors group-hover:bg-gray-100" style={{ color: themeColor }}>
+                            <Download size={12} />
+                            <span>Download PDF</span>
+                          </div>
                         </div>
                       </div>
-                      <span className="text-white text-xs ml-2 font-semibold">StartupTN</span>
-                    </div>
-                    <div className="bg-white px-2 py-1 rounded">
-                      <span className="text-xs font-bold uppercase" style={{ color: themeColor }}>Newsletter</span>
-                    </div>
+                    </a>
                   </div>
-                </div>
-                
-                {/* Cover Image */}
-                <div className="relative">
-                  <img
-                    src={newsletter.coverImage}
-                    alt={`${newsletter.title} Newsletter Cover`}
-                    className="w-full h-40 object-cover"
-                    onError={(e) => {
-                      e.target.src = "/api/placeholder/400/300";
-                      e.target.onerror = null;
-                    }}
-                  />
-                  {/* Image Overlay with Speaker */}
-                  <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                    <div className="h-20 w-20 rounded-full bg-gray-300/40 p-1">
-                      <div className="h-full w-full rounded-full bg-gray-300/80"></div>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Bottom Info Bars */}
-                <div className="grid grid-cols-2 gap-px bg-gray-200">
-                  <div className="p-3" style={{ backgroundColor: themeColor }}>
-                    <div className="h-4 w-4 rounded-full bg-white mb-1"></div>
-                    <div className="h-2 w-16 bg-white/70 rounded-sm"></div>
-                  </div>
-                  <div className="p-3 bg-yellow-500">
-                    <div className="h-4 w-4 rounded-full bg-white mb-1"></div>
-                    <div className="h-2 w-16 bg-white/70 rounded-sm"></div>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-px bg-gray-200">
-                  <div className="p-3 bg-yellow-500">
-                    <div className="h-4 w-4 rounded-full bg-white mb-1"></div>
-                    <div className="h-2 w-16 bg-white/70 rounded-sm"></div>
-                  </div>
-                  <div className="p-3" style={{ backgroundColor: themeColor }}>
-                    <div className="h-4 w-4 rounded-full bg-white mb-1"></div>
-                    <div className="h-2 w-16 bg-white/70 rounded-sm"></div>
-                  </div>
-                </div>
-              </a>
-              
-              {/* Newsletter Title */}
-              <div className="p-3 text-center">
-                <p className="text-sm text-gray-600">StartupTN - Newsletter</p>
-                <h3 className="font-semibold" style={{ color: themeColor }}>{newsletter.title}</h3>
+                ))}
               </div>
-            </div>
-          ))}
-        </div>
+            )}
 
-        {/* Navigation Controls */}
-        <div className="flex justify-center space-x-4">
-          <button 
-            className="p-3 rounded-full bg-white shadow hover:shadow-md transition-shadow"
-          >
-            <ChevronLeft size={24} style={{ color: themeColor }} />
-          </button>
-          <button 
-            className="p-3 rounded-full bg-white shadow hover:shadow-md transition-shadow"
-          >
-            <ChevronRight size={24} style={{ color: themeColor }} />
-          </button>
-        </div>
+            {/* Navigation Controls */}
+            {newsletters.length > 0 && (
+              <div className="flex justify-center items-center space-x-4">
+                <button 
+                  className={`p-2 rounded-full bg-white shadow transition-colors ${
+                    currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'
+                  }`}
+                  onClick={handlePrevPage}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft size={18} style={{ color: themeColor }} />
+                </button>
+                <div className="flex space-x-1">
+                  {visiblePageNumbers.map((number) => (
+                    <button 
+                      key={number}
+                      className={`w-6 h-6 rounded-full flex items-center justify-center text-xs transition-colors ${
+                        number === currentPage 
+                          ? 'text-white' 
+                          : 'text-gray-400 hover:text-gray-600'
+                      }`}
+                      style={{ backgroundColor: number === currentPage ? themeColor : 'transparent' }}
+                      onClick={() => handlePageClick(number)}
+                    >
+                      {number}
+                    </button>
+                  ))}
+                </div>
+                <button 
+                  className={`p-2 rounded-full bg-white shadow transition-colors ${
+                    currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'
+                  }`}
+                  onClick={handleNextPage}
+                  disabled={currentPage === totalPages}
+                >
+                  <ChevronRight size={18} style={{ color: themeColor }} />
+                </button>
+              </div>
+            )}
+          </>
+        )}
       </div>
     </div>
   );
