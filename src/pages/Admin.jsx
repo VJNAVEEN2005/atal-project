@@ -30,6 +30,11 @@ const Admin = () => {
         link:"/admin/roadmapcontrol",
         icon:"T"
     },
+    {
+        name:"Teams Control",
+        link:"/admin/teamscontrol",
+        icon:"T"
+    },
   ];
 
   return (
