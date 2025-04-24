@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 // Pages
@@ -48,8 +48,15 @@ import PressMediaControl from "./Admin/PressMediaControl.jsx";
 import RoadMapControl from "./Admin/RoadMapControl.jsx";
 import NewsLetterControl from "./Admin/NewsLetterControl.jsx";
 import TeamsControl from "./Admin/TeamsControl.jsx";
+import AdminControl from "./Admin/AdminControl.jsx";
 
 function App() {
+  const [isAdmin, setIsAdmin] = useState(0);
+
+  useEffect(() => {
+    setIsAdmin(localStorage.getItem("isAuthenticated") || 0);
+  }, []);
+
   return (
     <Router>
       {/*
@@ -87,18 +94,30 @@ function App() {
 
         {/* Login */}
         <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<SignUp/>} />
-        <Route path="/profile" element={<Profile/>} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/profile" element={<Profile />} />
 
+        {isAdmin > 0 && (
+          <>
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/admin/tenderscontrol" element={<TendersControl />} />
+            <Route path="/admin/eventscontrol" element={<EventsControl />} />
+            <Route path="/events/edit/:id" element={<EditEvent />} />
+            <Route path="/admin/presscontrol" element={<PressMediaControl />} />
+            <Route path="/admin/roadmapcontrol" element={<RoadMapControl />} />
+            <Route
+              path="/admin/newslettercontrol"
+              element={<NewsLetterControl />}
+            />
+            {isAdmin == 1 && (
+              <>
+                <Route path="/admin/teamscontrol" element={<TeamsControl />} />
+                <Route path="/admin/admincontrol" element={<AdminControl />} />
+              </>
+            )}
+          </>
+        )}
         {/* Admin - Works */}
-        <Route path="/admin" element={<Admin/>} />
-        <Route path="/admin/tenderscontrol" element={<TendersControl/>} />
-        <Route path="/admin/eventscontrol" element={<EventsControl/>} />
-        <Route path="/events/edit/:id" element={<EditEvent/>} />
-        <Route path="/admin/presscontrol" element={<PressMediaControl/>} />
-        <Route path="/admin/roadmapcontrol" element={<RoadMapControl/>} />
-        <Route path="/admin/newslettercontrol" element={<NewsLetterControl/>} />
-        <Route path="/admin/teamscontrol" element={<TeamsControl/>} />
 
         {/* Skill_Pattara */}
         <Route path="/drone_technology" element={<Drone_Technology />} />

@@ -1,162 +1,85 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import { Calendar, Users, Target, Award } from 'lucide-react';
 
-// Wrapper to center the content on the page
-const PageWrapper = styled.div`
-  display: flex;
-  justify-content: center; /* Centers horizontally */
-  align-items: center; /* Centers vertically */
-  height: 100vh; /* Takes up the full viewport height */
-  margin: 0; /* Removes default body margin */
-`;
-
-const Container = styled.div`
-  padding: 1.5rem;
-`;
-
-const ImageContainer = styled.div`
-  display: flex;
-  justify-content: center; /* Centers the image horizontally */
-  align-items: center; /* Centers the image vertically */
-  position: relative; /* Allows positioning of the badge */
-  width: 100%;
-  max-width: 16rem; /* Limit the width */
-  height: 16rem; /* Fixed height for consistent alignment */
-  margin-bottom: 1.5rem;
-  overflow: hidden; /* Ensures no overflow of the image */
-`;
-
-const Image = styled.img`
-  width: 100%;
-  height: 100%; /* Fills the container height */
-  object-fit: contain; /* Ensures the image fits properly */
-  object-position: center; /* Centers the image within the container */
-  border-radius: 0; /* Ensures no circular shape */
-  
-`;
-
-
-
-const CategoryBadge = styled.span`
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  padding: 0.25rem 1rem;
-  background-color: #2563eb;
-  color: white;
-  font-size: 0.875rem;
-  border-radius: 9999px;
-`;
-
-const Title = styled.h2`
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-`;
-
-const InfoGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-`;
-
-const InfoItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #4b5563;
-
-  svg {
-    color: #2563eb;
-  }
-`;
-
-const Section = styled.div`
-  margin-bottom: 1.5rem;
-`;
-
-const SectionTitle = styled.h3`
-  font-size: 1.125rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-`;
-
-const Text = styled.p`
-  color: #4b5563;
-`;
-
-const List = styled.ul`
-  list-style-type: disc;
-  list-style-position: inside;
-  color: #4b5563;
-`;
-
-const Button = styled.button`
-  margin-top: 1rem;
-  padding: 0.5rem 1.5rem;
-  background-color: #2563eb;
-  color: white;
-  border-radius: 9999px;
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: #1d4ed8;
-  }
-`;
-
-const StartupDetails = ({ startup }) => (
-  <Container>
-    <ImageContainer>
-      <Image src={startup.image} alt={startup.title} />
-      <CategoryBadge>{startup.category}</CategoryBadge>
-    </ImageContainer>
-
-    <Title>{startup.title}</Title>
-
-    <InfoGrid>
-      <InfoItem>
-        <Calendar size={20} />
-        <span>Founded: {startup.founded}</span>
-      </InfoItem>
-      <InfoItem>
-        <Users size={20} />
-        <span>Revenue Generated: {startup.revenue}</span>
-      </InfoItem>
-      <InfoItem>
-        <Target size={20} />
-        <span>Sector: {startup.sector}</span>
-      </InfoItem>
-      <InfoItem>
-        <Award size={20} />
-        <span>Jobs created: {startup.jobs}</span>
-      </InfoItem>
-    </InfoGrid>
-
-    <Section>
-      <SectionTitle>About</SectionTitle>
-      <Text>{startup.description}</Text>
-    </Section>
-
-    <Section>
-      <SectionTitle>Key Achievements</SectionTitle>
-      <List>
-        {startup.achievements.map((achievement, index) => (
-          <li key={index}>{achievement}</li>
-        ))}
-      </List>
-    </Section>
-  </Container>
-);
-
-const App = () => {
-  const [selectedStartup, setSelectedStartup] = useState(startupData[0]);
+const StartupDetails = ({ startup }) => {
+  // Theme color
+  const themeColor = "#3f6197";
+  const themeColorLight = "#5277b3";
+  const themeColorDark = "#2d4974";
 
   return (
-    <PageWrapper>
-      <StartupDetails startup={selectedStartup} />
-    </PageWrapper>
+    <div className="flex justify-center items-center w-full min-h-full bg-gray-50">
+      <div className="w-full bg-white rounded-lg shadow-md overflow-hidden">
+        {/* Header with theme color */}
+        <div className="h-16 bg-gradient-to-r from-[#3f6197] to-[#5277b3] flex items-center justify-between px-6">
+          <h1 className="text-xl font-bold text-white">Startup Showcase</h1>
+          <span className="py-1 px-3 bg-white text-[#3f6197] rounded-full text-sm font-medium">
+            {startup.category}
+          </span>
+        </div>
+
+        <div className="p-6">
+          {/* Image and Title Section */}
+          <div className="flex flex-col md:flex-row gap-6 mb-6">
+            <div className="relative w-full md:w-48 h-48 flex-shrink-0">
+              <img 
+                src={startup.image} 
+                alt={startup.title} 
+                className="w-full h-full object-contain"
+              />
+            </div>
+            
+            <div className="flex-1">
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">{startup.title}</h2>
+              
+              {/* Info Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="flex items-center gap-2 text-gray-600">
+                  <Calendar size={18} className="text-[#3f6197]" />
+                  <span>Founded: {startup.founded}</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-600">
+                  <Users size={18} className="text-[#3f6197]" />
+                  <span>Revenue: {startup.revenue}</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-600">
+                  <Target size={18} className="text-[#3f6197]" />
+                  <span>Sector: {startup.sector}</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-600">
+                  <Award size={18} className="text-[#3f6197]" />
+                  <span>Jobs: {startup.jobs}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Divider */}
+          <div className="h-px bg-gray-200 my-6"></div>
+          
+          {/* About Section */}
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold text-[#3f6197] mb-3">About</h3>
+            <p className="text-gray-600 leading-relaxed">{startup.description}</p>
+          </div>
+          
+          {/* Achievements Section */}
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold text-[#3f6197] mb-3">Key Achievements</h3>
+            <ul className="space-y-2">
+              {startup.achievements.map((achievement, index) => (
+                <li key={index} className="flex items-start gap-2">
+                  <div className="mt-1 h-4 w-4 rounded-full bg-[#3f6197] flex-shrink-0"></div>
+                  <span className="text-gray-600">{achievement}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          
+          
+        </div>
+      </div>
+    </div>
   );
 };
 

@@ -86,13 +86,13 @@ const NewsLetter = () => {
   const visiblePageNumbers = getPageNumbers();
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-16 px-4">
+    <div className="min-h-screen bg-white rounded-xl shadow-2xl py-16 px-14 min-w-[80%]">
       <div className="max-w-6xl mx-auto">
         {/* Header with animated underline */}
         <div className="text-center mb-10 relative">
           <h1 className="text-4xl font-bold mb-4 inline-block relative" style={{ color: themeColor }}>
             Our Newsletters
-            <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-20 h-1 bg-yellow-400"></span>
+  
           </h1>
           <p className="text-gray-600 max-w-2xl mx-auto text-sm">
             Stay updated with the latest news and opportunities
@@ -142,7 +142,7 @@ const NewsLetter = () => {
                     <a 
                       href={`data:${newsletter.pdfFile?.contentType};base64,${newsletter.pdfFile?.data}`} 
                       download={`${newsletter.title}.pdf`} 
-                      className="block h-full flex flex-col"
+                      className=" h-full flex flex-col"
                     >
                       {/* Top Banner */}
                       <div className="p-2 flex items-center justify-between" style={{ backgroundColor: themeColor }}>

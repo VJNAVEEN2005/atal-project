@@ -2,9 +2,11 @@ import axios from "axios";
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../Api/api";
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 // Component for displaying information in view mode
-const Field = ({ label, value }) => (
+const Field = ({ label, value }) => (  
   <div className="grid grid-cols-1 md:grid-cols-3 gap-2 py-2 border-b border-gray-100">
     <span className="text-gray-600 font-medium">{label}:</span>
     <span className="md:col-span-2 text-gray-800">
@@ -14,10 +16,20 @@ const Field = ({ label, value }) => (
 );
 
 // Information card component
-const InfoCard = ({ title, children }) => (
+const InfoCard = ({ title, children, isLoading }) => (
   <div className="bg-white shadow-md rounded-lg p-6 mb-6">
-    <h3 className="text-xl font-semibold text-[#3f6197] mb-4">{title}</h3>
+    <h3 className="text-xl font-semibold text-[#3f6197] mb-4">
+      {isLoading ? <Skeleton width={150} /> : title}
+    </h3>
     <div className="space-y-4">{children}</div>
+  </div>
+);
+
+// Skeleton version of Field component
+const SkeletonField = () => (
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-2 py-2 border-b border-gray-100">
+    <span className="text-gray-600 font-medium"><Skeleton width={100} /></span>
+    <span className="md:col-span-2 text-gray-800"><Skeleton width={200} /></span>
   </div>
 );
 
@@ -39,10 +51,12 @@ const InputField = ({ label, name, value, type = "text", required = false, onCha
 );
 
 // ProfilePhoto component
-const ProfilePhoto = ({ photoUrl, photoPreview, handlePhotoChange, handlePhotoDelete, isEditing }) => (
+const ProfilePhoto = ({ photoUrl, photoPreview, handlePhotoChange, handlePhotoDelete, isEditing, isLoading }) => (
   <div className="mb-4 md:mb-0 md:mr-6">
     <div className="w-32 h-32 bg-gray-200 rounded-full overflow-hidden flex items-center justify-center border-4 border-[#3f6197]">
-      {photoPreview ? (
+      {isLoading ? (
+        <Skeleton circle width={128} height={128} />
+      ) : photoPreview ? (
         <img
           src={photoPreview}
           alt="Profile"
@@ -71,7 +85,7 @@ const ProfilePhoto = ({ photoUrl, photoPreview, handlePhotoChange, handlePhotoDe
         </svg>
       )}
     </div>
-    {isEditing && (
+    {isEditing && !isLoading && (
       <div className="mt-4">
         <input
           type="file"
@@ -173,6 +187,7 @@ const Profile = () => {
   // Handle logout
   const handleLogout = useCallback(() => {
     localStorage.removeItem("user_isLogin");
+    localStorage.removeItem("isAuthenticated");
     window.location.href = "/";
   }, []);
 
@@ -311,9 +326,73 @@ const Profile = () => {
     }
   }, [isEditing]);
 
-  if (isLoading) return <div className="flex justify-center items-center min-h-screen">Loading profile...</div>;
+  // Skeleton Loading UI
+  const renderSkeletonView = () => (
+    <>
+      {/* Profile Header with Photo */}
+      <div className="bg-white shadow-md rounded-lg p-6 mb-6 flex flex-col md:flex-row items-center">
+        <ProfilePhoto isLoading={true} />
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800">
+            <Skeleton width={200} />
+          </h2>
+          <p className="text-gray-600"><Skeleton width={150} /></p>
+          <p className="text-gray-600"><Skeleton width={120} /></p>
+          <p className="mt-2 text-[#3f6197] font-semibold">
+            <Skeleton width={180} />
+          </p>
+        </div>
+      </div>
+
+      {/* Skeleton Cards */}
+      <InfoCard title="Personal Information" isLoading={true}>
+        <SkeletonField />
+        <SkeletonField />
+        <SkeletonField />
+      </InfoCard>
+
+      <InfoCard title="Organization Details" isLoading={true}>
+        <SkeletonField />
+        <SkeletonField />
+        <SkeletonField />
+        <SkeletonField />
+        <SkeletonField />
+      </InfoCard>
+
+      <InfoCard title="Contact Information" isLoading={true}>
+        <SkeletonField />
+        <SkeletonField />
+        <SkeletonField />
+        <SkeletonField />
+        <SkeletonField />
+      </InfoCard>
+
+      <InfoCard title="Business Information" isLoading={true}>
+        <SkeletonField />
+        <SkeletonField />
+        <SkeletonField />
+        <SkeletonField />
+        <SkeletonField />
+        <SkeletonField />
+      </InfoCard>
+    </>
+  );
   
-  if (error) return <div className="text-red-500 text-center py-8">{error}</div>;
+  if (error) return (
+    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-white shadow-md rounded-lg p-6 text-center">
+          <div className="text-red-500 text-xl py-8">{error}</div>
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-[#3f6197] text-white px-4 py-2 rounded-lg hover:bg-[#2e4b78] transition-all duration-300"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
@@ -324,34 +403,46 @@ const Profile = () => {
             Your Profile
           </h1>
           <div className="flex flex-wrap gap-2">
-            {(isAdmin == 1 || isAdmin == 2) && (
-              <button
-                onClick={handleAdminAccess}
-                className="bg-[#5a7fb8] text-white px-4 py-2 rounded-lg hover:bg-[#3f6197] transition-all duration-300"
-              >
-                Admin Panel
-              </button>
+            {isLoading ? (
+              <>
+                <Skeleton width={100} height={40} borderRadius={8} />
+                <Skeleton width={80} height={40} borderRadius={8} />
+              </>
+            ) : (
+              <>
+                {(isAdmin == 1 || isAdmin == 2) && (
+                  <button
+                    onClick={handleAdminAccess}
+                    className="bg-[#5a7fb8] text-white px-4 py-2 rounded-lg hover:bg-[#3f6197] transition-all duration-300"
+                  >
+                    Admin Panel
+                  </button>
+                )}
+                <button
+                  onClick={handleLogout}
+                  className="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition-all duration-300"
+                >
+                  Log Out
+                </button>
+                <button
+                  onClick={toggleEditMode}
+                  className={`px-4 py-2 rounded-lg transition-all duration-300 ${
+                    !isEditing 
+                      ? "bg-[#3f6197] text-white hover:bg-[#2e4b78]" 
+                      : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+                  }`}
+                >
+                  {!isEditing ? "Edit Profile" : "Cancel"}
+                </button>
+              </>
             )}
-            <button
-              onClick={handleLogout}
-              className="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition-all duration-300"
-            >
-              Log Out
-            </button>
-            <button
-              onClick={toggleEditMode}
-              className={`px-4 py-2 rounded-lg transition-all duration-300 ${
-                !isEditing 
-                  ? "bg-[#3f6197] text-white hover:bg-[#2e4b78]" 
-                  : "bg-gray-300 text-gray-700 hover:bg-gray-400"
-              }`}
-            >
-              {!isEditing ? "Edit Profile" : "Cancel"}
-            </button>
           </div>
         </div>
 
-        {!isEditing ? (
+        {isLoading ? (
+          // SKELETON LOADING UI
+          renderSkeletonView()
+        ) : !isEditing ? (
           // VIEW MODE
           <>
             {/* Profile Header with Photo */}

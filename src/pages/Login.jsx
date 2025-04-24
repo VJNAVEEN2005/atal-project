@@ -56,6 +56,8 @@ const Login = () => {
         // Check if user is admin
         if (data.user.admin === 1) {
           localStorage.setItem("isAuthenticated", 1);
+        } else if (data.user.admin === 2){
+          localStorage.setItem("isAuthenticated", 2);
         }
         
         // Remember me functionality

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import api from '../../Api/api';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 const Road_Map = () => {
   // State for timeline data
@@ -125,8 +127,65 @@ const Road_Map = () => {
   if (loading) {
     return (
       <div className="py-16 bg-gradient-to-b from-white to-blue-50 md:m-5 m-1 shadow-xl min-w-[80%] rounded-lg">
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#3f6197]"></div>
+        <div className="container mx-auto px-4">
+          {/* Header Skeleton */}
+          <div className="text-center mb-12">
+            <Skeleton height={40} width={240} className="mx-auto mb-4" />
+            <div className="h-1 w-24 bg-gray-200 mx-auto mb-6"></div>
+            <Skeleton count={2} width="60%" className="mx-auto" />
+          </div>
+
+          {/* Year Filter Buttons Skeleton */}
+          <div className="flex flex-wrap justify-center gap-4 mb-12">
+            {[1, 2, 3, 4].map((item) => (
+              <Skeleton key={item} width={80} height={40} className="rounded-full" />
+            ))}
+          </div>
+
+          {/* Timeline Events Skeleton */}
+          <div className="relative max-w-5xl mx-auto">
+            <div className="absolute left-4 md:left-1/2 transform md:-translate-x-1/2 top-0 bottom-0 w-1 bg-gray-200"></div>
+            
+            {[1, 2, 3, 4].map((item, index) => (
+              <div 
+                key={item}
+                className={`relative flex items-start mb-8 ${
+                  index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'
+                }`}
+              >
+                <div className="absolute left-4 md:left-1/2 transform md:-translate-x-1/2 w-8 h-8 rounded-full bg-gray-200 z-10"></div>
+                
+                <div 
+                  className={`ml-16 md:ml-0 bg-white rounded-lg shadow-sm p-6 ${
+                    index % 2 === 0 ? 'md:mr-auto md:ml-0 md:pr-12 text-right' : 'md:ml-auto md:mr-0 md:pl-12 text-left'
+                  } w-full md:w-5/12`}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <Skeleton width={100} height={24} className="rounded-full" />
+                    <Skeleton circle width={24} height={24} />
+                  </div>
+                  
+                  <Skeleton count={3} />
+                  
+                  <div className="h-1 bg-gray-200 mt-4 rounded-full w-1/3"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          {/* Stats Skeleton */}
+          <div className="mt-16 bg-white rounded-xl shadow-lg p-8 max-w-4xl mx-auto">
+            <Skeleton height={32} width={240} className="mx-auto mb-6" />
+            
+            <div className="flex flex-wrap justify-evenly">
+              {[1, 2, 3].map((item) => (
+                <div key={item} className="text-center">
+                  <Skeleton circle width={80} height={80} className="mx-auto mb-3" />
+                  <Skeleton width={80} height={20} className="mx-auto" />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     );
