@@ -3,95 +3,29 @@ import React, { useState, useMemo, useEffect } from "react";
 import api from "../Api/api";
 
 function Tenders() {
-  // Added time and updated date format for consistency
-
   const [tenderData, setTenderData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    axios.get(`${api.web}api/v1/getTenders`).then((res) => {
-      if (res.data.success) {
-        setTenderData(res.data.tenders);
-      } else {
-        console.log("Error fetching tenders");
-      }
-    });
+    fetchTenders();
   }, []);
 
-  const tenders = [
-    {
-      id: "092",
-      date: "2024-07-26",
-      title: "Raspberry Pi 5 Starter Kit for EDM LAB",
-      organization: "AICPECF",
-      reference: "Proc/AIC-PECF/2024/092",
-      lastDate: "2025-08-05",
-      lastTime: "17:00",
-      fileLink: "proc-aicpecf_raspberry_pi_.pdf",
-    },
-    {
-      id: "091",
-      date: "2024-05-06",
-      title: "Laptop for 3D Scanner, PCB Prototyping and LASER machines",
-      organization: "AIC-PECF",
-      reference: "Proc/AIC-PECF/2024/091",
-      lastDate: "2024-05-17",
-      lastTime: "17:00",
-      fileLink: "proc-aicpecf-2024-091.pdf",
-    },
-    {
-      id: "090",
-      date: "2024-05-06",
-      title:
-        "7.5KVA/180VDC Online UPS system with Exide Tubular Battery 12V/150AH – 15 nos for FAB LAB Unit",
-      organization: "AICPECF",
-      reference: "Proc/AIC-PECF/2024/090",
-      lastDate: "2024-05-17",
-      lastTime: "17:00",
-      fileLink: "proc-aicpecf-2024-090.pdf",
-    },
-    {
-      id: "057",
-      date: "2022-01-01", // Added approximate date
-      title: "Desktop Workstation for UAV LAB",
-      organization: "AIC-PECF",
-      reference: "Proc/AIC-PECF/2022/057",
-      lastDate: "2022-05-16",
-      lastTime: "17:00",
-      fileLink: "proc-aicpecf-2022-057.pdf",
-    },
-    {
-      id: "036",
-      date: "2020-09-01",
-      title:
-        "Design, Development and Supply of Customized Development Boards for Electronic Design & Fab LAB",
-      organization: "AIC-PECF",
-      reference: "Proc/AIC-PECF/2020/036",
-      lastDate: "2020-09-28",
-      lastTime: "17:00",
-      fileLink: "tender_document-2020-036.pdf",
-    },
-    {
-      id: "002-2019",
-      date: "2019-01-01", // Added approximate date
-      title:
-        "Supply of furniture, false ceiling and electrification in CEO, CFO and Board Room",
-      organization: "AIC-PECF",
-      reference: "proc/AIC-PECF/2019/002",
-      lastDate: "2019-11-16",
-      lastTime: "17:00",
-      fileLink: "call_for_quotation-2019002.pdf",
-    },
-    {
-      id: "001-2019",
-      date: "2019-08-09",
-      title: "Supply and installation of Modular Furniture",
-      organization: "AIC-PECF",
-      reference: "e-proc/AIC-PECF/2019/001",
-      lastDate: "2019-11-16",
-      lastTime: "17:00",
-      fileLink: "tender_document-2019001.pdf",
-    },
-  ];
+  const fetchTenders = () => {
+    setIsLoading(true);
+    axios.get(`${api.web}api/v1/getTenders`)
+      .then((res) => {
+        if (res.data.success) {
+          setTenderData(res.data.tenders);
+        } else {
+          console.log("Error fetching tenders");
+        }
+        setIsLoading(false);
+      })
+      .catch(err => {
+        console.error("Failed to fetch tenders:", err);
+        setIsLoading(false);
+      });
+  };
 
   const [filter, setFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
@@ -101,7 +35,7 @@ function Tenders() {
     const now = new Date();
 
     return tenderData.map((tender) => {
-      const deadline = new Date(`${tender.lastDate}T${tender.lastTime}`);
+      const deadline = new Date(`${tender.lastDate}T${tender.lastTime || "23:59"}`);
       const status = now > deadline ? "closed" : "open";
 
       // Format the dates for display
@@ -137,7 +71,7 @@ function Tenders() {
         (tender) =>
           searchTerm === "" ||
           tender.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          tender.reference.toLowerCase().includes(searchTerm.toLowerCase())
+          (tender.reference && tender.reference.toLowerCase().includes(searchTerm.toLowerCase()))
       );
   }, [processedTenders, filter, searchTerm]);
 
@@ -238,7 +172,11 @@ function Tenders() {
         </div>
       </div>
 
-      {filteredTenders.length === 0 ? (
+      {isLoading ? (
+        <div className="flex justify-center items-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#3f6197]"></div>
+        </div>
+      ) : filteredTenders.length === 0 ? (
         <div className="bg-yellow-50 p-8 rounded-xl border border-yellow-200 text-center shadow-md">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -265,7 +203,7 @@ function Tenders() {
         <div className="space-y-6">
           {filteredTenders.map((tender) => (
             <div
-              key={tender.id}
+              key={tender._id}
               className="bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden transition-all hover:shadow-xl"
             >
               <div
@@ -283,7 +221,7 @@ function Tenders() {
                       </span>
                       <span className="text-blue-100">•</span>
                       <span className="text-blue-100 text-sm">
-                        {tender.reference}
+                        {tender.reference || "No Reference"}
                       </span>
                     </div>
                     <h2 className="text-xl font-bold text-white">
@@ -333,8 +271,7 @@ function Tenders() {
                               : "text-gray-800"
                           }`}
                         >
-                          {tender.displayLastDate} at{" "}
-                          {tender.lastTime.replace(":", ".")}
+                          {tender.displayLastDate} {tender.lastTime && `at ${tender.lastTime.replace(":", ".")}`}
                         </span>
                       </p>
                     </div>
@@ -342,8 +279,9 @@ function Tenders() {
 
                   <div className="flex flex-col md:flex-row md:items-center gap-4 mt-6">
                     <a
-                      href={`${tender.fileLink}`}
+                      href={`${api.web}api/v1/downloadTender/${tender._id}`}
                       target="_blank"
+                      rel="noopener noreferrer"
                       className="flex items-center p-4 bg-[#3f6197]/10 rounded-lg hover:bg-[#3f6197]/20 transition-colors gap-3 group"
                     >
                       <div className="p-2 bg-[#3f6197] rounded-lg text-white">
@@ -364,10 +302,10 @@ function Tenders() {
                       </div>
                       <div>
                         <p className="text-[#3f6197] font-semibold group-hover:text-[#2c4b79]">
-                          {tender.fileName}
+                          Download Tender Document
                         </p>
                         <p className="text-sm text-gray-500 truncate max-w-xs">
-                          {tender.fileLink}
+                          {tender.fileName || "Tender PDF"}
                         </p>
                       </div>
                       <div className="ml-auto">
@@ -394,6 +332,18 @@ function Tenders() {
           ))}
         </div>
       )}
+      
+      <div className="mt-8 flex justify-center">
+        <button
+          onClick={fetchTenders}
+          className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 flex items-center"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+          </svg>
+          Refresh Tenders
+        </button>
+      </div>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import api from "../Api/api";
 
 const TendersControl = () => {
@@ -8,6 +8,8 @@ const TendersControl = () => {
   const [tenderData, setTenderData] = useState([]);
   const [viewMode, setViewMode] = useState("add"); // "add" or "view" mode
   const [isLoading, setIsLoading] = useState(true);
+  const [dragActive, setDragActive] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
   
   useEffect(() => {
     fetchTenders();
@@ -35,8 +37,6 @@ const TendersControl = () => {
     reference: "",
     lastDate: "",
     lastTime: "",
-    fileLink: "",
-    fileName: "",
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -50,12 +50,38 @@ const TendersControl = () => {
     }));
   };
 
-  const isValidURL = (string) => {
-    try {
-      new URL(string);
-      return true;
-    } catch (_) {
-      return false;
+  const handleDrag = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  }, []);
+
+  const handleDrop = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const file = e.dataTransfer.files[0];
+      if (file.type === "application/pdf") {
+        setSelectedFile(file);
+      } else {
+        setMessage({ text: "Please upload only PDF files.", type: "error" });
+      }
+    }
+  }, []);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type === "application/pdf") {
+      setSelectedFile(file);
+    } else if (file) {
+      setMessage({ text: "Please upload only PDF files.", type: "error" });
+      e.target.value = null;
     }
   };
 
@@ -64,15 +90,35 @@ const TendersControl = () => {
     setIsSubmitting(true);
     setMessage({ text: "", type: "" });
 
-    // Validate fileLink
-    if (!isValidURL(formData.fileLink)) {
-      setMessage({ text: "Please enter a valid file URL.", type: "error" });
+    // Validate required fields
+    if (!selectedFile) {
+      setMessage({ text: "Please upload a PDF file.", type: "error" });
       setIsSubmitting(false);
       return;
     }
 
     try {
-      const res = await axios.post(`${api.web}api/v1/createTender`, formData);
+      // Create a FormData object to send both text data and file
+      const data = new FormData();
+      
+      // Append all form fields
+      Object.keys(formData).forEach(key => {
+        data.append(key, formData[key]);
+      });
+      
+      // Append the file
+      data.append("tenderFile", selectedFile);
+
+      const res = await axios.post(
+        `${api.web}api/v1/createTender`, 
+        data,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      );
+
       if (res.data.success) {
         setMessage({ text: "Tender created successfully!", type: "success" });
         fetchTenders(); // Refresh tenders list
@@ -85,9 +131,8 @@ const TendersControl = () => {
           reference: "",
           lastDate: "",
           lastTime: "",
-          fileLink: "",
-          fileName: "",
         });
+        setSelectedFile(null);
       } else {
         setMessage({ text: res.data.message, type: "error" });
       }
@@ -241,26 +286,24 @@ const TendersControl = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="fileName" className="block text-gray-700 font-medium mb-2">
-                    Document Filename
+                  <label htmlFor="date" className="block text-gray-700 font-medium mb-2">
+                    Tender Date
                   </label>
                   <input
-                    type="text"
-                    id="fileName"
-                    name="fileName"
-                    value={formData.fileName}
+                    type="date"
+                    id="date"
+                    name="date"
+                    value={formData.date}
                     onChange={handleChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3f6197]"
-                    placeholder="E.g. proc-aicpecf-2024-092.pdf"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Leave blank to auto-generate</p>
                 </div>
               </div>
             </div>
 
             <div className="bg-[#f5f8fc] p-4 rounded-lg mb-6">
               <h2 className="text-lg font-medium text-[#3f6197] mb-2">Submission Details</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="lastDate" className="block text-gray-700 font-medium mb-2">
                     Last Date for Submission*
@@ -290,22 +333,64 @@ const TendersControl = () => {
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3f6197]"
                   />
                 </div>
+              </div>
+            </div>
 
-                <div>
-                  <label htmlFor="fileLink" className="block text-gray-700 font-medium mb-2">
-                    File Link*
-                  </label>
-                  <input
-                    type="text"
-                    id="fileLink"
-                    name="fileLink"
-                    value={formData.fileLink}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3f6197]"
-                    placeholder="https://example.com/tender.pdf"
-                  />
-                </div>
+            <div className="bg-[#f5f8fc] p-4 rounded-lg mb-6">
+              <h2 className="text-lg font-medium text-[#3f6197] mb-2">Tender Document</h2>
+              
+              <div 
+                className={`border-2 border-dashed p-8 rounded-lg text-center cursor-pointer ${
+                  dragActive ? 'border-[#3f6197] bg-blue-50' : 'border-gray-300'
+                } ${selectedFile ? 'bg-green-50' : ''}`}
+                onDragEnter={handleDrag}
+                onDragLeave={handleDrag}
+                onDragOver={handleDrag}
+                onDrop={handleDrop}
+                onClick={() => document.getElementById('fileInput').click()}
+              >
+                <input
+                  type="file"
+                  id="fileInput"
+                  accept="application/pdf"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+                
+                {selectedFile ? (
+                  <div className="flex flex-col items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-green-500 mb-2" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <p className="text-lg font-medium text-gray-700">{selectedFile.name}</p>
+                    <p className="text-sm text-gray-500 mt-1">
+                      {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                    </p>
+                    <button 
+                      type="button"
+                      className="mt-3 text-sm text-red-600 hover:text-red-800"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedFile(null);
+                      }}
+                    >
+                      Remove file
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400 mb-3" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                    </svg>
+                    <p className="text-lg font-medium text-gray-700">
+                      {dragActive ? "Drop your file here" : "Upload Tender Document (PDF)"}
+                    </p>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Drag & drop your file here or click to browse
+                    </p>
+                    <p className="text-xs text-gray-400 mt-2">Max file size: 10MB</p>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -407,7 +492,7 @@ const TendersControl = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <a 
-                            href={tender.fileLink} 
+                            href={`${api.web}api/v1/downloadTender/${tender._id}`} 
                             target="_blank" 
                             rel="noopener noreferrer"
                             className="text-[#3f6197] hover:text-[#2c4b79] flex items-center"
@@ -415,7 +500,7 @@ const TendersControl = () => {
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
                               <path fillRule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clipRule="evenodd" />
                             </svg>
-                            {tender.fileName || 'Download'}
+                            {tender.fileName || 'Download PDF'}
                           </a>
                         </td>
                       </tr>
