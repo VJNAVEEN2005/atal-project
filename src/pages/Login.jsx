@@ -23,6 +23,22 @@ const Login = () => {
     }));
   }, []);
 
+  // Password hashing function using browser's Web Crypto API
+  const hashPassword = async (password) => {
+    // Convert the password string to a Uint8Array
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    
+    // Generate hash using SHA-256
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    
+    // Convert the hash to a hex string
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+    
+    return hashHex;
+  };
+
   // Handle form submission
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
@@ -37,11 +53,15 @@ const Login = () => {
     setError("");
     
     try {
+      // Hash the password before sending
+      const hashedPassword = await hashPassword(formData.password);
+      
       const response = await axios.post(
         `${api.web}api/v1/login`, 
         {
           email: formData.email,
-          password: formData.password
+          password: hashedPassword,
+          isHashed: true // Flag to inform backend that password is already hashed
         }
       );
       
