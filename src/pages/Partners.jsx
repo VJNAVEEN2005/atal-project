@@ -72,6 +72,7 @@ import {
   rohit,
   manoj,
 } from "../assets/Partnerspage/Investors/Investors";
+import { useLocation } from 'react-router-dom';
 const images = import.meta.glob("../assets/Partnerspage/Mentors/*.jpg", {
   eager: true,
 });
@@ -81,7 +82,8 @@ const getImage = (name) => {
 };
 
 function App() {
-  const [activeSection, setActiveSection] = useState("Academic");
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'Academic'); 
   const [selectedPartner, setSelectedPartner] = useState(null);
   const dialogRef = useRef(null);
 
@@ -762,7 +764,7 @@ function App() {
   const renderPartners = () => {
     let partners = [];
     let detailedPartners = null;
-    switch (activeSection) {
+    switch (activeTab) {
       case "Academic":
         partners = academicPartners;
         break;
@@ -782,7 +784,7 @@ function App() {
         partners = [];
     }
 
-    if (activeSection === "Mentors" || activeSection === "Investment") {
+    if (activeTab === "Mentors" || activeTab === "Investment") {
       if (!detailedPartners) return null;
       return (
         <>
@@ -966,9 +968,9 @@ function App() {
         {partnerSections.map((section) => (
           <button
             key={section.name}
-            onClick={() => setActiveSection(section.path)}
+            onClick={() => setActiveTab(section.path)}
             className={`flex items-center gap-2 px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 border ${
-              activeSection === section.path
+              activeTab === section.path
                 ? "bg-[#12283c] text-white border-[#0f1e2d]"
                 : "bg-white text-gray-700 border-gray-100"
             }`}
@@ -982,7 +984,7 @@ function App() {
       <div className="partners-container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 bg-white rounded-lg shadow-lg">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-gray-800 mb-8">
-            {activeSection} Partners
+            {activeTab} Partners
           </h2>
           {renderPartners()}
         </div>

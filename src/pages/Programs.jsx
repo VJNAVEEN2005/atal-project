@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useRef } from "react";
 import {
   Building2,
   Network,
@@ -13,6 +14,7 @@ import {
   FileText,
   PlaneTakeoffIcon
 } from "lucide-react";
+import { useLocation } from 'react-router-dom';
 import {
   nitLogo,
   ifetlogo,
@@ -47,9 +49,10 @@ import { GiSprint } from "react-icons/gi";
 import { FaSeedling } from "react-icons/fa";
 import { TbPropeller } from "react-icons/tb";
 import { IoBulbOutline } from "react-icons/io5";
+
 function Programs() {
-  const [activeSection, setActiveSection] = useState("Puduvai Startup Sprint");
-  const [program, setProgram] = useState("Puduvai Startup Sprint");
+  const location = useLocation();
+  const [activeSection, setActiveSection] = useState(location.state?.activeTab || "Puduvai Startup Sprint");
 
   const programsSections = [
     {

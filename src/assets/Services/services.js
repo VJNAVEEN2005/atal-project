@@ -21,5 +21,10 @@ import Pic2 from './2.jpg';
 import Pic3 from './3.png';
 import Pic4 from './4.jpg';
 import Pic5 from './5.jpg';
-
-export {Picture1,Picture2,Picture3,Picture4,Picture5,Picture6,Picture7,Picture8,Picture9,Picture10,Picture11,Picture12,Picture13,Picture14,Picture15,Picture16,Picture17,Picture18,Pic1,Pic2,Pic3,Pic4,Pic5};
+import network from './network.svg';
+import funding from './funding.svg';
+import team from './teamwork.png'
+import media from './media.png';
+import advice from './advice.jpeg';
+import training from './training.jpeg';
+export {Picture1,Picture2,Picture3,Picture4,Picture5,Picture6,Picture7,Picture8,Picture9,Picture10,Picture11,Picture12,Picture13,Picture14,Picture15,Picture16,Picture17,Picture18,Pic1,Pic2,Pic3,Pic4,Pic5,network,funding,team,media,advice,training};
