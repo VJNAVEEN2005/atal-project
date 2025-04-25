@@ -10,6 +10,7 @@ import {
   FaWhatsapp,
 } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
+import { Contact } from 'lucide-react';
 import GetInTouch from "../components/Contact/GetInTouch";
 
 const ContactUs = () => {
@@ -57,6 +58,21 @@ const ContactUs = () => {
           <FaWhatsapp />
         </a>
       </SocialIconsContainer>
+
+      <GrievanceSection>
+        <h2 className="text-2xl font-bold mb-6">Point Of Contact</h2>
+        <GrievanceCard>
+          <GrievanceIconWrapper>
+            <Contact size={32} color="#3f6197" />
+          </GrievanceIconWrapper>
+          <GrievanceContent>
+            <GrievanceName>Mr. V Vishnu Varadan</GrievanceName>
+            <GrievanceDesignation>Chief Executive Officer, AIC-PECF</GrievanceDesignation>
+            <GrievanceEmail href="mailto:ceo@startuptn.in">ceo@aicpecf.org</GrievanceEmail>
+          </GrievanceContent>
+        </GrievanceCard>
+      </GrievanceSection>
+
       <Title>Contact Us</Title>
       <TileContainer>
         <Tile>
@@ -219,5 +235,76 @@ const MapContainer = styled.div`
 
   @media (max-width: 768px) {
     width: 100%;
+  }
+`;
+
+const GrievanceSection = styled.section`
+  width: 100%;
+  max-width: 1000px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 40px;
+
+  h2 {
+    color: #12283c;
+  }
+`;
+
+const GrievanceCard = styled.div`
+  background-color: #ffffff;
+  border-radius: 24px;
+  padding: 30px 40px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const GrievanceIconWrapper = styled.div`
+  background-color: #eef2f7;
+  border-radius: 50%;
+  padding: 12px;
+  margin-bottom: 20px;
+  display: inline-flex;
+`;
+
+const GrievanceContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const GrievanceSubtitle = styled.h3`
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #12283c;
+  margin-bottom: 12px;
+`;
+
+const GrievanceName = styled.p`
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
+`;
+
+const GrievanceDesignation = styled.p`
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 10px;
+`;
+
+const GrievanceEmail = styled.a`
+  font-size: 1rem;
+  color: #3f6197;
+  text-decoration: underline;
+  cursor: pointer;
+
+  &:hover {
+    color: #2d4974;
   }
 `;
