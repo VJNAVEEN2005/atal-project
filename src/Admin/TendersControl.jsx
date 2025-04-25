@@ -10,24 +10,44 @@ const TendersControl = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [dragActive, setDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
-  
+
   useEffect(() => {
     fetchTenders();
   }, []);
 
   const fetchTenders = () => {
     setIsLoading(true);
-    axios.get(`${api.web}api/v1/getTenders`).then((res) => {
-      if (res.data.success) {
-        setTenderData(res.data.tenders);
-      } else {
-        console.log("Error fetching tenders");
+    axios
+      .get(`${api.web}api/v1/getTenders`)
+      .then((res) => {
+        if (res.data.success) {
+          setTenderData(res.data.tenders);
+        } else {
+          console.log("Error fetching tenders");
+        }
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch tenders:", err);
+        setIsLoading(false);
+      });
+  };
+
+  const deleteTender = async (id) => {
+    if (window.confirm("Are you sure you want to delete this tender?")) {
+      try {
+        const response = await axios.delete(`${api.web}api/v1/deleteTender/${id}`);
+        if (response.data.success) {
+          alert("Tender deleted successfully");
+          fetchTenders(); // Refresh the tenders list
+        } else {
+          alert("Failed to delete tender");
+        }
+      } catch (error) {
+        console.error("Error deleting tender:", error);
+        alert("An error occurred while deleting the tender");
       }
-      setIsLoading(false);
-    }).catch(err => {
-      console.error("Failed to fetch tenders:", err);
-      setIsLoading(false);
-    });
+    }
   };
 
   const [formData, setFormData] = useState({
@@ -64,7 +84,7 @@ const TendersControl = () => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const file = e.dataTransfer.files[0];
       if (file.type === "application/pdf") {
@@ -100,24 +120,20 @@ const TendersControl = () => {
     try {
       // Create a FormData object to send both text data and file
       const data = new FormData();
-      
+
       // Append all form fields
-      Object.keys(formData).forEach(key => {
+      Object.keys(formData).forEach((key) => {
         data.append(key, formData[key]);
       });
-      
+
       // Append the file
       data.append("tenderFile", selectedFile);
 
-      const res = await axios.post(
-        `${api.web}api/v1/createTender`, 
-        data,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        }
-      );
+      const res = await axios.post(`${api.web}api/v1/createTender`, data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       if (res.data.success) {
         setMessage({ text: "Tender created successfully!", type: "success" });
@@ -164,10 +180,10 @@ const TendersControl = () => {
     today.setHours(0, 0, 0, 0);
     const lastDate = new Date(endDate);
     lastDate.setHours(0, 0, 0, 0);
-    
+
     const diffTime = lastDate - today;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     return diffDays;
   };
 
@@ -181,20 +197,22 @@ const TendersControl = () => {
             <p className="text-blue-100">Create and manage tender notices</p>
           </div>
           <div className="flex space-x-2">
-            <button 
+            <button
               onClick={() => setViewMode("view")}
-              className={`px-4 py-2 rounded-lg transition-colors ${viewMode === 'view' 
-                ? 'bg-white text-[#3f6197] font-medium' 
-                : 'bg-[#3f6197] text-white border border-white/30 hover:bg-[#2c4b79]'
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                viewMode === "view"
+                  ? "bg-white text-[#3f6197] font-medium"
+                  : "bg-[#3f6197] text-white border border-white/30 hover:bg-[#2c4b79]"
               }`}
             >
               View Tenders
             </button>
-            <button 
+            <button
               onClick={() => setViewMode("add")}
-              className={`px-4 py-2 rounded-lg transition-colors ${viewMode === 'add' 
-                ? 'bg-white text-[#3f6197] font-medium' 
-                : 'bg-[#3f6197] text-white border border-white/30 hover:bg-[#2c4b79]'
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                viewMode === "add"
+                  ? "bg-white text-[#3f6197] font-medium"
+                  : "bg-[#3f6197] text-white border border-white/30 hover:bg-[#2c4b79]"
               }`}
             >
               Add Tender
@@ -215,12 +233,30 @@ const TendersControl = () => {
             >
               <span className="mr-2">
                 {message.type === "success" ? (
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 )}
               </span>
@@ -233,7 +269,10 @@ const TendersControl = () => {
               <h2 className="text-lg font-medium text-[#3f6197] mb-2">Tender Information</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="title" className="block text-gray-700 font-medium mb-2">
+                  <label
+                    htmlFor="title"
+                    className="block text-gray-700 font-medium mb-2"
+                  >
                     Tender Title*
                   </label>
                   <input
@@ -249,7 +288,10 @@ const TendersControl = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="organization" className="block text-gray-700 font-medium mb-2">
+                  <label
+                    htmlFor="organization"
+                    className="block text-gray-700 font-medium mb-2"
+                  >
                     Organization*
                   </label>
                   <input
@@ -267,10 +309,15 @@ const TendersControl = () => {
             </div>
 
             <div className="bg-[#f5f8fc] p-4 rounded-lg mb-6">
-              <h2 className="text-lg font-medium text-[#3f6197] mb-2">Reference Information</h2>
+              <h2 className="text-lg font-medium text-[#3f6197] mb-2">
+                Reference Information
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="reference" className="block text-gray-700 font-medium mb-2">
+                  <label
+                    htmlFor="reference"
+                    className="block text-gray-700 font-medium mb-2"
+                  >
                     Reference Number
                   </label>
                   <input
@@ -282,11 +329,16 @@ const TendersControl = () => {
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3f6197]"
                     placeholder="E.g. Proc/AIC-PECF/2024/092"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Leave blank to auto-generate</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Leave blank to auto-generate
+                  </p>
                 </div>
 
                 <div>
-                  <label htmlFor="date" className="block text-gray-700 font-medium mb-2">
+                  <label
+                    htmlFor="date"
+                    className="block text-gray-700 font-medium mb-2"
+                  >
                     Tender Date
                   </label>
                   <input
@@ -302,10 +354,15 @@ const TendersControl = () => {
             </div>
 
             <div className="bg-[#f5f8fc] p-4 rounded-lg mb-6">
-              <h2 className="text-lg font-medium text-[#3f6197] mb-2">Submission Details</h2>
+              <h2 className="text-lg font-medium text-[#3f6197] mb-2">
+                Submission Details
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="lastDate" className="block text-gray-700 font-medium mb-2">
+                  <label
+                    htmlFor="lastDate"
+                    className="block text-gray-700 font-medium mb-2"
+                  >
                     Last Date for Submission*
                   </label>
                   <input
@@ -320,7 +377,10 @@ const TendersControl = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="lastTime" className="block text-gray-700 font-medium mb-2">
+                  <label
+                    htmlFor="lastTime"
+                    className="block text-gray-700 font-medium mb-2"
+                  >
                     Last Time for Submission*
                   </label>
                   <input
@@ -337,17 +397,19 @@ const TendersControl = () => {
             </div>
 
             <div className="bg-[#f5f8fc] p-4 rounded-lg mb-6">
-              <h2 className="text-lg font-medium text-[#3f6197] mb-2">Tender Document</h2>
-              
-              <div 
+              <h2 className="text-lg font-medium text-[#3f6197] mb-2">
+                Tender Document
+              </h2>
+
+              <div
                 className={`border-2 border-dashed p-8 rounded-lg text-center cursor-pointer ${
-                  dragActive ? 'border-[#3f6197] bg-blue-50' : 'border-gray-300'
-                } ${selectedFile ? 'bg-green-50' : ''}`}
+                  dragActive ? "border-[#3f6197] bg-blue-50" : "border-gray-300"
+                } ${selectedFile ? "bg-green-50" : ""}`}
                 onDragEnter={handleDrag}
                 onDragLeave={handleDrag}
                 onDragOver={handleDrag}
                 onDrop={handleDrop}
-                onClick={() => document.getElementById('fileInput').click()}
+                onClick={() => document.getElementById("fileInput").click()}
               >
                 <input
                   type="file"
@@ -356,17 +418,28 @@ const TendersControl = () => {
                   className="hidden"
                   onChange={handleFileChange}
                 />
-                
+
                 {selectedFile ? (
                   <div className="flex flex-col items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-green-500 mb-2" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-12 w-12 text-green-500 mb-2"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                      />
                     </svg>
-                    <p className="text-lg font-medium text-gray-700">{selectedFile.name}</p>
+                    <p className="text-lg font-medium text-gray-700">
+                      {selectedFile.name}
+                    </p>
                     <p className="text-sm text-gray-500 mt-1">
                       {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
                     </p>
-                    <button 
+                    <button
                       type="button"
                       className="mt-3 text-sm text-red-600 hover:text-red-800"
                       onClick={(e) => {
@@ -379,16 +452,29 @@ const TendersControl = () => {
                   </div>
                 ) : (
                   <div className="flex flex-col items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400 mb-3" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-12 w-12 text-gray-400 mb-3"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z"
+                        clipRule="evenodd"
+                      />
                     </svg>
                     <p className="text-lg font-medium text-gray-700">
-                      {dragActive ? "Drop your file here" : "Upload Tender Document (PDF)"}
+                      {dragActive
+                        ? "Drop your file here"
+                        : "Upload Tender Document (PDF)"}
                     </p>
                     <p className="text-sm text-gray-500 mt-1">
                       Drag & drop your file here or click to browse
                     </p>
-                    <p className="text-xs text-gray-400 mt-2">Max file size: 10MB</p>
+                    <p className="text-xs text-gray-400 mt-2">
+                      Max file size: 10MB
+                    </p>
                   </div>
                 )}
               </div>
@@ -406,16 +492,41 @@ const TendersControl = () => {
               >
                 {isSubmitting ? (
                   <>
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <svg
+                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
                     </svg>
                     Creating...
                   </>
                 ) : (
                   <>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 mr-2"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 01-1-1V3a1 1 0 011-1z"
+                        clipRule="evenodd"
+                      />
                     </svg>
                     Create Tender
                   </>
@@ -426,31 +537,76 @@ const TendersControl = () => {
         </div>
       ) : (
         <div className="bg-white rounded-xl shadow-lg p-6">
-          <h2 className="text-xl font-semibold text-[#3f6197] mb-4">Available Tenders</h2>
-          
+          <h2 className="text-xl font-semibold text-[#3f6197] mb-4">
+            Available Tenders
+          </h2>
+
           {isLoading ? (
             <div className="flex justify-center items-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#3f6197]"></div>
             </div>
           ) : tenderData.length === 0 ? (
             <div className="bg-blue-50 rounded-lg p-8 text-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-blue-400 mb-4" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-12 w-12 mx-auto text-blue-400 mb-4"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                  clipRule="evenodd"
+                />
               </svg>
-              <h3 className="text-lg font-medium text-gray-700 mb-2">No tenders available</h3>
-              <p className="text-gray-500">There are currently no tenders in the system.</p>
+              <h3 className="text-lg font-medium text-gray-700 mb-2">
+                No tenders available
+              </h3>
+              <p className="text-gray-500">
+                There are currently no tenders in the system.
+              </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reference</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Organization</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Date</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Document</th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Title
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Reference
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Organization
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Last Date
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Status
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -462,7 +618,7 @@ const TendersControl = () => {
                     } else if (daysRemaining < 3) {
                       statusColor = "yellow";
                     }
-                    
+
                     return (
                       <tr key={index} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -475,33 +631,36 @@ const TendersControl = () => {
                           <div className="text-sm text-gray-500">{tender.organization}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-500">
-                            {formatDate(tender.lastDate)}
-                            {tender.lastTime && <span className="text-xs ml-1">{tender.lastTime}</span>}
-                          </div>
+                          <div className="text-sm text-gray-500">{formatDate(tender.lastDate)}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-${statusColor}-100 text-${statusColor}-800`}>
-                            {daysRemaining < 0 
-                              ? 'Expired' 
-                              : daysRemaining === 0 
-                                ? 'Today' 
-                                : `${daysRemaining} days left`
-                            }
+                          <span
+                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-${statusColor}-100 text-${statusColor}-800`}
+                          >
+                            {daysRemaining < 0
+                              ? "Expired"
+                              : daysRemaining === 0
+                              ? "Today"
+                              : `${daysRemaining} days left`}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <a 
-                            href={`${api.web}api/v1/downloadTender/${tender._id}`} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-[#3f6197] hover:text-[#2c4b79] flex items-center"
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                              <path fillRule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clipRule="evenodd" />
-                            </svg>
-                            {tender.fileName || 'Download PDF'}
-                          </a>
+                          <div className="flex space-x-4">
+                            <button
+                              onClick={() => deleteTender(tender._id)}
+                              className="text-red-600 hover:text-red-800"
+                            >
+                              Delete
+                            </button>
+                            <a
+                              href={`${api.web}api/v1/downloadTender/${tender._id}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-[#3f6197] hover:text-[#2c4b79]"
+                            >
+                              Download
+                            </a>
+                          </div>
                         </td>
                       </tr>
                     );
@@ -510,18 +669,6 @@ const TendersControl = () => {
               </table>
             </div>
           )}
-          
-          <div className="mt-4 flex justify-end">
-            <button
-              onClick={fetchTenders}
-              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 flex items-center"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
-              </svg>
-              Refresh
-            </button>
-          </div>
         </div>
       )}
     </div>
