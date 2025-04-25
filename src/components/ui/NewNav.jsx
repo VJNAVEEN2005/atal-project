@@ -2,12 +2,13 @@ import React, { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Menu, X, ChevronDown, ChevronUp } from "lucide-react";
 import { Aic, Aim, ptuLogo } from "../../assets/logos/logs";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 
 const NewNav = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation(); // Add this to get current location
   const mobileMenuRef = useRef(null);
 
   const [isLogin, setIsLogin] = useState(false);
@@ -39,7 +40,6 @@ const NewNav = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
 
   // Navigation items remain the same...
   const navItems = [
@@ -123,6 +123,23 @@ const NewNav = () => {
     },
   ];
 
+  // Check if a nav item is active (current page)
+  const isNavItemActive = (itemLink) => {
+    // Exact match for home page
+    if (itemLink === "/" && location.pathname === "/") {
+      return true;
+    }
+    
+    // For other pages, check if current path starts with the item link
+    // This handles both exact matches and child routes
+    return itemLink !== "/" && location.pathname.startsWith(itemLink);
+  };
+
+  // Check if submenu item is active
+  const isSubmenuItemActive = (itemLink) => {
+    return location.pathname === itemLink;
+  };
+
   // Handle mouse enter for dropdown - updated for desktop only
   const handleMouseEnter = (index) => {
     if (window.innerWidth >= 1024 && navItems[index].dropdown) {
@@ -178,7 +195,7 @@ const NewNav = () => {
           </motion.div>
 
           {/* Desktop Menu - now only shows on lg screens */}
-          <div className="hidden lg:flex flex-1 justify-evenly ">
+          <div className="hidden lg:flex flex-1 justify-evenly">
             <div className="flex w-full justify-evenly mx-5">
               {navItems.map((item, index) => (
                 <div
@@ -188,14 +205,16 @@ const NewNav = () => {
                   onMouseLeave={handleMouseLeave}
                 >
                   <motion.div
-                    className="flex items-center text-base h-full text-center font-medium px-2 py-3"
+                    className={`flex items-center text-base h-full text-center font-medium px-2 py-3 `}
                     whileHover={{ scale: 1.05 }}
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 * index, duration: 0.3 }}
                     style={{ color: "#3f6197" }}
                   >
-                    <NavLink to={item.link}>{item.name}</NavLink>
+                    <NavLink to={item.link}
+                    className={isNavItemActive(item.link) ? " font-extrabold" : ""}
+                    >{item.name}</NavLink>
                     {item.dropdown && (
                       <ChevronDown
                         className="ml-1 h-4 w-4"
@@ -224,7 +243,9 @@ const NewNav = () => {
                         {item.submenu.map((subItem, subIndex) => (
                           <motion.div
                             key={subIndex}
-                            className="block px-4 py-2 hover:cursor-pointer text-sm hover:bg-gray-100"
+                            className={`block px-4 py-2 hover:cursor-pointer text-sm hover:bg-gray-100 ${
+                              isSubmenuItemActive(subItem.link) ? "border-l-4 border-[#3f6197]" : ""
+                            }`}
                             whileHover={{ x: 5 }}
                             style={{ color: "#3f6197" }}
                           >
@@ -252,8 +273,6 @@ const NewNav = () => {
               </motion.button>
             </div>
           )}
-
-          
 
           {isLogin && (
             <div className="hidden lg:flex items-center mr-5">
@@ -316,7 +335,9 @@ const NewNav = () => {
           {navItems.map((item, index) => (
             <div key={index}>
               <div
-                className="flex justify-between items-center px-3 py-2 rounded-md text-sm sm:text-base font-medium hover:bg-gray-50"
+                className={`flex justify-between items-center px-3 py-2 rounded-md text-sm sm:text-base font-medium hover:bg-gray-50 ${
+                  isNavItemActive(item.link) ? "border-l-4 border-[#3f6197] bg-gray-50" : ""
+                }`}
                 style={{ color: "#3f6197" }}
               >
                 <NavLink
@@ -357,7 +378,9 @@ const NewNav = () => {
                   {item.submenu.map((subItem, subIndex) => (
                     <div
                       key={subIndex}
-                      className="block px-3 py-2 text-xs sm:text-sm rounded-md hover:bg-gray-100"
+                      className={`block px-3 py-2 text-xs sm:text-sm rounded-md hover:bg-gray-100 ${
+                        isSubmenuItemActive(subItem.link) ? "border-l-2 border-[#3f6197] bg-gray-100" : ""
+                      }`}
                       style={{ color: "#3f6197" }}
                     >
                       <NavLink
@@ -386,7 +409,6 @@ const NewNav = () => {
               </motion.button>
             </div>
           )}
-
           
           {isLogin && (
             <div className="px-3 py-4">

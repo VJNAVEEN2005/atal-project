@@ -228,65 +228,77 @@ const NewsLetterControl = () => {
   };
   
   return (
-    <div className="bg-gray-50 min-h-screen py-8 px-4">
-      <div className="max-w-5xl mx-auto">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold mb-2" style={{ color: themeColor }}>
-            Newsletter Management
-          </h1>
-          <p className="text-gray-600">Add, edit, or remove newsletters</p>
+    <div className="max-w-6xl mx-auto my-8 px-4">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-[#3f6197] to-[#5478b0] rounded-xl shadow-xl p-6 mb-8">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-white mb-2">Newsletter Management</h1>
+            <p className="text-blue-100">Organize and publish your newsletters</p>
+          </div>
         </div>
-        
+      </div>
+
+      <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
         {/* Status Messages */}
         {error && (
-          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded flex items-center justify-between">
-            <span>{error}</span>
-            <button onClick={() => setError(null)} className="text-red-500">
-              <X size={18} />
-            </button>
+          <div className="mb-6 p-4 rounded-lg flex items-center bg-red-100 text-red-800">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+            </svg>
+            {error}
           </div>
         )}
         
         {successMessage && (
-          <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded flex items-center justify-between">
-            <span>{successMessage}</span>
-            <button onClick={() => setSuccessMessage(null)} className="text-green-500">
-              <X size={18} />
-            </button>
+          <div className="mb-6 p-4 rounded-lg flex items-center bg-green-100 text-green-800">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            {successMessage}
           </div>
         )}
         
-        {/* Newsletter Form */}
-        <div className="bg-white shadow-md rounded-lg p-6 mb-8">
-          <h2 className="text-xl font-semibold mb-4" style={{ color: themeColor }}>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-semibold text-[#3f6197]">
             {isEditing ? 'Edit Newsletter' : 'Add New Newsletter'}
           </h2>
+        </div>
           
-          <form onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div>
-                <label className="block text-gray-700 text-sm font-medium mb-1">
-                  Newsletter Title
-                </label>
+        <form onSubmit={handleSubmit}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Newsletter Title
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Calendar size={18} className="text-gray-400" />
+                </div>
                 <input
                   type="text"
                   name="title"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full pl-10 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3f6197]"
                   placeholder="November 2024"
                   value={currentNewsletter.title}
                   onChange={handleInputChange}
                   required
                 />
               </div>
-              
-              <div>
-                <label className="block text-gray-700 text-sm font-medium mb-1">
-                  Year
-                </label>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Year
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Calendar size={18} className="text-gray-400" />
+                </div>
                 <input
                   type="text"
                   name="year"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full pl-10 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3f6197]"
                   placeholder="2024"
                   value={currentNewsletter.year}
                   onChange={handleInputChange}
@@ -294,222 +306,241 @@ const NewsLetterControl = () => {
                 />
               </div>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              {/* PDF File Drop Zone */}
-              <div>
-                <label className="block text-gray-700 text-sm font-medium mb-1">
-                  PDF File {isEditing && <span className="text-gray-500 text-xs">(Leave empty to keep current)</span>}
-                </label>
-                <div 
-                  className={`flex items-center justify-center w-full`}
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            {/* PDF File Drop Zone */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                PDF File {isEditing && <span className="text-gray-500 text-xs">(Leave empty to keep current)</span>}
+              </label>
+              <div 
+                className={`flex items-center justify-center w-full`}
+                onDragEnter={handlePdfDrag}
+              >
+                <label 
+                  className={`w-full flex flex-col items-center px-4 py-6 bg-white text-blue rounded-md tracking-wide cursor-pointer hover:bg-gray-50 transition-all duration-200
+                    ${pdfDragActive ? 'border-2 border-[#3f6197] bg-blue-50' : 'border border-dashed border-gray-300 shadow-md'}
+                  `}
                   onDragEnter={handlePdfDrag}
+                  onDragOver={handlePdfDrag}
+                  onDragLeave={handlePdfDrag}
+                  onDrop={handlePdfDrop}
                 >
-                  <label 
-                    className={`w-full flex flex-col items-center px-4 py-6 bg-white text-blue rounded-md tracking-wide cursor-pointer hover:bg-gray-50 transition-all duration-200
-                      ${pdfDragActive ? 'border-2 border-blue-400 bg-blue-50' : 'border border-dashed border-gray-300 shadow-md'}
-                    `}
-                    onDragEnter={handlePdfDrag}
-                    onDragOver={handlePdfDrag}
-                    onDragLeave={handlePdfDrag}
-                    onDrop={handlePdfDrop}
-                  >
-                    <Upload className={pdfDragActive ? "text-blue-500" : "text-gray-500"} size={24} />
-                    
-                    {currentNewsletter.pdfFile ? (
-                      <div className="mt-2 text-sm flex flex-col items-center">
-                        <span className="text-green-600 font-medium">File selected:</span>
-                        <span className="text-gray-700">{currentNewsletter.pdfFile.name}</span>
-                        <span className="text-gray-500 text-xs">
-                          ({(currentNewsletter.pdfFile.size / 1024 / 1024).toFixed(2)} MB)
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="mt-2 text-sm text-center">
-                        <span className="text-gray-500">Drag & drop PDF file here, or click to select</span>
-                        <p className="text-xs text-gray-400 mt-1">Maximum file size: 10MB</p>
-                      </div>
-                    )}
-                    
-                    <input 
-                      type="file" 
-                      name="pdfFile" 
-                      accept=".pdf"
-                      className="hidden"
-                      onChange={handleFileChange}
-                    />
-                  </label>
-                </div>
-              </div>
-              
-              {/* Cover Image Drop Zone */}
-              <div>
-                <label className="block text-gray-700 text-sm font-medium mb-1">
-                  Cover Image {isEditing && <span className="text-gray-500 text-xs">(Leave empty to keep current)</span>}
+                  <Upload className={pdfDragActive ? "text-[#3f6197]" : "text-gray-500"} size={24} />
+                  
+                  {currentNewsletter.pdfFile ? (
+                    <div className="mt-2 text-sm flex flex-col items-center">
+                      <span className="text-green-600 font-medium">File selected:</span>
+                      <span className="text-gray-700">{currentNewsletter.pdfFile.name}</span>
+                      <span className="text-gray-500 text-xs">
+                        ({(currentNewsletter.pdfFile.size / 1024 / 1024).toFixed(2)} MB)
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="mt-2 text-sm text-center">
+                      <span className="text-gray-500">Drag & drop PDF file here, or click to select</span>
+                      <p className="text-xs text-gray-400 mt-1">Maximum file size: 10MB</p>
+                    </div>
+                  )}
+                  
+                  <input 
+                    type="file" 
+                    name="pdfFile" 
+                    accept=".pdf"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
                 </label>
-                <div 
-                  className={`flex items-center justify-center w-full`}
+              </div>
+            </div>
+            
+            {/* Cover Image Drop Zone */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Cover Image {isEditing && <span className="text-gray-500 text-xs">(Leave empty to keep current)</span>}
+              </label>
+              <div 
+                className={`flex items-center justify-center w-full`}
+                onDragEnter={handleImageDrag}
+              >
+                <label 
+                  className={`w-full flex flex-col items-center px-4 py-6 bg-white text-blue rounded-md tracking-wide cursor-pointer hover:bg-gray-50 transition-all duration-200
+                    ${imageDragActive ? 'border-2 border-[#3f6197] bg-blue-50' : 'border border-dashed border-gray-300 shadow-md'}
+                  `}
                   onDragEnter={handleImageDrag}
+                  onDragOver={handleImageDrag}
+                  onDragLeave={handleImageDrag}
+                  onDrop={handleImageDrop}
                 >
-                  <label 
-                    className={`w-full flex flex-col items-center px-4 py-6 bg-white text-blue rounded-md tracking-wide cursor-pointer hover:bg-gray-50 transition-all duration-200
-                      ${imageDragActive ? 'border-2 border-blue-400 bg-blue-50' : 'border border-dashed border-gray-300 shadow-md'}
-                    `}
-                    onDragEnter={handleImageDrag}
-                    onDragOver={handleImageDrag}
-                    onDragLeave={handleImageDrag}
-                    onDrop={handleImageDrop}
-                  >
-                    <Upload className={imageDragActive ? "text-blue-500" : "text-gray-500"} size={24} />
-                    
-                    {currentNewsletter.coverImage ? (
-                      <div className="mt-2 flex flex-col items-center">
-                        <div className="h-16 w-12 rounded overflow-hidden mb-1">
+                  <Upload className={imageDragActive ? "text-[#3f6197]" : "text-gray-500"} size={24} />
+                  
+                  {currentNewsletter.coverImage ? (
+                    <div className="mt-2 flex flex-col items-center">
+                      <div className="h-16 w-12 rounded overflow-hidden mb-1">
+                        <img
+                          src={URL.createObjectURL(currentNewsletter.coverImage)}
+                          alt="Cover preview"
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                      <span className="text-sm text-gray-700">{currentNewsletter.coverImage.name}</span>
+                      <span className="text-xs text-gray-500">
+                        ({(currentNewsletter.coverImage.size / 1024).toFixed(0)} KB)
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="mt-2 text-sm text-center">
+                      <span className="text-gray-500">Drag & drop image here, or click to select</span>
+                      <p className="text-xs text-gray-400 mt-1">JPG, PNG or GIF (Max. 5MB)</p>
+                    </div>
+                  )}
+                  
+                  <input 
+                    type="file" 
+                    name="coverImage" 
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
+                </label>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex justify-end space-x-2">
+            {isEditing && (
+              <button
+                type="button"
+                onClick={resetForm}
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                disabled={loading}
+              >
+                Cancel
+              </button>
+            )}
+            
+            <button
+              type="submit"
+              className="px-4 py-2 bg-[#3f6197] text-white rounded-md hover:bg-[#2c4b79] transition-colors flex items-center"
+              disabled={loading}
+            >
+              {loading ? (
+                <div className="flex items-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  <span>Processing...</span>
+                </div>
+              ) : (
+                <>
+                  {isEditing ? <Check size={18} className="mr-1" /> : <Plus size={18} className="mr-1" />}
+                  {isEditing ? 'Update Newsletter' : 'Add Newsletter'}
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+      
+      {/* Newsletters List */}
+      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div className="flex justify-between items-center p-4 border-b">
+          <h2 className="text-xl font-semibold text-[#3f6197]">
+            All Newsletters
+          </h2>
+          <button
+            onClick={fetchNewsletters}
+            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 flex items-center"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+            </svg>
+            Refresh
+          </button>
+        </div>
+        
+        {loading && newsletters.length === 0 ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#3f6197]"></div>
+          </div>
+        ) : newsletters.length === 0 ? (
+          <div className="bg-blue-50 rounded-lg p-8 text-center m-4">
+            <Calendar size={48} className="mx-auto text-blue-400 mb-4" />
+            <h3 className="text-lg font-medium text-gray-700 mb-2">No newsletters available</h3>
+            <p className="text-gray-500">Add your first newsletter to get started.</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Cover
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Title
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Year
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {newsletters.map((newsletter) => (
+                  <tr key={newsletter._id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {newsletter.coverImage ? (
+                        <div className="h-16 w-12 rounded overflow-hidden">
                           <img
-                            src={URL.createObjectURL(currentNewsletter.coverImage)}
-                            alt="Cover preview"
+                            src={`data:${newsletter.coverImage.contentType};base64,${newsletter.coverImage.data}`}
+                            alt={newsletter.title}
                             className="h-full w-full object-cover"
                           />
                         </div>
-                        <span className="text-sm text-gray-700">{currentNewsletter.coverImage.name}</span>
-                        <span className="text-xs text-gray-500">
-                          ({(currentNewsletter.coverImage.size / 1024).toFixed(0)} KB)
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="mt-2 text-sm text-center">
-                        <span className="text-gray-500">Drag & drop image here, or click to select</span>
-                        <p className="text-xs text-gray-400 mt-1">JPG, PNG or GIF (Max. 5MB)</p>
-                      </div>
-                    )}
-                    
-                    <input 
-                      type="file" 
-                      name="coverImage" 
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleFileChange}
-                    />
-                  </label>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex justify-end space-x-2">
-              {isEditing && (
-                <button
-                  type="button"
-                  onClick={resetForm}
-                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
-                  disabled={loading}
-                >
-                  Cancel
-                </button>
-              )}
-              
-              <button
-                type="submit"
-                style={{ backgroundColor: themeColor }}
-                className="px-4 py-2 text-white rounded-md hover:bg-opacity-90 flex items-center"
-                disabled={loading}
-              >
-                {loading ? (
-                  <span>Processing...</span>
-                ) : (
-                  <>
-                    {isEditing ? <Check size={18} className="mr-1" /> : <Plus size={18} className="mr-1" />}
-                    {isEditing ? 'Update Newsletter' : 'Add Newsletter'}
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
-        </div>
-        
-        {/* Newsletters List */}
-        <div className="bg-white shadow-md rounded-lg overflow-hidden">
-          <h2 className="text-xl font-semibold p-4 border-b" style={{ color: themeColor }}>
-            All Newsletters
-          </h2>
-          
-          {loading && newsletters.length === 0 ? (
-            <div className="text-center p-8 text-gray-500">Loading newsletters...</div>
-          ) : newsletters.length === 0 ? (
-            <div className="text-center p-8 text-gray-500">No newsletters found. Add one to get started.</div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Cover
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Title
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Year
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {newsletters.map((newsletter) => (
-                    <tr key={newsletter._id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {newsletter.coverImage ? (
-                          <div className="h-16 w-12 rounded overflow-hidden">
-                            <img
-                              src={`data:${newsletter.coverImage.contentType};base64,${newsletter.coverImage.data}`}
-                              alt={newsletter.title}
-                              className="h-full w-full object-cover"
-                            />
-                          </div>
-                        ) : (
-                          <div className="h-16 w-12 bg-gray-200 rounded flex items-center justify-center">
-                            <span className="text-xs text-gray-500">No image</span>
-                          </div>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">{newsletter.title}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-500">{newsletter.year}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex justify-end space-x-2">
-                          <a
-                            href={`data:${newsletter.pdfFile.contentType};base64,${newsletter.pdfFile.data}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-800"
-                          >
-                            <Download size={18} />
-                          </a>
-                          <button
-                            onClick={() => handleEditNewsletter(newsletter)}
-                            className="text-yellow-600 hover:text-yellow-800"
-                          >
-                            <Pencil size={18} />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteNewsletter(newsletter._id)}
-                            className="text-red-600 hover:text-red-800"
-                          >
-                            <Trash2 size={18} />
-                          </button>
+                      ) : (
+                        <div className="h-16 w-12 bg-gray-200 rounded flex items-center justify-center">
+                          <span className="text-xs text-gray-500">No image</span>
                         </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">{newsletter.title}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-500">{newsletter.year}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex justify-end space-x-2">
+                        <a
+                          href={`data:${newsletter.pdfFile.contentType};base64,${newsletter.pdfFile.data}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-2 bg-blue-100 rounded-full hover:bg-blue-200 transition-colors"
+                        >
+                          <Download size={16} className="text-blue-600" />
+                        </a>
+                        <button
+                          onClick={() => handleEditNewsletter(newsletter)}
+                          className="p-2 bg-blue-100 rounded-full hover:bg-blue-200 transition-colors"
+                        >
+                          <Pencil size={16} className="text-blue-600" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteNewsletter(newsletter._id)}
+                          className="p-2 bg-red-100 rounded-full hover:bg-red-200 transition-colors"
+                        >
+                          <Trash2 size={16} className="text-red-600" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,17 +1,151 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { Calendar, Clock, Plus, Edit, Trash, X, CheckCircle } from 'lucide-react';
 import axios from 'axios';
 import api from '../Api/api';
-import { Calendar, Clock, Plus, Edit2, Trash2, X, CheckCircle } from 'lucide-react';
+
+const RoadmapItemCard = ({ item, index, year, onEdit, onDelete }) => {
+  return (
+    <Draggable draggableId={item._id || `roadmap-${index}`} index={index}>
+      {(provided) => (
+        <div
+          className="group flex flex-col bg-white p-4 rounded-lg shadow-md my-4"
+          ref={provided.innerRef}
+          {...provided.draggableProps}
+          {...provided.dragHandleProps}
+        >
+          <div className="flex justify-between items-start">
+            <div className="flex items-center mb-3">
+              <div className="bg-[#3F6197] text-white p-2 rounded-full mr-3">
+                <Calendar size={20} />
+              </div>
+              <div>
+                <div className="font-semibold text-gray-900">{item.month} {year}</div>
+                <div className="text-sm text-gray-500">Milestone</div>
+              </div>
+            </div>
+            <div className="flex space-x-2">
+              <button 
+                onClick={() => onEdit(year, item)} 
+                className="p-2 bg-blue-100 rounded-full hover:bg-blue-200 transition-colors"
+              >
+                <Edit size={16} className="text-blue-600" />
+              </button>
+              <button 
+                onClick={() => onDelete(item._id)}
+                className="p-2 bg-red-100 rounded-full hover:bg-red-200 transition-colors"
+              >
+                <Trash size={16} className="text-red-600" />
+              </button>
+            </div>
+          </div>
+          <div className="bg-gray-50 p-3 rounded-md mt-2">
+            <p className="text-gray-700">{item.event}</p>
+          </div>
+        </div>
+      )}
+    </Draggable>
+  );
+};
+
+const RoadmapForm = ({ formData, setFormData, onSubmit, onCancel }) => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+
+  return (
+    <div className="bg-white p-6 rounded-lg shadow-lg max-w-md mx-auto">
+      <h3 className="text-xl font-semibold mb-4">{formData._id ? 'Edit Milestone' : 'Add Milestone'}</h3>
+      <form onSubmit={onSubmit}>
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Year</label>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Calendar size={18} className="text-gray-400" />
+            </div>
+            <input
+              type="text"
+              name="year"
+              value={formData.year}
+              onChange={handleChange}
+              className="w-full pl-10 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3f6197]"
+              placeholder="YYYY"
+              pattern="[0-9]{4}"
+              required
+            />
+          </div>
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Month</label>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Clock size={18} className="text-gray-400" />
+            </div>
+            <select
+              name="month"
+              value={formData.month}
+              onChange={handleChange}
+              className="w-full pl-10 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3f6197] appearance-none"
+              required
+            >
+              <option value="">Select Month</option>
+              {months.map(month => (
+                <option key={month} value={month}>{month}</option>
+              ))}
+            </select>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+              <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Event Description</label>
+          <textarea
+            name="event"
+            value={formData.event}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3f6197]"
+            rows="4"
+            placeholder="Describe the milestone or event"
+            required
+          ></textarea>
+        </div>
+
+        <div className="flex justify-end space-x-2">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="px-4 py-2 bg-[#3f6197] text-white rounded-md hover:bg-[#2c4b79] transition-colors"
+          >
+            Save
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+};
 
 const RoadMapControl = () => {
   const [timelineData, setTimelineData] = useState({});
   const [years, setYears] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [activeYear, setActiveYear] = useState(null);
-  
-  // Form states
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     year: '',
@@ -19,9 +153,9 @@ const RoadMapControl = () => {
     event: '',
     _id: null
   });
-  const [formMode, setFormMode] = useState('add'); // 'add' or 'edit'
+  const [message, setMessage] = useState({ text: "", type: "" });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Fetch roadmap data
   useEffect(() => {
     fetchRoadmapData();
   }, []);
@@ -40,8 +174,14 @@ const RoadMapControl = () => {
         organizedData[item.year].push({
           _id: item._id,
           month: item.month,
-          event: item.event
+          event: item.event,
+          order: item.order || 0
         });
+      });
+      
+      // Sort entries in each year by order property
+      Object.keys(organizedData).forEach(year => {
+        organizedData[year].sort((a, b) => a.order - b.order);
       });
       
       const sortedYears = Object.keys(organizedData).sort((a, b) => b - a); // Sort in descending order
@@ -49,42 +189,24 @@ const RoadMapControl = () => {
       setYears(sortedYears);
       setActiveYear(sortedYears.length > 0 ? sortedYears[0] : null);
       setLoading(false);
-    } catch (err) {
-      setError('Failed to load roadmap data');
+    } catch (error) {
+      console.error('Error fetching roadmap data:', error);
+      setMessage({ text: "Failed to load roadmap data. Please try again.", type: "error" });
       setLoading(false);
-      console.error(err);
     }
   };
   
-  // Handle form input changes
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
+  const handleAddMilestone = () => {
     setFormData({
-      ...formData,
-      [name]: value
-    });
-  };
-  
-  // Reset form
-  const resetForm = () => {
-    setFormData({
-      year: '',
+      year: activeYear || new Date().getFullYear().toString(),
       month: '',
       event: '',
       _id: null
     });
-    setFormMode('add');
-  };
-  
-  // Open form for adding new entry
-  const handleAddNew = () => {
-    resetForm();
     setShowForm(true);
-    setFormMode('add');
   };
   
-  // Open form for editing
-  const handleEdit = (year, item) => {
+  const handleEditMilestone = (year, item) => {
     setFormData({
       year,
       month: item.month,
@@ -92,221 +214,109 @@ const RoadMapControl = () => {
       _id: item._id
     });
     setShowForm(true);
-    setFormMode('edit');
   };
   
-  // Handle form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    try {
-      if (formMode === 'add') {
-        // Add new roadmap item
-        await axios.post(`${api.web}api/v1/roadmap`, formData);
-      } else {
-        // Update existing roadmap item
-        await axios.put(`${api.web}api/v1/roadmap/${formData._id}`, formData);
-      }
-      
-      // Success notification could be added here
-      
-      // Refresh data
-      fetchRoadmapData();
-      setShowForm(false);
-      resetForm();
-    } catch (err) {
-      setError(formMode === 'add' ? 'Failed to add item' : 'Failed to update item');
-      console.error(err);
-    }
-  };
-  
-  // Handle delete
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this roadmap item?')) {
+  const handleDeleteMilestone = async (id) => {
+    if (window.confirm('Are you sure you want to delete this milestone?')) {
       try {
+        setIsSubmitting(true);
         await axios.delete(`${api.web}api/v1/roadmap/${id}`);
         fetchRoadmapData();
-      } catch (err) {
-        setError('Failed to delete item');
-        console.error(err);
+        setMessage({ text: "Milestone deleted successfully!", type: "success" });
+      } catch (error) {
+        console.error('Error deleting milestone:', error);
+        setMessage({ text: "Failed to delete milestone. Please try again.", type: "error" });
+      } finally {
+        setIsSubmitting(false);
       }
     }
   };
   
-  // Available months for dropdown
-  const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ];
-
-  // Sort months by their proper order
-  const sortMonths = (a, b) => {
-    return months.indexOf(a.month) - months.indexOf(b.month);
+  const handleSubmitForm = async (e) => {
+    e.preventDefault();
+    try {
+      setIsSubmitting(true);
+      
+      if (formData._id) {
+        // Update existing milestone
+        await axios.put(`${api.web}api/v1/roadmap/${formData._id}`, formData);
+        setMessage({ text: "Milestone updated successfully!", type: "success" });
+      } else {
+        // Add new milestone
+        await axios.post(`${api.web}api/v1/roadmap`, formData);
+        setMessage({ text: "Milestone added successfully!", type: "success" });
+      }
+      setShowForm(false);
+      fetchRoadmapData();
+    } catch (error) {
+      console.error('Error saving milestone:', error);
+      setMessage({ text: error.response?.data?.message || "Failed to save milestone. Please try again.", type: "error" });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#3f6197]"></div>
-      </div>
-    );
-  }
+  const handleDragEnd = async (result) => {
+    if (!result.destination) return;
+    
+    const { source, destination } = result;
+    
+    // Filter milestones for current active year
+    const yearItems = timelineData[activeYear];
+    
+    // Create a copy of the filtered array
+    const items = Array.from(yearItems);
+    
+    // Remove the dragged item from its position
+    const [reorderedItem] = items.splice(source.index, 1);
+    
+    // Insert the item at the new position
+    items.splice(destination.index, 0, reorderedItem);
+    
+    // Update order property for each item in the list
+    const updatedItems = items.map((item, index) => ({
+      ...item,
+      order: index
+    }));
+    
+    // Create a new timelineData object with updated order
+    const newTimelineData = {
+      ...timelineData,
+      [activeYear]: updatedItems
+    };
+    
+    // Update the state
+    setTimelineData(newTimelineData);
+    
+    try {
+      // Send the updated order to the server
+      await axios.post(`${api.web}api/v1/roadmap/reorder`, { roadmapItems: updatedItems });
+      fetchRoadmapData();
+    } catch (error) {
+      console.error('Error updating roadmap order:', error);
+      setMessage({ text: "Failed to update milestone order. Please try again.", type: "error" });
+      // Revert to previous state if API call fails
+      fetchRoadmapData();
+    }
+  };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-[#3f6197]">Roadmap Management</h2>
-          <p className="text-gray-500 mt-1">Plan and visualize your project milestones</p>
-        </div>
-        <button
-          onClick={handleAddNew}
-          className="bg-[#3f6197] text-white px-4 py-2 rounded-md hover:bg-[#2d4570] transition-colors flex items-center gap-2"
-        >
-          <Plus size={18} />
-          Add New Milestone
-        </button>
-      </div>
-      
-      {error && (
-        <motion.div 
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-md mb-6 flex items-start gap-3"
-        >
-          <div className="text-red-500 mt-0.5">
-            <X size={20} />
-          </div>
+    <div className="max-w-6xl mx-auto my-8 px-4">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-[#3f6197] to-[#5478b0] rounded-xl shadow-xl p-6 mb-8">
+        <div className="flex justify-between items-center">
           <div>
-            <h3 className="font-semibold">Error</h3>
-            <p>{error}</p>
+            <h1 className="text-3xl font-bold text-white mb-2">Roadmap Management</h1>
+            <p className="text-blue-100">Plan and visualize your project milestones</p>
           </div>
-        </motion.div>
-      )}
-      
-      {/* Add/Edit Form */}
-      {showForm && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-blue-50 p-6 rounded-lg mb-6 border border-blue-100 shadow-sm"
-        >
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-xl font-semibold text-[#3f6197] flex items-center gap-2">
-              {formMode === 'add' ? (
-                <>
-                  <Plus size={20} />
-                  Add New Milestone
-                </>
-              ) : (
-                <>
-                  <Edit2 size={20} />
-                  Edit Milestone
-                </>
-              )}
-            </h3>
-            <button 
-              onClick={() => setShowForm(false)}
-              className="text-gray-500 hover:text-gray-700"
-            >
-              <X size={20} />
-            </button>
-          </div>
-          
-          <form onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-1">
-                <label className="block text-gray-700 font-medium">Year</label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Calendar size={18} className="text-gray-400" />
-                  </div>
-                  <input
-                    type="text"
-                    name="year"
-                    value={formData.year}
-                    onChange={handleInputChange}
-                    className="w-full pl-10 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#3f6197] focus:border-[#3f6197] outline-none transition-colors"
-                    placeholder="YYYY"
-                    pattern="[0-9]{4}"
-                    required
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-1">
-                <label className="block text-gray-700 font-medium">Month</label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Clock size={18} className="text-gray-400" />
-                  </div>
-                  <select
-                    name="month"
-                    value={formData.month}
-                    onChange={handleInputChange}
-                    className="w-full pl-10 p-3 border border-gray-300 rounded-md appearance-none focus:ring-2 focus:ring-[#3f6197] focus:border-[#3f6197] outline-none transition-colors"
-                    required
-                  >
-                    <option value="">Select Month</option>
-                    {months.map(month => (
-                      <option key={month} value={month}>{month}</option>
-                    ))}
-                  </select>
-                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                    <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="mt-6">
-              <label className="block text-gray-700 font-medium mb-1">Event Description</label>
-              <textarea
-                name="event"
-                value={formData.event}
-                onChange={handleInputChange}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#3f6197] focus:border-[#3f6197] outline-none transition-colors"
-                rows="3"
-                placeholder="Describe the milestone or event"
-                required
-              ></textarea>
-            </div>
-            
-            <div className="flex justify-end mt-6 space-x-3">
-              <button
-                type="button"
-                onClick={() => setShowForm(false)}
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-              >
-                <X size={18} />
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 bg-[#3f6197] text-white rounded-md hover:bg-[#2d4570] flex items-center gap-2"
-              >
-                <CheckCircle size={18} />
-                {formMode === 'add' ? 'Add Milestone' : 'Update Milestone'}
-              </button>
-            </div>
-          </form>
-        </motion.div>
-      )}
-      
-      {/* Year Tabs */}
-      {years.length > 0 && (
-        <div className="mb-6 border-b">
-          <div className="flex overflow-x-auto gap-2 pb-2">
-            {years.map(year => (
+          <div className="flex space-x-2">
+            {years.length > 0 && years.map((year) => (
               <button
                 key={year}
                 onClick={() => setActiveYear(year)}
-                className={`px-4 py-2 rounded-t-lg font-medium transition-colors ${
-                  activeYear === year 
-                    ? 'bg-[#3f6197] text-white' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                className={`px-4 py-2 rounded-lg transition-colors ${activeYear === year 
+                  ? 'bg-white text-[#3f6197] font-medium' 
+                  : 'bg-[#3f6197] text-white border border-white/30 hover:bg-[#2c4b79]'
                 }`}
               >
                 {year}
@@ -314,76 +324,116 @@ const RoadMapControl = () => {
             ))}
           </div>
         </div>
-      )}
-      
-      {/* Timeline Data */}
-      <div className="overflow-hidden rounded-lg border border-gray-200">
-        {years.length > 0 ? (
-          <>
-            {activeYear && (
-              <div className="overflow-x-auto">
-                <table className="min-w-full bg-white">
-                  <thead>
-                    <tr className="bg-gray-50">
-                      <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Month</th>
-                      <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Event</th>
-                      <th className="py-3 px-6 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {timelineData[activeYear]
-                      .sort(sortMonths)
-                      .map((item, index) => (
-                        <tr key={item._id || index} className="hover:bg-gray-50 transition-colors">
-                          <td className="py-4 px-6 whitespace-nowrap text-sm font-medium text-gray-900">
-                            <div className="flex items-center gap-2">
-                              <Calendar size={16} className="text-[#3f6197]" />
-                              {item.month}
-                            </div>
-                          </td>
-                          <td className="py-4 px-6 text-sm text-gray-700">{item.event}</td>
-                          <td className="py-4 px-6 whitespace-nowrap text-right text-sm">
-                            <div className="flex justify-end gap-2">
-                              <button
-                                onClick={() => handleEdit(activeYear, item)}
-                                className="text-blue-600 hover:text-blue-800 p-1 rounded-full hover:bg-blue-50 transition-colors"
-                                title="Edit"
-                              >
-                                <Edit2 size={18} />
-                              </button>
-                              <button
-                                onClick={() => handleDelete(item._id)}
-                                className="text-red-600 hover:text-red-800 p-1 rounded-full hover:bg-red-50 transition-colors"
-                                title="Delete"
-                              >
-                                <Trash2 size={18} />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </>
-        ) : (
-          <div className="text-center py-16 px-4">
-            <div className="flex justify-center mb-4">
-              <Calendar size={48} className="text-gray-300" />
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-1">No roadmap data available</h3>
-            <p className="text-gray-500 mb-4">Create your first milestone to get started</p>
-            <button
-              onClick={handleAddNew}
-              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#3f6197] hover:bg-[#2d4570] gap-2"
-            >
-              <Plus size={16} />
-              Add First Milestone
-            </button>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-lg p-6">
+        {message.text && (
+          <div
+            className={`mb-6 p-4 rounded-lg flex items-center ${
+              message.type === "success"
+                ? "bg-green-100 text-green-800"
+                : "bg-red-100 text-red-800"
+            }`}
+          >
+            <span className="mr-2">
+              {message.type === "success" ? (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              )}
+            </span>
+            {message.text}
           </div>
         )}
+
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-semibold text-[#3f6197]">
+            {activeYear ? `${activeYear} Milestones` : 'Roadmap Milestones'}
+          </h2>
+          <button
+            onClick={handleAddMilestone}
+            className="px-6 py-3 bg-[#3f6197] hover:bg-[#2c4b79] text-white rounded-lg transition-colors flex items-center"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+            </svg>
+            Add Milestone
+          </button>
+        </div>
+
+        {loading ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#3f6197]"></div>
+          </div>
+        ) : years.length === 0 ? (
+          <div className="bg-blue-50 rounded-lg p-8 text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-blue-400 mb-4" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+            </svg>
+            <h3 className="text-lg font-medium text-gray-700 mb-2">No roadmap milestones available</h3>
+            <p className="text-gray-500">Create your first milestone to start building your roadmap.</p>
+          </div>
+        ) : activeYear && timelineData[activeYear] && timelineData[activeYear].length === 0 ? (
+          <div className="bg-blue-50 rounded-lg p-8 text-center">
+            <Calendar size={48} className="mx-auto text-blue-400 mb-4" />
+            <h3 className="text-lg font-medium text-gray-700 mb-2">No milestones for {activeYear}</h3>
+            <p className="text-gray-500">Add your first milestone for this year.</p>
+          </div>
+        ) : (
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <Droppable droppableId={`roadmap-${activeYear}`} type="roadmap-item">
+              {(provided) => (
+                <div
+                  className="space-y-2"
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                >
+                  {activeYear && timelineData[activeYear] && timelineData[activeYear].map((item, index) => (
+                    <RoadmapItemCard
+                      key={item._id || `roadmap-item-${index}`}
+                      item={item}
+                      year={activeYear}
+                      index={index}
+                      onEdit={handleEditMilestone}
+                      onDelete={handleDeleteMilestone}
+                    />
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+        )}
+        
+        <div className="mt-4 flex justify-end">
+          <button
+            onClick={fetchRoadmapData}
+            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 flex items-center"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+            </svg>
+            Refresh
+          </button>
+        </div>
       </div>
+
+      {showForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="max-w-md w-full">
+            <RoadmapForm
+              formData={formData}
+              setFormData={setFormData}
+              onSubmit={handleSubmitForm}
+              onCancel={() => setShowForm(false)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
