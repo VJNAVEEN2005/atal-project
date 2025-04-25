@@ -49,6 +49,7 @@ import RoadMapControl from "./Admin/RoadMapControl.jsx";
 import NewsLetterControl from "./Admin/NewsLetterControl.jsx";
 import TeamsControl from "./Admin/TeamsControl.jsx";
 import AdminControl from "./Admin/AdminControl.jsx";
+import ProfileShare from "./pages/ProfileShare.jsx";
 
 function App() {
   const [isAdmin, setIsAdmin] = useState(0);
@@ -96,6 +97,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/profile" element={<Profile />} />
+
+        <Route path="/profile/:id" element={<ProfileShare />} />
 
         {isAdmin > 0 && (
           <>

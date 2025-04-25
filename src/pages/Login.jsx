@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../Api/api";
+import { Link } from "lucide-react";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -89,7 +90,8 @@ const Login = () => {
         }
         
         // Redirect to homepage
-        navigate("/");
+        
+        window.location.href = "/";
       } else {
         setError(data.message || "Login failed");
       }
