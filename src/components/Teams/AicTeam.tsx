@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Linkedin, Mail, User } from "lucide-react";
-import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
-import axios from 'axios';
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
+import axios from "axios";
 import api from "../../Api/api";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch } from "../../Redux/store";
+import { fetchTeam } from "../../Redux/slice/teams";
 
 interface TeamMember {
   _id: string;
@@ -28,14 +31,18 @@ const TeamMemberCard = ({ member }: { member: TeamMember }) => {
               {/* Skeleton loader */}
               {!imageLoaded && (
                 <div className="absolute inset-0">
-                  <Skeleton circle height="100%" containerClassName="w-full h-full" />
+                  <Skeleton
+                    circle
+                    height="100%"
+                    containerClassName="w-full h-full"
+                  />
                 </div>
               )}
               <img
                 src={`${api.web}api/v1/team/image/${member._id}`}
                 alt={member.name}
                 className={`w-full h-full object-cover rounded-full transition-transform duration-300 group-hover:scale-110 ${
-                  imageLoaded ? 'opacity-100' : 'opacity-0'
+                  imageLoaded ? "opacity-100" : "opacity-0"
                 }`}
                 onLoad={() => setImageLoaded(true)}
                 onError={() => setImageError(true)}
@@ -49,13 +56,27 @@ const TeamMemberCard = ({ member }: { member: TeamMember }) => {
           <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center rounded-full">
             <div className="flex space-x-4 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
               {member.linkedin && (
-                <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200">
-                  <Linkedin size={24} className="text-white hover:text-[#0077b5] transition-colors duration-200" />
+                <a
+                  href={member.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:scale-110 transition-transform duration-200"
+                >
+                  <Linkedin
+                    size={24}
+                    className="text-white hover:text-[#0077b5] transition-colors duration-200"
+                  />
                 </a>
               )}
               {member.email && (
-                <a href={`mailto:${member.email}`} className="hover:scale-110 transition-transform duration-200">
-                  <Mail size={24} className="text-white hover:text-[#E4405F] transition-colors duration-200" />
+                <a
+                  href={`mailto:${member.email}`}
+                  className="hover:scale-110 transition-transform duration-200"
+                >
+                  <Mail
+                    size={24}
+                    className="text-white hover:text-[#E4405F] transition-colors duration-200"
+                  />
                 </a>
               )}
             </div>
@@ -65,7 +86,11 @@ const TeamMemberCard = ({ member }: { member: TeamMember }) => {
       <div className="mt-4 text-center">
         <h3 className="text-lg font-semibold text-gray-900">{member.name}</h3>
         {member.role.split(",").map((item, index) => {
-          return <p key={index} className="text-sm text-gray-500">{item}</p>
+          return (
+            <p key={index} className="text-sm text-gray-500">
+              {item}
+            </p>
+          );
         })}
       </div>
     </div>
@@ -73,29 +98,33 @@ const TeamMemberCard = ({ member }: { member: TeamMember }) => {
 };
 
 const Team = () => {
+  const dispatch: AppDispatch = useDispatch();
+ 
+  const state = useSelector((state: { teams: { teams: { team: TeamMember[] } } }) => state);
+
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("Core Team");
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch team members from API
-  useEffect(() => {
-    const fetchTeamMembers = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get(`${api.web}api/v1/team`);
-        setTeamMembers(response.data.team);
-        setError(null);
-      } catch (err) {
-        console.error('Error fetching team members:', err);
-        setError('Failed to load team members. Please try again later.');
-      } finally {
-        setLoading(false);
-      }
-    };
+  
 
-    fetchTeamMembers();
-  }, []);
+   useEffect(() => {
+      dispatch(fetchTeam());
+    }, []);
+
+    useEffect(()=>{
+      if(state.teams.teams){
+        setTeamMembers(state.teams.teams.team);
+        setLoading(false);
+        setError(null);}
+      else{
+        setLoading(true);
+      }
+    },[state])
+
+
+  
 
   // Filter team members based on active tab
   const filteredMembers = teamMembers.filter(
@@ -110,7 +139,8 @@ const Team = () => {
             AIC-PECF – TEAM MEMBERS
           </h2>
           <p className="mt-3 max-w-2xl mx-auto text-xl text-gray-500 sm:mt-4">
-            Meet our dedicated team of professionals driving innovation and success
+            Meet our dedicated team of professionals driving innovation and
+            success
           </p>
         </div>
 
@@ -119,9 +149,9 @@ const Team = () => {
             <button
               key={tab}
               className={`px-4 py-2 rounded-lg transition-colors ${
-                activeTab === tab 
-                  ? 'bg-[#3F6197] text-white' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                activeTab === tab
+                  ? "bg-[#3F6197] text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
               onClick={() => setActiveTab(tab)}
             >
@@ -142,11 +172,19 @@ const Team = () => {
               {[1, 2, 3, 4, 5, 6].map((index) => (
                 <div key={index} className="flex flex-col items-center">
                   <div className="w-48 h-48">
-                    <Skeleton circle height="100%" containerClassName="w-full h-full" />
+                    <Skeleton
+                      circle
+                      height="100%"
+                      containerClassName="w-full h-full"
+                    />
                   </div>
                   <div className="mt-4 w-40">
                     <Skeleton height={24} width="100%" />
-                    <Skeleton height={18} width="80%" style={{ marginTop: 8 }} />
+                    <Skeleton
+                      height={18}
+                      width="80%"
+                      style={{ marginTop: 8 }}
+                    />
                   </div>
                 </div>
               ))}
@@ -159,11 +197,24 @@ const Team = () => {
             </h3>
             {filteredMembers.length === 0 ? (
               <div className="text-center py-12 bg-blue-50 rounded-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-blue-400 mb-4" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-12 w-12 mx-auto text-blue-400 mb-4"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                    clipRule="evenodd"
+                  />
                 </svg>
-                <h3 className="text-lg font-medium text-gray-700 mb-2">No team members available</h3>
-                <p className="text-gray-500">There are currently no members in this team.</p>
+                <h3 className="text-lg font-medium text-gray-700 mb-2">
+                  No team members available
+                </h3>
+                <p className="text-gray-500">
+                  There are currently no members in this team.
+                </p>
               </div>
             ) : (
               <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">

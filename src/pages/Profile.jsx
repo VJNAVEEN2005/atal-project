@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import api from "../Api/api";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchUser } from "../redux/slice/user.js";
 
 // Component for displaying information in view mode with improved styling
 const Field = ({ label, value }) => (
@@ -222,6 +224,23 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState("personal");
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const state = useSelector((state) => state);
+
+  useEffect(() => {
+
+    if (state.user.user) {
+      setProfileData(state.user.user.user);
+      setPhotoUrl(`${api.web}api/v1/profileImage/${state.user.user.user._id}`);
+      setIsLoading(false);
+    } else {
+      setIsLoading(true);
+    }
+  }, [state]);
+
+  useEffect((e) => {
+    dispatch(fetchUser());
+  }, []);
 
   // Load user authentication data from localStorage
   useEffect(() => {
@@ -230,38 +249,6 @@ const Profile = () => {
   }, []);
 
   // Fetch user data
-  useEffect(() => {
-    if (!userId) return;
-
-    setIsLoading(true);
-
-    // Fetch user data from API
-    axios
-      .post(`${api.web}api/v1/getUser`, { _id: userId })
-      .then((res) => {
-        if (res.data.success) {
-          setProfileData(res.data.user);
-          // Check if user has a profile photo
-          if (res.data.user._id) {
-            // Set photo URL with a timestamp to prevent caching
-            setPhotoUrl(
-              `${api.web}api/v1/profileImage/${
-                res.data.user._id
-              }?t=${new Date().getTime()}`
-            );
-          }
-        } else {
-          setError("Error fetching user data");
-        }
-      })
-      .catch((err) => {
-        console.error("API Error:", err);
-        setError("Failed to load profile data");
-      })
-      .finally(() => {
-        setTimeout(() => setIsLoading(false), 800); // Add slight delay for better UX
-      });
-  }, [userId]);
 
   // Handle logout with animation
   const handleLogout = useCallback(() => {
@@ -683,15 +670,16 @@ const Profile = () => {
   const shareProfile = () => {
     const shareUrl = `${window.location.origin}/profile/${userId}`;
     const shareData = {
-      title: 'Check out this profile',
-      text: 'Have a look at this awesome profile!',
-      url: shareUrl
+      title: "Check out this profile",
+      text: "Have a look at this awesome profile!",
+      url: shareUrl,
     };
-  
+
     if (navigator.share) {
-      navigator.share(shareData)
-        .then(() => console.log('Profile shared successfully'))
-        .catch((error) => console.error('Error sharing:', error));
+      navigator
+        .share(shareData)
+        .then(() => console.log("Profile shared successfully"))
+        .catch((error) => console.error("Error sharing:", error));
     } else {
       // Fallback for browsers that don't support Web Share API
       navigator.clipboard.writeText(shareUrl).then(() => {
@@ -699,7 +687,6 @@ const Profile = () => {
       });
     }
   };
-  
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8">
@@ -849,7 +836,10 @@ const Profile = () => {
                   <div className="mt-3 inline-flex bg-white bg-opacity-20 px-3 py-1 rounded-full text-sm">
                     {profileData.sector || "Your Sector"}
                   </div>
-                  <div onClick={shareProfile} className="px-4 ml-5 text-sm py-2 cursor-pointer bg-blue-100 text-[#3f6197] rounded-full inline-flex items-center">
+                  <div
+                    onClick={shareProfile}
+                    className="px-4 ml-5 text-sm py-2 cursor-pointer bg-blue-100 text-[#3f6197] rounded-full inline-flex items-center"
+                  >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-5 w-5 mr-1"
