@@ -6,7 +6,7 @@ import axios from "axios";
 import api from "../../Api/api";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../Redux/store";
-import { fetchTeam } from "../../Redux/slice/teams";
+import { fetchTeam } from "../../Redux/slice/teamsSlice";
 
 interface TeamMember {
   _id: string;

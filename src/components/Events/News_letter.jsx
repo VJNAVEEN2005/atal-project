@@ -10,7 +10,7 @@ import axios from "axios";
 import api from "../../Api/api";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
-import { fetchNewsletters } from "../../Redux/slice/newsletters";
+import { fetchNewsletters } from "../../Redux/slice/newslettersSlice";
 
 const NewsLetter = () => {
   const themeColor = "#3f6197";

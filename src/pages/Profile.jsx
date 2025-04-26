@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../Api/api";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import { fetchUser } from "../redux/slice/user";
+import { fetchUser } from "../Redux/slice/userSlice";
 import { useDispatch, useSelector } from "react-redux";
 
 // Component for displaying information in view mode with improved styling
