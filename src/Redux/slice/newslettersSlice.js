@@ -7,11 +7,11 @@ export const fetchNewsletters = createAsyncThunk('fetchNewsletters', async () =>
   
     try {
       const response = await axios.get(`${api.web}api/v1/newsletter`);
-      console.log("Response from newsletters API:", response.data); // Log the response data
+  
       return response.data;
     } catch (error) {
       console.error("Error fetching Newsletters data:", error);
-      throw error; // Let Redux Toolkit handle this in .rejected case
+      throw error;
     }
   });
   

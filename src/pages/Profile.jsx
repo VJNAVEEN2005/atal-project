@@ -248,8 +248,6 @@ const Profile = () => {
     setUserId(localStorage.getItem("user_id"));
   }, []);
 
-  // Fetch user data
-
   // Handle logout with animation
   const handleLogout = useCallback(() => {
     // Add visual feedback before logout
@@ -1309,18 +1307,7 @@ const Profile = () => {
           </form>
         )}
 
-        {/* Footer with motivational message */}
-        {!isEditing && !isLoading && (
-          <div className="text-center text-gray-500 mt-12 mb-8 animate-fadeIn">
-            <p>
-              Keeping your profile up-to-date increases your visibility and
-              networking opportunities.
-            </p>
-            <p className="text-sm mt-2">
-              Last updated: {new Date().toLocaleDateString()}
-            </p>
-          </div>
-        )}
+        
       </div>
 
       {/* Add custom CSS animations */}

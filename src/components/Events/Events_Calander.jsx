@@ -1,34 +1,37 @@
 import React, { useState, useEffect } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, time } from "framer-motion";
 import axios from "axios";
 import api from "../../Api/api";
+import { fetchEvents } from "../../Redux/slice/eventSlice";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 
 const Events_Calendar = () => {
   const [selectedDates, setSelectedDates] = useState([]);
   const [filteredDates, setFilteredDates] = useState([]);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+
+  const dispatch = useDispatch();
+  const state = useSelector((state) => state);
 
   useEffect(() => {
-    fetchEvents();
+    dispatch(fetchEvents());
   }, []);
 
-  const fetchEvents = async () => {
-    try {
+  useEffect(() =>{
+    if (state.events.events) {
+      setEvents(state.events.events.events);
+      setLoading(false);
+    } else {
       setLoading(true);
-      const response = await axios.get(`${api.web}api/v1/events/`);
-      setEvents(response.data.events);
-      setLoading(false);
-    } catch (err) {
-      setError('Failed to fetch events');
-      setLoading(false);
-      console.error(err);
     }
-  };
+  },[state])
 
+
+  
   const formatDate = (date) => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -137,21 +140,6 @@ const Events_Calendar = () => {
     );
   }
 
-  if (error) {
-    return (
-      <div className="max-w-6xl mx-auto p-4">
-        <div className="bg-red-100 text-red-700 p-4 rounded-xl">
-          <p className="font-medium">{error}</p>
-          <button 
-            onClick={fetchEvents}
-            className="mt-2 px-4 py-2 bg-red-700 text-white rounded-lg hover:bg-red-800"
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="max-w-6xl mx-auto p-4">

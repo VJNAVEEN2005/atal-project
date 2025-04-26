@@ -14,8 +14,6 @@ export const fetchUser = createAsyncThunk('fetchUser', async () => {
       throw error; // Let Redux Toolkit handle this in .rejected case
     }
   });
-  
-
 
 const userSlice = createSlice({
     name: 'user',
