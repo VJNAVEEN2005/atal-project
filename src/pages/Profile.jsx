@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 import api from "../Api/api";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import { useDispatch, useSelector } from "react-redux";
 import { fetchUser } from "../redux/slice/user";
+import { useDispatch, useSelector } from "react-redux";
 
 // Component for displaying information in view mode with improved styling
 const Field = ({ label, value }) => (
