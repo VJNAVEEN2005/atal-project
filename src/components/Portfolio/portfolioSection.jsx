@@ -15,7 +15,7 @@ const PortfolioSection = () => {
   const [selectedStartup, setSelectedStartup] = useState(null);
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
   const [isAdvancedFilterOpen, setIsAdvancedFilterOpen] = useState(false);
-
+  
   const filteredData =
     activeCategory === "All"
       ? portfolioData
@@ -28,21 +28,23 @@ const PortfolioSection = () => {
   return (
     <section className="py-16 px-4 bg-gradient-to-b from-[#eef2f7] to-white">
       <div className="max-w-7xl mx-auto flex flex-col items-center">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-[#3f6197]">
-            Welcome to Our Startup Portfolio
-          </h2>
-        </div>
-
-        <div className="w-full flex justify-center items-center">
-          <p className="shadow-lg p-6 text-lg text-center bg-white mb-10 rounded-xl "> 
-            Our portfolio features startups that are not only pioneering in
-            their industries but are also making significant contributions to
-            solving real-world problems. From technology and sustainability to
-            healthcare and consumer products, our startups are at the forefront
-            of innovation.
+      <section className="relative flex flex-col items-center text-center py-1 px-6 overflow-hidden mb-5">
+  
+          <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900 leading-tight mb-6 animate-fadeIn">
+            Welcome to <br />
+            <span className="text-[#3f6197]">Our Startup Portfolio</span>
+          </h1>
+          <div className="bg-white shadow-xl rounded-b-2xl p-4 md:p-5">
+          <p className="text-lg md:text-xl text-gray-500 leading-relaxed">
+            Our portfolio features startups that are not only pioneering in their industries but are also making significant contributions to solving real-world problems. From technology and sustainability to healthcare and consumer products, our startups are at the forefront of innovation.
           </p>
-        </div>
+          </div>
+
+        
+        </section>
+
+
+
 
         {/* Uncomment if you want to use the filters
         <Suspense fallback={<div className="text-center py-4">Loading filters...</div>}>

@@ -13,42 +13,42 @@ const services = [
   {
     title: 'NETWORKING',
     logo: network,
-    details: `Invsetors,Bankers,Industry,Manufacturers,Mentors,Experts`,
+    details: `Invsetors , Bankers , Industry , Manufacturers , Mentors , Experts`,
     type: 'Startup and MSME',
     link: { path: '/partners', state: { activeTab: 'Mentors' } },
   },
   {
     title: 'FUNDING',
     logo: funding,
-    details: `Grants,Seed Funding,Soft loans`,
+    details: `Grants , Seed Funding , Soft loans`,
     type: 'Startup and MSME',
     link: '/services/funding',
   },
   {
     title: 'IP , TALENT',
     logo: team,
-    details: `Technologies,IP management,Faculty expertise,Interns and Research Scholars`,
+    details: `Technologies , IP management , Faculty expertise, Interns and Research Scholars`,
     type: 'Startup and MSME',
     link: '/services/ip-talent',
   },
   {
     title: 'VISIBILITY AND OUTREACH',
     logo: media,
-    details: `Demo days,Events,Media,Investors`,
+    details: `Demo days , Events , Media , Investors`,
     type: 'Startup and MSME',
     link: '/events',
   },
   {
     title: 'EXPERT ADVISE',
     logo: advice,
-    details: `Legal,Accounting,IP, Regulatory,Finance`,
+    details: `Legal , Accounting , IP , Regulatory , Finance`,
     type: 'Startup and MSME',
     link: '/services/expert-advise',
   },
   {
     title: 'SOFT SKILL DEVELOPMENT',
     logo: training,
-    details: `Bootcamps,Coaching,Workshops,Training`,
+    details: `Bootcamps , Coaching , Workshops , Training`,
     type: 'Startup and MSME',
     link: { path: '/programs', state: { activeTab: 'Skill Pattara' } },
   },
@@ -283,7 +283,7 @@ export default function Service() {
                       className="max-h-full max-w-full object-contain transform group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>
-                  <div className="flex-grow space-y-3">
+                  <div className="flex-grow max-w-full">
                     <h3 className="text-xl font-semibold text-gray-900 group-hover:text-[#12283c] transition-colors duration-300">
                       {service.title}
                     </h3>
@@ -339,7 +339,7 @@ export default function Service() {
                     return (
                       <div
                         key={service.title}
-                        className={`bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 ${
+                        className={` rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 ${
                           isClickable ? 'cursor-pointer' : ''
                         }`}
                         onClick={handleClick}
@@ -353,11 +353,13 @@ export default function Service() {
                             />
                           </div>
                           <div className="flex-grow">
-                            <h3 className="font-medium text-gray-900 mb-1">{service.title}</h3>
-                            {service.details && (
-                              <p className="text-xs text-gray-600 break-words">{service.details}</p>
-                            )}
-                          </div>
+                          <h3 className="font-medium text-gray-900 mb-1">{service.title}</h3>
+                          {service.details && (
+                            <p className="text-xs text-gray-600 break-words leading-relaxed w-full">
+                              {service.details}
+                            </p>
+                          )}
+                        </div>
                         </div>
                       </div>
                     );

@@ -1,3 +1,25 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+
+/* Startup Portfolio SVG Text Animation */
+.startup-svg-text {
+  font-family: 'Poppins', sans-serif;
+  font-size: 80px;
+  font-weight: 700;
+  stroke: #3f6197;
+  stroke-width: 2px;
+  letter-spacing: 8px;
+  fill: transparent;
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: drawText 4s ease forwards;
+}
+
+@keyframes drawText {
+  to {
+    stroke-dashoffset: 0;
+    fill: rgba(63, 97, 151, 0.1); /* optional light fill */
+  }
+}
