@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import api from '../../Api/api';
+import { useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
+import { fetchPressmedia } from '../../Redux/slice/pressmediaSlice';
 
 const Press_Media_Coverage = () => {
   // Media coverage data state
@@ -49,20 +52,22 @@ const Press_Media_Coverage = () => {
     }
   }, [filters]);
 
-  // Fetch sources once on component mount
-  const fetchSources = useCallback(async () => {
-    try {
-      const response = await axios.get(`${api.web}api/v1/media/sources`);
-      setSources(['All', ...response.data.sources.filter(source => source !== 'All')]);
-    } catch (err) {
-      console.error("Failed to fetch sources:", err);
-    }
+
+  const dispatch = useDispatch();
+  const state = useSelector((state) => state);
+
+  useEffect(() => {
+    dispatch(fetchPressmedia());
   }, []);
 
-  // Initial data load
   useEffect(() => {
-    fetchSources();
-  }, [fetchSources]);
+    if (state.pressmedia.pressmedia) {
+      setSources(['All', ...state.pressmedia.pressmedia.sources.filter(source => source !== 'All')]);
+    }
+  },[state])
+
+
+
 
   // Fetch media when filters change
   useEffect(() => {
@@ -359,9 +364,7 @@ const Press_Media_Coverage = () => {
       {loading && (
         <div className="flex justify-center items-center py-16">
           <div className="relative">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="h-16 w-16 rounded-full border-t-2 border-b-2 border-[#3f6197] animate-spin"></div>
-            </div>
+         
             <div className="h-12 w-12 rounded-full border-t-2 border-r-2 border-[#5478b0] animate-spin"></div>
           </div>
         </div>

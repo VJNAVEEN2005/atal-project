@@ -49,6 +49,10 @@ import RoadMapControl from "./Admin/RoadMapControl.jsx";
 import NewsLetterControl from "./Admin/NewsLetterControl.jsx";
 import TeamsControl from "./Admin/TeamsControl.jsx";
 import AdminControl from "./Admin/AdminControl.jsx";
+import ProfileShare from "./pages/ProfileShare.jsx";
+
+import { Provider } from "react-redux";
+import { store } from "./Redux/store.js";
 
 function App() {
   const [isAdmin, setIsAdmin] = useState(0);
@@ -65,71 +69,94 @@ function App() {
       <NewNav />
       <MoveToTop />
       {/* <NavbarOG /> */}
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/partners" element={<Partners />} />
-        <Route path="/programs" element={<Programs />} />
-        <Route path="/studentProject" element={<Services />} />
-        <Route path="/startupDetail" element={<Portfolio />} />
-        <Route path="/events" element={<Events />} />
-        <Route path="/tenders" element={<Tenders />} />
-        <Route path="/admin/tenders" element={<TendersAdmin />} />
-        <Route path="/academicPartners" element={<Academic />} />
-        <Route path="/cooperativePartners" element={<Cooperative />} />
-        <Route path="/investmentPartner" element={<Investment />} />
-        <Route path="/ipSupporters" element={<IP />} />
-        <Route path="/networkingPartners" element={<Network />} />
-        <Route path="/team" element={<Team />} />
-        <Route path="/team/coreteam" element={<CoreTeam />} />
-        <Route
-          path="/team/executive_committee"
-          element={<Executive_Committee />}
-        />
-        <Route path="/upcoming_events" element={<Events_Calendar />} />
-        <Route path="/road_map" element={<Road_Map />} />
-        <Route path="/news_letter" element={<News_letter />} />
-        <Route path="/press_media" element={<Press_Media_Coverage />} />
+      <Provider store={store}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/partners" element={<Partners />} />
+          <Route path="/programs" element={<Programs />} />
+          <Route path="/studentProject" element={<Services />} />
+          <Route path="/startupDetail" element={<Portfolio />} />
+          <Route path="/events" element={<Events />} />
+          <Route path="/tenders" element={<Tenders />} />
+          <Route path="/admin/tenders" element={<TendersAdmin />} />
+          <Route path="/academicPartners" element={<Academic />} />
+          <Route path="/cooperativePartners" element={<Cooperative />} />
+          <Route path="/investmentPartner" element={<Investment />} />
+          <Route path="/ipSupporters" element={<IP />} />
+          <Route path="/networkingPartners" element={<Network />} />
+          <Route path="/team" element={<Team />} />
+          <Route path="/team/coreteam" element={<CoreTeam />} />
+          <Route
+            path="/team/executive_committee"
+            element={<Executive_Committee />}
+          />
+          <Route path="/upcoming_events" element={<Events_Calendar />} />
+          <Route path="/road_map" element={<Road_Map />} />
+          <Route path="/news_letter" element={<News_letter />} />
+          <Route path="/press_media" element={<Press_Media_Coverage />} />
 
-        {/* Login */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/profile" element={<Profile />} />
+          {/* Login */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/profile" element={<Profile />} />
 
-        {isAdmin > 0 && (
-          <>
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/admin/tenderscontrol" element={<TendersControl />} />
-            <Route path="/admin/eventscontrol" element={<EventsControl />} />
-            <Route path="/events/edit/:id" element={<EditEvent />} />
-            <Route path="/admin/presscontrol" element={<PressMediaControl />} />
-            <Route path="/admin/roadmapcontrol" element={<RoadMapControl />} />
-            <Route
-              path="/admin/newslettercontrol"
-              element={<NewsLetterControl />}
-            />
-            {isAdmin == 1 && (
-              <>
-                <Route path="/admin/teamscontrol" element={<TeamsControl />} />
-                <Route path="/admin/admincontrol" element={<AdminControl />} />
-              </>
-            )}
-          </>
-        )}
-        {/* Admin - Works */}
+          <Route path="/profile/:id" element={<ProfileShare />} />
 
-        {/* Skill_Pattara */}
-        <Route path="/drone_technology" element={<Drone_Technology />} />
-        <Route path="/arduino_programming" element={<Arduino_Programming />} />
-        <Route
-          path="/raspberry_pi_development"
-          element={<Raspberry_Pi_Development />}
-        />
+          {isAdmin > 0 && (
+            <>
+              <Route path="/admin" element={<Admin />} />
+              <Route
+                path="/admin/tenderscontrol"
+                element={<TendersControl />}
+              />
+              <Route path="/admin/eventscontrol" element={<EventsControl />} />
+              <Route path="/events/edit/:id" element={<EditEvent />} />
+              <Route
+                path="/admin/presscontrol"
+                element={<PressMediaControl />}
+              />
+              <Route
+                path="/admin/roadmapcontrol"
+                element={<RoadMapControl />}
+              />
+              <Route
+                path="/admin/newslettercontrol"
+                element={<NewsLetterControl />}
+              />
+              {isAdmin == 1 && (
+                <>
+                  <Route
+                    path="/admin/teamscontrol"
+                    element={<TeamsControl />}
+                  />
+                  <Route
+                    path="/admin/admincontrol"
+                    element={<AdminControl />}
+                  />
+                </>
+              )}
+            </>
+          )}
+          {/* Admin - Works */}
 
-        {/* 404 Page */}
-        <Route path="*" element={<Page_Not_Found />} />
-      </Routes>
+          {/* Skill_Pattara */}
+          <Route path="/drone_technology" element={<Drone_Technology />} />
+          <Route
+            path="/arduino_programming"
+            element={<Arduino_Programming />}
+          />
+          <Route
+            path="/raspberry_pi_development"
+            element={<Raspberry_Pi_Development />}
+          />
+
+          {/* 404 Page */}
+          <Route path="*" element={<Page_Not_Found />} />
+        </Routes>
+      </Provider>
+
       <Footer />
     </Router>
   );

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Linkedin, Mail, User, Edit, Trash, Upload } from 'lucide-react';
 import axios from 'axios';
@@ -92,11 +92,12 @@ const TeamMemberForm = ({ member, onSubmit, onCancel }) => {
   
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null);
-
+  const [isDragging, setIsDragging] = useState(false);
+  
   useEffect(() => {
     // Set preview if member has an image
     if (member?.image) {
-      setPreview(`${api.web}${member.image.replace(/^\//, '')}`);
+      setPreview(`${api.web}api/v1/team/image/${member._id}`);
     }
   }, [member]);
 
@@ -107,6 +108,10 @@ const TeamMemberForm = ({ member, onSubmit, onCancel }) => {
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
+    processFile(file);
+  };
+  
+  const processFile = (file) => {
     if (file) {
       setImage(file);
       const reader = new FileReader();
@@ -116,6 +121,31 @@ const TeamMemberForm = ({ member, onSubmit, onCancel }) => {
       reader.readAsDataURL(file);
     }
   };
+
+  const handleDragOver = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  }, []);
+
+  const handleDrop = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const file = e.dataTransfer.files[0];
+      if (file.type.startsWith('image/')) {
+        processFile(file);
+      }
+    }
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -140,17 +170,34 @@ const TeamMemberForm = ({ member, onSubmit, onCancel }) => {
       <h3 className="text-xl font-semibold mb-4">{member ? 'Edit Team Member' : 'Add Team Member'}</h3>
       <form onSubmit={handleSubmit}>
         <div className="flex justify-center mb-4">
-          <div className="relative w-32 h-32">
-            <div className="absolute inset-0 rounded-full overflow-hidden border-2 border-gray-300">
+          <div 
+            className="relative w-32 h-32"
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
+            <div 
+              className={`absolute inset-0 rounded-full overflow-hidden border-2 ${
+                isDragging 
+                  ? 'border-dashed border-[#3f6197] bg-blue-50' 
+                  : 'border-gray-300'
+              } transition-all duration-200`}
+            >
               {preview ? (
                 <img src={preview} alt="Preview" className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100">
                   <User size={40} className="text-gray-400" />
+                  {isDragging && (
+                    <p className="text-xs text-center text-[#3f6197] mt-2">Drop image here</p>
+                  )}
+                  {!isDragging && (
+                    <p className="text-xs text-center text-gray-500 mt-2">Drag image here</p>
+                  )}
                 </div>
               )}
             </div>
-            <label className="absolute bottom-0 right-0 bg-[#3f6197] p-2 rounded-full cursor-pointer">
+            <label className="absolute bottom-0 right-0 bg-[#3f6197] p-2 rounded-full cursor-pointer hover:bg-[#2c4b79] transition-colors">
               <Upload size={16} className="text-white" />
               <input 
                 type="file" 
@@ -258,8 +305,6 @@ const TeamsControl = () => {
     fetchTeamMembers();
   }, []);
 
-
-
   const fetchTeamMembers = async () => {
     try {
       setLoading(true);
@@ -319,7 +364,6 @@ const TeamsControl = () => {
       fetchTeamMembers();
     }
   };
-
 
   const handleAddMember = () => {
     setCurrentMember(null);
@@ -458,7 +502,7 @@ const TeamsControl = () => {
             <p className="text-gray-500">There are currently no members in this team.</p>
           </div>
         ) : (
-          <DragDropContext onDragEnd={handleDragEnd} >
+          <DragDropContext onDragEnd={handleDragEnd}>
             <Droppable droppableId={`team-members-${activeTab}`} direction='row' type="team-member">
               {(provided) => (
                 <div
