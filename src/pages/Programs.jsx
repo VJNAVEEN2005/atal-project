@@ -71,12 +71,12 @@ function Programs() {
       path: "Acceleration",
     },
     {
-      name: "Skill Pattara",
+      name: "Skill Pattarai",
       icon: <GraduationCap className="w-6 h-6" />,
       path: "Skill Pattara",
     },
     {
-      name: "Dass",
+      name: "DasS",
       icon: <FileText className="w-6 h-6" />,
       path: "Dass",
     },
