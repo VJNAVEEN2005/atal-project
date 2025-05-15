@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Calendar, Users, Target, Award } from 'lucide-react';
+import api from '../../Api/api';
 
 const StartupDetails = ({ startup }) => {
   // Theme color
   const themeColor = "#3f6197";
   const themeColorLight = "#5277b3";
   const themeColorDark = "#2d4974";
+  console.log("Startup Details:", startup);
 
   return (
     <div className="flex justify-center items-center w-full min-h-full bg-gray-50">
@@ -23,7 +25,7 @@ const StartupDetails = ({ startup }) => {
           <div className="flex flex-col md:flex-row gap-6 mb-6">
             <div className="relative w-full md:w-48 h-48 flex-shrink-0">
               <img 
-                src={startup.image} 
+                src={`${api.web}api/v1/startup/${startup._id}/image`} 
                 alt={startup.title} 
                 className="w-full h-full object-contain"
               />

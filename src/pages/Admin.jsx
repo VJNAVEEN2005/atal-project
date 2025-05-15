@@ -34,6 +34,11 @@ const Admin = () => {
       link: "/admin/teamscontrol",
       icon: "👥", // Changed to people icon
     },
+     {
+      name: "Startup Details Control",
+      link: "/admin/startupdetailscontrol",
+      icon: "📝", // Changed to document icon
+    },
   ];
 
   const mainAdminControls = [
@@ -47,6 +52,7 @@ const Admin = () => {
       link: "/admin/tenderscontrol",
       icon: "📝", // Changed to document icon
     },
+   
   ];
 
   return (

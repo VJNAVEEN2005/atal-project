@@ -53,6 +53,7 @@ import ProfileShare from "./pages/ProfileShare.jsx";
 
 import { Provider } from "react-redux";
 import { store } from "./Redux/store.js";
+import StartupDetailsControl from "./Admin/StartupDetailsControl.jsx";
 
 function App() {
   const [isAdmin, setIsAdmin] = useState(0);
@@ -124,6 +125,10 @@ function App() {
               <Route
                 path="/admin/newslettercontrol"
                 element={<NewsLetterControl />}
+              />
+              <Route
+                path="/admin/startupdetailscontrol"
+                element={<StartupDetailsControl />}
               />
               {isAdmin == 1 && (
                 <>
