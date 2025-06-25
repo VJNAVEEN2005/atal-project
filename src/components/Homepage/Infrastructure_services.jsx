@@ -87,7 +87,7 @@ const Infrastructure_services = () => {
             />
           </motion.div>
         </div>
-        <div className="w-full md:w-1/2 flex flex-col items-center md:items-start justify-center mt-4 md:mt-0">
+        <div className="w-full md:w-1/2 flex flex-col items-center md:items-start justify-center mt-4 md:-mt-3">
           <div className="flex flex-col items-start w-full">
             <div className="w-full mt-4 md:m-5">
               {[

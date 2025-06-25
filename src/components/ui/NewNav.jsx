@@ -45,7 +45,7 @@ const NewNav = () => {
   const navItems = [
     { name: "Home", dropdown: false, link: "/" },
     {
-      name: "Ecosystem",
+      name: "Portfolio",
       dropdown: false,
       link: "/startupDetail",
       submenu: [

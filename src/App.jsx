@@ -54,6 +54,8 @@ import ProfileShare from "./pages/ProfileShare.jsx";
 import { Provider } from "react-redux";
 import { store } from "./Redux/store.js";
 import StartupDetailsControl from "./Admin/StartupDetailsControl.jsx";
+import LoaderAic from "./components/ui/Loader.jsx";
+import PartnersControl from "./Admin/PartnersControl.jsx";
 
 function App() {
   const [isAdmin, setIsAdmin] = useState(0);
@@ -130,6 +132,10 @@ function App() {
                 path="/admin/startupdetailscontrol"
                 element={<StartupDetailsControl />}
               />
+              <Route
+                path="/admin/partnerscontrol"
+                element={<PartnersControl />}
+              />
               {isAdmin == 1 && (
                 <>
                   <Route
@@ -159,6 +165,7 @@ function App() {
 
           {/* 404 Page */}
           <Route path="*" element={<Page_Not_Found />} />
+          <Route path="/loader" element={<LoaderAic />} />
         </Routes>
       </Provider>
 

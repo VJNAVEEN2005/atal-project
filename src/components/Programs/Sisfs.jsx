@@ -568,11 +568,7 @@ const Sisfs = () => {
         onClose={() => setSelectedBeneficiary(null)}
       />
 
-      <div className=" flex w-full justify-center items-center mt-12">
-        <button className=" bg-yellow-400 p-4 rounded-md text-white font-bold">
-        Apply Now in Advance
-        </button>
-      </div>
+    
     </motion.div>
   );
 };

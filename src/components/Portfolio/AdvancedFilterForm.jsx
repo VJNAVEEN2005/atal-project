@@ -57,7 +57,7 @@ const AdvancedFilterForm = ({ filters, setFilters, onConfirm }) => {
   return (
     <FormContainer>
       <FieldWrapper>
-        <Label htmlFor="founded">Founded Year</Label>
+        <Label >Founded Year</Label>
         <Input
           id="founded"
           name="founded"

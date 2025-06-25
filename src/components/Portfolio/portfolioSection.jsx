@@ -103,14 +103,15 @@ const PortfolioSection = () => {
             </div>
             
             <div className="flex gap-2">
-              <button
+              {/* <button
                 onClick={() => setIsAdvancedFilterOpen(true)}
                 className="py-2 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors flex items-center"
               >
                 <Filter size={16} className="mr-2" />
                 Filters
               </button>
-              
+               */}
+               
               <button
                 onClick={fetchStartups}
                 className="py-2 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors flex items-center"
@@ -218,11 +219,12 @@ const PortfolioSection = () => {
         isOpen={isAdvancedFilterOpen}
         onClose={() => setIsAdvancedFilterOpen(false)}
       >
-        <AdvancedFilterForm 
+        Filter
+        {/* <AdvancedFilterForm 
           onConfirm={() => setIsAdvancedFilterOpen(false)} 
           sectors={Array.from(new Set(startups.map(s => s.sector)))}
           foundedYears={Array.from(new Set(startups.map(s => s.founded)))}
-        />
+        /> */}
       </Modal>
     </section>
   );

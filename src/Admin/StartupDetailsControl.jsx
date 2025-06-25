@@ -66,7 +66,7 @@ const StartupCard = ({ startup, onEdit, onDelete }) => {
                 <li key={index} className="list-disc">{achievement}</li>
               ))}
               {startup.achievements.length > 2 && (
-                <li className="text-blue-500 list-none mt-1">
+                <li className="text-[#3F6197] list-none mt-1">
                   +{startup.achievements.length - 2} more
                 </li>
               )}
@@ -77,7 +77,7 @@ const StartupCard = ({ startup, onEdit, onDelete }) => {
         <div className="flex justify-end space-x-2 pt-2 border-t border-gray-100">
           <button
             onClick={() => onEdit(startup)}
-            className="p-1 text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
+            className="p-1 text-[#3F6197] hover:bg-blue-50 rounded-full transition-colors"
           >
             <Edit size={16} />
           </button>
@@ -242,7 +242,7 @@ const StartupForm = ({ startup, onSubmit, onCancel }) => {
                 <div 
                   className={`absolute inset-0 rounded-lg overflow-hidden border-2 ${
                     isDragging 
-                      ? 'border-dashed border-blue-500 bg-blue-50' 
+                      ? 'border-dashed border-[#3F6197] bg-blue-50' 
                       : errors.image ? 'border-red-300' : 'border-gray-300'
                   } transition-all duration-200`}
                 >
@@ -252,7 +252,7 @@ const StartupForm = ({ startup, onSubmit, onCancel }) => {
                     <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100">
                       <Upload size={40} className="text-gray-400 mb-2" />
                       {isDragging ? (
-                        <p className="text-sm text-blue-500">Drop image here</p>
+                        <p className="text-sm text-[#3F6197]">Drop image here</p>
                       ) : (
                         <p className="text-sm text-gray-500">Drag image here or click to upload</p>
                       )}
@@ -260,7 +260,7 @@ const StartupForm = ({ startup, onSubmit, onCancel }) => {
                     </div>
                   )}
                 </div>
-                <label className="absolute bottom-4 right-4 bg-blue-600 p-2 rounded-full cursor-pointer hover:bg-blue-700 transition-colors">
+                <label className="absolute bottom-4 right-4 bg-[#3F6197] p-2 rounded-full cursor-pointer hover:bg-[#3F6197] transition-colors">
                   <Upload size={16} className="text-white" />
                   <input 
                     type="file" 
@@ -280,7 +280,7 @@ const StartupForm = ({ startup, onSubmit, onCancel }) => {
               name="title"
               value={formData.title}
               onChange={handleChange}
-              className={`w-full px-3 py-2 border ${errors.title ? 'border-red-300' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              className={`w-full px-3 py-2 border ${errors.title ? 'border-red-300' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-[#5478B0]`}
               placeholder="Startup name"
             />
             {errors.title && <p className="mt-1 text-xs text-red-500">{errors.title}</p>}
@@ -293,7 +293,7 @@ const StartupForm = ({ startup, onSubmit, onCancel }) => {
               value={formData.description}
               onChange={handleChange}
               rows="3"
-              className={`w-full px-3 py-2 border ${errors.description ? 'border-red-300' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              className={`w-full px-3 py-2 border ${errors.description ? 'border-red-300' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-[#5478B0]`}
               placeholder="Brief description of the startup"
             ></textarea>
             {errors.description && <p className="mt-1 text-xs text-red-500">{errors.description}</p>}
@@ -305,7 +305,7 @@ const StartupForm = ({ startup, onSubmit, onCancel }) => {
               name="category"
               value={formData.category}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#5478B0]"
             >
               <option value="Ongoing">Ongoing</option>
               <option value="Graduated">Graduated</option>
@@ -319,7 +319,7 @@ const StartupForm = ({ startup, onSubmit, onCancel }) => {
               name="founded"
               value={formData.founded}
               onChange={handleChange}
-              className={`w-full px-3 py-2 border ${errors.founded ? 'border-red-300' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              className={`w-full px-3 py-2 border ${errors.founded ? 'border-red-300' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-[#5478B0]`}
               placeholder="e.g., 2023"
             />
             {errors.founded && <p className="mt-1 text-xs text-red-500">{errors.founded}</p>}
@@ -383,7 +383,7 @@ const StartupForm = ({ startup, onSubmit, onCancel }) => {
               <button
                 type="button"
                 onClick={handleAddAchievement}
-                className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                className="px-3 py-2 bg-[#3F6197] text-white rounded-md hover:bg-[#5478B0] transition-colors"
               >
                 Add
               </button>
@@ -417,7 +417,7 @@ const StartupForm = ({ startup, onSubmit, onCancel }) => {
           </button>
           <button
             type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            className="px-4 py-2 bg-[#3F6197] text-white rounded-md hover:bg-[#5478B0] transition-colors"
           >
             {startup ? 'Update Startup' : 'Create Startup'}
           </button>
@@ -536,7 +536,7 @@ const StartupDetailsControl = () => {
   return (
     <div className="max-w-6xl mx-auto my-8 px-4">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-xl shadow-xl p-6 mb-8">
+      <div className="bg-gradient-to-r from-[#3F6197] to-[#5478B0] rounded-xl shadow-xl p-6 mb-8">
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-white mb-2">Startup Portfolio</h1>
@@ -544,10 +544,10 @@ const StartupDetailsControl = () => {
           </div>
           <button
             onClick={handleAddStartup}
-            className="px-6 py-3 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors flex items-center font-medium"
+            className="px-6 py-3 bg-white text-[#5478B0] rounded-lg hover:bg-blue-50 transition-colors flex items-center font-medium"
             disabled={isSubmitting}
           >
-            <PlusCircle size={18} className="mr-2" />
+            <PlusCircle size={18} className="mr-2" color='#5478B0' />
             Add Startup
           </button>
         </div>
@@ -588,7 +588,7 @@ const StartupDetailsControl = () => {
                 onClick={() => setActiveCategory(category)}
                 className={`px-4 py-2 rounded-lg transition-colors ${
                   activeCategory === category
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-[#3F6197] text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -603,7 +603,7 @@ const StartupDetailsControl = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search startups..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5478B0]"
             />
           </div>
         </div>
@@ -611,7 +611,7 @@ const StartupDetailsControl = () => {
         {/* Startup listing */}
         {loading ? (
           <div className="flex justify-center items-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border[#3F6197]"></div>
           </div>
         ) : filteredStartups.length === 0 ? (
           <div className="bg-gray-50 rounded-lg p-8 text-center">
@@ -626,7 +626,7 @@ const StartupDetailsControl = () => {
             )}
             <button
               onClick={handleAddStartup}
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center"
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-[#5478B0] transition-colors inline-flex items-center"
             >
               <PlusCircle size={16} className="mr-2" />
               Add Startup

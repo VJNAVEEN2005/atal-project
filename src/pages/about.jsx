@@ -32,7 +32,7 @@ const About = () => {
         variants={fadeIn}
         className="max-w-3/4 flex justify-center my-8 overflow-hidden rounded-xl shadow-sm mx-5"
       >
-        <div className="w-3/4 aspect-video">
+        <div className="w-3/4  aspect-video">
           <ReactPlayer
             ref={playerRef}
             url={Video1}
@@ -50,6 +50,7 @@ const About = () => {
                 },
               },
             }}
+      
             className="w-full h-full"
           />
         </div>
@@ -61,7 +62,7 @@ const About = () => {
         whileInView="visible"
         viewport={{ once: true }}
         variants={fadeIn}
-        className="max-w-4xl mx-auto px-6 py-8 bg-white rounded-2xl shadow-md mb-12"
+        className="max-w-5xl mx-auto px-6 py-8 bg-white rounded-2xl shadow-md mb-12"
       >
         <p className="text-gray-800 text-lg leading-relaxed">
           Atal Incubation Centre Pondicherry Engineering College Foundation (AIC-PECF) is fully supported and funded by the Atal Innovation Mission (AIM), Niti Aayog, and Government of India. AIC-PECF was initiated to provide a platform to assist and enable young entrepreneurs to initiate start-ups for the commercial exploitation of technologies developed by them. AIC-PECF also enables the budding entrepreneurs to showcase and test their abilities to run a start-up business in the areas of Electronics Design and Manufacturing (EDM), Internet of Things (IoT), and Unmanned Aerial Vehicle (UAV).

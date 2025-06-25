@@ -45,7 +45,7 @@ const Events = () => {
     <div className="events-page">
       {/* Tabs */}
       <div className="tabs">
-        {[ "Road Map", "Upcoming Events","Events" ,"News Letters", "Press Media Coverage"].map((tab) => (
+        {[ "Road Map","Events" ,"News Letters", "Press Media Coverage"].map((tab) => (
           <button
             key={tab}
             className={`tab-button ${activeTab === tab ? "active" : ""}`}
@@ -57,10 +57,7 @@ const Events = () => {
       </div>
 
       {/* Tab Content */}
-      {activeTab === "Upcoming Events" && (
-        <Events_Calander/>
-      )}
-
+  
       {activeTab === "Events" && (
         <Events_Calander/>
       )}

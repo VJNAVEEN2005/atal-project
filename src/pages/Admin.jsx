@@ -39,6 +39,11 @@ const Admin = () => {
       link: "/admin/startupdetailscontrol",
       icon: "📝", // Changed to document icon
     },
+    {
+      name: "Partners Control",
+      link: "/admin/partnerscontrol",
+      icon: "🤝", // Changed to handshake icon
+    }
   ];
 
   const mainAdminControls = [
@@ -80,9 +85,11 @@ const Admin = () => {
                 <h2 className="font-semibold text-2xl text-gray-800">
                   Main Admin Access
                 </h2>
-                <button
+                <a
                   className="bg-[#3f6197] hover:bg-[#2e4a76] transition-colors text-white px-5 py-2 rounded-lg flex items-center gap-2 shadow-md"
-                  onClick={() => navigate("/admin/main")}
+                 href="https://sites.google.com/view/aicpecf/home?authuser=3"
+                 target="_blank"
+               
                 >
                   <span>Go To Page</span>
                   <svg
@@ -97,7 +104,7 @@ const Admin = () => {
                       clipRule="evenodd"
                     />
                   </svg>
-                </button>
+                </a>
               </div>
               <div className="bg-[#eef2f8] p-6 rounded-xl border border-[#d1ddf0] shadow-sm">
                 <div className="flex items-center gap-4">
