@@ -6,6 +6,7 @@ import newslettersReducer from './slice/newslettersSlice.js';
 import roadmapReducer from './slice/roadmapSlice.js';
 import eventReducer from './slice/eventSlice.js';
 import pressmediaReducer from './slice/pressmediaSlice.js';
+import authenticateUser from './slice/authenticateSlice.js';
 
 export const store = configureStore({
   reducer: {
@@ -15,6 +16,8 @@ export const store = configureStore({
     roadmap: roadmapReducer,
     events: eventReducer,
     pressmedia: pressmediaReducer,
+    authenticate: authenticateUser,
+
   }
 });
 
