@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Menu, X, ChevronDown, ChevronUp } from "lucide-react";
 import { Aic, Aim, ptuLogo } from "../../assets/logos/logs";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 
 const NewNav = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -10,16 +11,17 @@ const NewNav = () => {
   const navigate = useNavigate();
   const location = useLocation(); // Add this to get current location
   const mobileMenuRef = useRef(null);
-
+  const dispatch = useDispatch();
+  const state = useSelector((state) => state);
   const [isLogin, setIsLogin] = useState(false);
 
   useEffect(() => {
     checkAuth();
-  }, [isLogin]);
+  }, [isLogin, state.authenticate]);
 
   const checkAuth = () => {
-    const auth = window.localStorage.getItem("user_isLogin");
-    if (auth === "true") {
+    const auth = state.authenticate.isAuthenticated;
+    if (auth === true) {
       setIsLogin(true);
     }
   };
@@ -129,7 +131,7 @@ const NewNav = () => {
     if (itemLink === "/" && location.pathname === "/") {
       return true;
     }
-    
+
     // For other pages, check if current path starts with the item link
     // This handles both exact matches and child routes
     return itemLink !== "/" && location.pathname.startsWith(itemLink);
@@ -212,9 +214,14 @@ const NewNav = () => {
                     transition={{ delay: 0.1 * index, duration: 0.3 }}
                     style={{ color: "#3f6197" }}
                   >
-                    <NavLink to={item.link}
-                    className={isNavItemActive(item.link) ? " font-extrabold" : ""}
-                    >{item.name}</NavLink>
+                    <NavLink
+                      to={item.link}
+                      className={
+                        isNavItemActive(item.link) ? " font-extrabold" : ""
+                      }
+                    >
+                      {item.name}
+                    </NavLink>
                     {item.dropdown && (
                       <ChevronDown
                         className="ml-1 h-4 w-4"
@@ -244,7 +251,9 @@ const NewNav = () => {
                           <motion.div
                             key={subIndex}
                             className={`block px-4 py-2 hover:cursor-pointer text-sm hover:bg-gray-100 ${
-                              isSubmenuItemActive(subItem.link) ? "border-l-4 border-[#3f6197]" : ""
+                              isSubmenuItemActive(subItem.link)
+                                ? "border-l-4 border-[#3f6197]"
+                                : ""
                             }`}
                             whileHover={{ x: 5 }}
                             style={{ color: "#3f6197" }}
@@ -336,7 +345,9 @@ const NewNav = () => {
             <div key={index}>
               <div
                 className={`flex justify-between items-center px-3 py-2 rounded-md text-sm sm:text-base font-medium hover:bg-gray-50 ${
-                  isNavItemActive(item.link) ? "border-l-4 border-[#3f6197] bg-gray-50" : ""
+                  isNavItemActive(item.link)
+                    ? "border-l-4 border-[#3f6197] bg-gray-50"
+                    : ""
                 }`}
                 style={{ color: "#3f6197" }}
               >
@@ -379,7 +390,9 @@ const NewNav = () => {
                     <div
                       key={subIndex}
                       className={`block px-3 py-2 text-xs sm:text-sm rounded-md hover:bg-gray-100 ${
-                        isSubmenuItemActive(subItem.link) ? "border-l-2 border-[#3f6197] bg-gray-100" : ""
+                        isSubmenuItemActive(subItem.link)
+                          ? "border-l-2 border-[#3f6197] bg-gray-100"
+                          : ""
                       }`}
                       style={{ color: "#3f6197" }}
                     >
@@ -409,7 +422,7 @@ const NewNav = () => {
               </motion.button>
             </div>
           )}
-          
+
           {isLogin && (
             <div className="px-3 py-4">
               <motion.button
