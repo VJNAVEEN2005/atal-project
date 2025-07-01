@@ -1,108 +1,54 @@
-import React, { useState, useEffect } from "react";
-import Skeleton from 'react-loading-skeleton'
-import 'react-loading-skeleton/dist/skeleton.css'
-import { Tilt } from "react-tilt";
+import React, { useState, useEffect, useRef } from "react";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
+import { Carousel } from "@mantine/carousel";
+import Autoplay from 'embla-carousel-autoplay';
 
-function MainSlider(props) {
+function MainSlider({ images }) {
+  const [loading, setLoading] = useState(true);
 
-    const [currentIndex, setCurrentIndex] = useState(0);
+  const autoplay = useRef(
+    Autoplay({ delay: 3000, stopOnInteraction: false }) // auto-scroll every 3s
+  );
 
-    const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    if (images.length > 0) {
+      setLoading(false);
+    }
+  }, [images]);
 
-    useEffect(() => {
-        if (props.images.length > 0) {
-            setLoading(false);
-        }
-    }, [props.images]);
-
-    // Automatically move to the next slide
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setCurrentIndex((prev) => (prev === props.images.length - 3 ? 0 : prev + 1));
-        }, 3000); // Change slide every 3 seconds
-
-        return () => clearInterval(interval); // Cleanup on unmount
-    }, [currentIndex]);
-
-    const prevSlide = () => {
-        setCurrentIndex((prev) => (prev === 0 ? props.images.length - 3 : prev - 1));
-    };
-
-    const nextSlide = () => {
-        setCurrentIndex((prev) => (prev === props.images.length - 3 ? 0 : prev + 1));
-    };
-    return (
-        <>
-            <div className="relative  overflow-hidden mx-auto mt-10 mb-2 rounded-lg">
-                {/* Carousel Content */}
-                <div
-            className="flex transition-transform duration-700 ease-in-out h-80"
-            style={{ transform: `translateX(-${(currentIndex * 3 * 100 / 3)}%)`, width: `${100 / 3}%` }}
-        >
-            {props.images.map((image, index) => (
-                <div key={index} className="w-full flex-shrink-0 px-2">
-                    {loading ? (
-                        <Skeleton className="h-72 md:h-full w-full bg-gray-300 animate-pulse rounded-xl"/>
-                    ) : (
-                        <img
-                            src={image}
-                            alt={`Slide ${index + 1}`}
-                            onLoad={() => setLoading(false)}
-                            className="h-72 md:h-full w-full object-cover rounded-xl"
-                        />
-                    )}
-                </div>
-            ))}
-        </div>
-
-                {/* Navigation Buttons */}
-                <button
-                    className="absolute top-1/2 left-4 -translate-y-1/2 bg-white/70 rounded-full p-2 hover:bg-white shadow-md"
-                    onClick={prevSlide}
-                >
-                    <svg
-                        className="w-6 h-6 text-black"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                    >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                    </svg>
-                </button>
-
-                <button
-                    className="absolute top-1/2 right-4 -translate-y-1/2 bg-white/70 rounded-full p-2 hover:bg-white shadow-md"
-                    onClick={nextSlide}
-                >
-                    <svg
-                        className="w-6 h-6 text-black"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                    >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                    </svg>
-                </button>
-
-                {/* Dots Indicators */}
-                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-                    {props.images.slice(0,props.images.length-2).map((_, index) => (
-                        <button
-                            key={index}
-                            onClick={() => setCurrentIndex(index)}
-                            className={`w-3 h-3 rounded-full ${index === currentIndex ? "bg-white" : "bg-gray-400"
-                                }`}
-                        ></button>
-                        
-                    ))}
-                </div>
-            </div>
-        </>
-    );
+  return (
+    <div className="relative overflow-hidden mx-auto mt-10 mb-2 rounded-lg">
+      <Carousel
+        withIndicators
+        height={230}
+        slideSize="33.333333%"
+        slideGap="md"
+        align="start"
+        slidesToScroll={1}
+        loop
+        dragFree
+        plugins={[autoplay.current]}
+        onMouseEnter={autoplay.current.reset}
+        onMouseLeave={autoplay.current.reset}
+      >
+        {images.map((image, index) => (
+          <Carousel.Slide key={index}>
+            {loading ? (
+              <Skeleton className="h-56 w-full bg-gray-300 animate-pulse rounded-xl" />
+            ) : (
+              <img
+                src={image.imageUrl}
+                alt={`Image ${index + 1}`}
+                onLoad={() => setLoading(false)}
+                className="h-56 w-full object-cover rounded-xl"
+              />
+            )}
+          </Carousel.Slide>
+        ))}
+      </Carousel>
+    </div>
+  );
 }
 
 export default MainSlider;

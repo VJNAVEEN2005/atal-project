@@ -32,7 +32,7 @@ function Image_Carousel(props) {
         {props.images.map((image, index) => (
           <div key={index} className="w-full flex-shrink-0">
             <img
-              src={image}
+              src={image.imageUrl}
               alt={`Slide ${index + 1}`}
               className="w-full h-64 md:h-96 object-contain"
             />
