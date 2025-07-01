@@ -56,6 +56,7 @@ import LoaderAic from "./components/ui/Loader.jsx";
 import PartnersControl from "./Admin/PartnersControl.jsx";
 import { useDispatch, useSelector } from "react-redux";
 import { authenticateUser } from "./Redux/slice/authenticateSlice.js";
+import ImageCarouselControl from "./Admin/ImageCarouselControl.jsx";
 
 function App() {
   const [isAdmin, setIsAdmin] = useState(0);
@@ -137,6 +138,7 @@ function App() {
               path="/admin/partnerscontrol"
               element={<PartnersControl />}
             />
+            <Route path="/admin/imagecarouselcontrol" element={<ImageCarouselControl />} />
             {isAdmin == 1 && (
               <>
                 <Route path="/admin/teamscontrol" element={<TeamsControl />} />

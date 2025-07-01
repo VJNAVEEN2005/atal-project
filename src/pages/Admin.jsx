@@ -43,7 +43,12 @@ const Admin = () => {
       name: "Partners Control",
       link: "/admin/partnerscontrol",
       icon: "🤝", // Changed to handshake icon
-    }
+    },
+    {
+      name: "Image Carousel Control",
+      link: "/admin/imagecarouselcontrol",
+      icon: "🖼️", // Changed to image icon
+    },
   ];
 
   const mainAdminControls = [
