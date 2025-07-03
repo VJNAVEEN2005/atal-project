@@ -1,5 +1,5 @@
 const api = {
-    web:"http://localhost:8000/",
+    web:"https://atal-project-backend.vercel.app/",
 
     local:"http://localhost:8000/",
     versel:"https://atal-project-backend.vercel.app/",
