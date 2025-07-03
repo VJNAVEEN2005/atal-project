@@ -8,6 +8,7 @@ import eventReducer from './slice/eventSlice.js';
 import pressmediaReducer from './slice/pressmediaSlice.js';
 import authenticateUser from './slice/authenticateSlice.js';
 import imageCarouselReducer from './slice/imageCarouselSlice.js';
+import messageReducer from './slice/messageSlice.js'; 
 
 export const store = configureStore({
   reducer: {
@@ -18,7 +19,8 @@ export const store = configureStore({
     events: eventReducer,
     pressmedia: pressmediaReducer,
     authenticate: authenticateUser,
-    imageCarousel: imageCarouselReducer
+    imageCarousel: imageCarouselReducer,
+    message: messageReducer
 
   }
 });
