@@ -57,6 +57,7 @@ import PartnersControl from "./Admin/PartnersControl.jsx";
 import { useDispatch, useSelector } from "react-redux";
 import { authenticateUser } from "./Redux/slice/authenticateSlice.js";
 import ImageCarouselControl from "./Admin/ImageCarouselControl.jsx";
+import MessagesControl from "./Admin/MessagesControl.jsx";
 
 function App() {
   const [isAdmin, setIsAdmin] = useState(0);
@@ -139,10 +140,12 @@ function App() {
               element={<PartnersControl />}
             />
             <Route path="/admin/imagecarouselcontrol" element={<ImageCarouselControl />} />
+            <Route path="/admin/messagescontrol" element={<MessagesControl />} />
             {isAdmin == 1 && (
               <>
                 <Route path="/admin/teamscontrol" element={<TeamsControl />} />
                 <Route path="/admin/admincontrol" element={<AdminControl />} />
+                
               </>
             )}
           </>

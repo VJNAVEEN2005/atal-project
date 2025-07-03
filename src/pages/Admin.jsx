@@ -34,7 +34,7 @@ const Admin = () => {
       link: "/admin/teamscontrol",
       icon: "👥", // Changed to people icon
     },
-     {
+    {
       name: "Startup Details Control",
       link: "/admin/startupdetailscontrol",
       icon: "📝", // Changed to document icon
@@ -49,6 +49,11 @@ const Admin = () => {
       link: "/admin/imagecarouselcontrol",
       icon: "🖼️", // Changed to image icon
     },
+    {
+      name: "Messages Control",
+      link: "/admin/messagescontrol",
+      icon: "💬", // Changed to chat icon
+    },
   ];
 
   const mainAdminControls = [
@@ -62,7 +67,6 @@ const Admin = () => {
       link: "/admin/tenderscontrol",
       icon: "📝", // Changed to document icon
     },
-   
   ];
 
   return (
@@ -71,8 +75,12 @@ const Admin = () => {
         {/* Header */}
         <div className="bg-gradient-to-r from-[#2e4a76] to-[#3f6197] px-6 py-8 flex justify-between items-center">
           <div>
-            <h1 className="font-bold text-3xl md:text-4xl text-white">Admin Dashboard</h1>
-            <p className="text-blue-100 mt-1">Manage your site content and settings</p>
+            <h1 className="font-bold text-3xl md:text-4xl text-white">
+              Admin Dashboard
+            </h1>
+            <p className="text-blue-100 mt-1">
+              Manage your site content and settings
+            </p>
           </div>
           <div className="flex items-center gap-4">
             <div className="h-10 w-10 bg-white rounded-full flex items-center justify-center shadow-lg">
@@ -92,9 +100,8 @@ const Admin = () => {
                 </h2>
                 <a
                   className="bg-[#3f6197] hover:bg-[#2e4a76] transition-colors text-white px-5 py-2 rounded-lg flex items-center gap-2 shadow-md"
-                 href="https://sites.google.com/view/aicpecf/home?authuser=3"
-                 target="_blank"
-               
+                  href="https://sites.google.com/view/aicpecf/home?authuser=3"
+                  target="_blank"
                 >
                   <span>Go To Page</span>
                   <svg
@@ -134,7 +141,8 @@ const Admin = () => {
                       Administrative Controls
                     </h3>
                     <p className="text-gray-500">
-                      Manage core settings, user permissions, and site configuration
+                      Manage core settings, user permissions, and site
+                      configuration
                     </p>
                   </div>
                 </div>
@@ -152,7 +160,9 @@ const Admin = () => {
                         {item.icon}
                       </div>
                       <div>
-                        <h3 className="font-medium text-lg text-gray-800">{item.name}</h3>
+                        <h3 className="font-medium text-lg text-gray-800">
+                          {item.name}
+                        </h3>
                         <div className="flex items-center gap-1 text-sm text-[#3f6197] mt-2 font-medium">
                           <span>Manage</span>
                           <svg
@@ -175,7 +185,7 @@ const Admin = () => {
               </div>
             </div>
           )}
-          
+
           {/* All Admin Controls */}
           <div>
             <h2 className="font-semibold text-2xl text-gray-800 mb-6 flex items-center gap-2">
@@ -194,7 +204,9 @@ const Admin = () => {
                       {item.icon}
                     </div>
                     <div>
-                      <h3 className="font-medium text-lg text-gray-800">{item.name}</h3>
+                      <h3 className="font-medium text-lg text-gray-800">
+                        {item.name}
+                      </h3>
                       <div className="flex items-center gap-1 text-sm text-[#3f6197] mt-2 font-medium">
                         <span>Manage</span>
                         <svg
@@ -217,8 +229,6 @@ const Admin = () => {
             </div>
           </div>
         </div>
-        
-       
       </div>
     </div>
   );

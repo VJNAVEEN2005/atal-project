@@ -6,41 +6,17 @@ import {
   Sundhara_Moorthy_Director,
   Vishnu_CEO,
 } from "../../assets/Team/coreTeam/images/coreTeamImage";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchMessages } from "../../Redux/slice/messageSlice.js";
 
 const Testimonials = () => {
-  const testimonials = [
-    {
-      role: "CEO",
-      name: "Mr. Vishnu Vardhan",
-      occupation: "Chief Executive Officer",
-      company: "Atal Incubation Centre, PEC Foundation",
-      message:
-        "A strong incubation ecosystem is the foundation of every successful startup. At AIC-PECF, we bridge the gap between ideas and execution, offering a structured environment where startups can validate, build, and scale with confidence.",
-      photo: Vishnu_CEO,
-    },
-    {
-      role: "COO",
-      name: "Mr. S Rajakumar",
-      occupation: "Chief Operating Officer",
-      company: "Atal Incubation Centre, PEC Foundation",
-      message:
-        "Technology is at the heart of every startup’s journey. We provide the necessary technical support, industry insights, and access to cutting-edge tools that enable startups to innovate, prototype, and commercialize their solutions effectively.",
-      photo: Rajkumar_COO,
-    },
-    {
-      role: "Director",
-      name: "Dr. R Sundaramurthy",
-      occupation: "Executive Director",
-      company: "Atal Incubation Centre, PEC Foundation",
-      message:
-        "Our goal is to create a thriving ecosystem where entrepreneurs receive the right mentorship, resources, and opportunities to scale their ventures successfully.",
-      photo: Sundhara_Moorthy_Director,
-    },
-  ];
-
   const [currentSlide, setCurrentSlide] = useState(0);
   const [transition, setTransition] = useState("slide");
   const [direction, setDirection] = useState(1);
+  const [testimonials, setMessages] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const dispatch = useDispatch();
+  const state = useSelector((state) => state);
 
   // Auto-rotate transitions for variety
   useEffect(() => {
@@ -56,20 +32,45 @@ const Testimonials = () => {
   }, [currentSlide]);
 
   useEffect(() => {
+    const fetchMessage = async () => {
+      try {
+        await dispatch(fetchMessages());
+      } catch (error) {
+        console.error("Error fetching messages:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchMessage();
+  }, []);
+
+  useEffect(() => {
+    if (state.message?.messages?.messages) {
+      setMessages(state.message.messages.messages);
+    } else {
+      console.log("No messages available or loading.");
+    }
+  }, [state.message]);
+
+  useEffect(() => {
+    if (testimonials.length === 0) return;
+
     const interval = setInterval(() => {
       setDirection(1);
       setCurrentSlide((prev) => (prev + 1) % testimonials.length);
     }, 6000);
 
     return () => clearInterval(interval);
-  }, [currentSlide]);
+  }, [currentSlide, testimonials.length]);
 
   const nextSlide = () => {
+    if (testimonials.length === 0) return;
     setDirection(1);
     setCurrentSlide((prev) => (prev + 1) % testimonials.length);
   };
 
   const prevSlide = () => {
+    if (testimonials.length === 0) return;
     setDirection(-1);
     setCurrentSlide(
       (prev) => (prev - 1 + testimonials.length) % testimonials.length
@@ -154,6 +155,22 @@ const Testimonials = () => {
     },
   };
 
+  if (isLoading) {
+    return (
+      <div className="w-[90%] sm:w-[85%] mx-auto mb-10 sm:mb-20 px-2 sm:px-0 flex justify-center items-center h-64">
+        <p>Loading testimonials...</p>
+      </div>
+    );
+  }
+
+  if (testimonials.length === 0) {
+    return (
+      <div className="w-[90%] sm:w-[85%] mx-auto mb-10 sm:mb-20 px-2 sm:px-0 flex justify-center items-center h-64">
+        <p>No testimonials available.</p>
+      </div>
+    );
+  }
+
   return (
     <motion.div
       className="w-[90%] sm:w-[85%] mx-auto mb-10 sm:mb-20 px-2 sm:px-0"
@@ -223,7 +240,7 @@ const Testimonials = () => {
           </AnimatePresence>
 
           {/* Message Section with Animation */}
-          <div className=" overflow-hidden w-full">
+          <div className="overflow-hidden w-full">
             <AnimatePresence mode="wait" custom={direction}>
               <motion.div
                 key={currentSlide}
