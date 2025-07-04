@@ -5,7 +5,6 @@ import { motion, AnimatePresence, time } from "framer-motion";
 import axios from "axios";
 import api from "../../Api/api";
 import { fetchEvents } from "../../Redux/slice/eventSlice";
-import { useDispatch } from "react-redux";
 import { useSelector, useDispatch } from "react-redux";
 
 const Events_Calendar = () => {
