@@ -58,6 +58,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { authenticateUser } from "./Redux/slice/authenticateSlice.js";
 import ImageCarouselControl from "./Admin/ImageCarouselControl.jsx";
 import MessagesControl from "./Admin/MessagesControl.jsx";
+import ForgotPassword from "./pages/ForgotPassword.jsx";
+import ResetPassword from "./pages/ResetPassword.jsx";
 
 function App() {
   const [isAdmin, setIsAdmin] = useState(0);
@@ -115,6 +117,8 @@ function App() {
         {/* Login */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/profile" element={<Profile />} />
 
         <Route path="/profile/:id" element={<ProfileShare />} />

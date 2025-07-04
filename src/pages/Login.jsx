@@ -3,6 +3,7 @@ import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../Api/api";
 import { Link } from "lucide-react";
+import { Button } from "bootstrap";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -69,9 +70,7 @@ const Login = () => {
         const { data } = response;
 
         if (data.success) {
-        
           localStorage.setItem("token", data.token);
-
 
           console.log("User data stored in localStorage:", {
             userId: data.user._id,
@@ -180,6 +179,12 @@ const Login = () => {
             <label htmlFor="rememberMe" className="ml-2 text-gray-600">
               Remember me
             </label>
+
+            <button 
+              onClick={() => navigate("/forgot-password")}
+            className="ml-auto text-[#3f6197] font-medium hover:underline focus:outline-none">
+              Forgot Password?
+            </button>
           </div>
 
           <button
