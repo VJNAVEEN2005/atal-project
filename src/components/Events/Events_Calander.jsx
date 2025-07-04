@@ -6,10 +6,8 @@ import axios from "axios";
 import api from "../../Api/api";
 import { fetchEvents } from "../../Redux/slice/eventSlice";
 import { useDispatch } from "react-redux";
-import { useSelector } from "react-redux";
-import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchPartners } from "../../Redux/slice/partnerSlice";
+
 const Events_Calendar = () => {
   const [selectedDates, setSelectedDates] = useState([]);
   const [filteredDates, setFilteredDates] = useState([]);
