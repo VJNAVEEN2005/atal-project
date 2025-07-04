@@ -183,7 +183,8 @@ const PartnerCard = ({ partner, index, onEdit, onDelete, isCompany }) => {
 
 const PartnerForm = ({ partner, onSubmit, onCancel, partnerType }) => {
   const isCompany = ['Academic', 'Corporate', 'IP Partners'].includes(partnerType);
-  
+  const isIPorMentor = partnerType === 'IP Partners' || partnerType === 'Mentors';
+
   const [formData, setFormData] = useState({
     name: partner?.name || '',
     type: partner?.type || partnerType,
@@ -191,6 +192,10 @@ const PartnerForm = ({ partner, onSubmit, onCancel, partnerType }) => {
     email: partner?.email || '',
     linkedin: partner?.linkedin || '',
     details: partner?.details || '',
+    // New fields
+    role: partner?.role || '',
+    expertise: partner?.expertise || [],
+    companyName: partner?.companyName || '',
   });
   
   const [image, setImage] = useState(null);
@@ -209,7 +214,10 @@ const PartnerForm = ({ partner, onSubmit, onCancel, partnerType }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => ({
+      ...prev,
+      [name]: name === "expertise" ? value.split(',').map(s => s.trim()) : value,
+    }));
   };
 
   const handleImageChange = (e) => {
@@ -383,6 +391,47 @@ const PartnerForm = ({ partner, onSubmit, onCancel, partnerType }) => {
                 rows="3"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3f6197]"
                 placeholder="Brief description of experience, role, expertise..."
+              />
+            </div>
+          </>
+        )}
+
+        {/* Show these fields only for IP Partners and Mentors */}
+        {isIPorMentor && (
+          <>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+              <input
+                type="text"
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3f6197]"
+                placeholder="e.g. Patent Attorney, Mentor"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Expertise <span className="text-xs text-gray-400">(comma separated)</span>
+              </label>
+              <input
+                type="text"
+                name="expertise"
+                value={formData.expertise.join(', ')}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3f6197]"
+                placeholder="e.g. IP Law, Technology, Business"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
+              <input
+                type="text"
+                name="companyName"
+                value={formData.companyName}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3f6197]"
+                placeholder="e.g. ABC Corp"
               />
             </div>
           </>

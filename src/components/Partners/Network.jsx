@@ -22,7 +22,9 @@ import {
   touch,
   zoho
 } from '../../assets/Partnerspage/Corporate/CooperatePartner';
-
+import { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchPartners } from "../../Redux/slice/partnerSlice";
 function App() {
   const [activeSection, setActiveSection] = useState('Network');
 
@@ -34,51 +36,15 @@ function App() {
     { name: 'Investment', icon: <Building2 className="w-6 h-6" />, path: 'Investment' }
   ];
 
-  const academicPartners = [
-    { name: 'NIT Karaikal', logo: nitLogo },
-    { name: 'IFET College of Engineering', logo: ifetlogo },
-    { name: 'PAJANCOA & RI Karaikal', logo: pip },
-    { name: 'Rajiv Gandhi Institute of Veterinary Education and Research (River)', logo: river },
-    { name: 'Dr. B. R. Ambedkar Polytechnic College Yanam', logo: rj },
-    { name: 'Sri Manakula Vinayagar Engineering College', logo: smvec }
-  ];
-
-  const corporatePartners = [
-    { name: 'Zoho Corporation', logo: zoho },
-    { name: 'Schneider Electric', logo: schneider },
-    { name: 'Digi Electronics', logo: digi },
-    { name: 'Idea Labs', logo: idea },
-    { name: 'Krisp Technologies', logo: kris },
-    { name: 'KTech Innovation Hub', logo: ktech },
-    { name: 'Lucas TVS', logo: lucas },
-    { name: 'Renewable Energy Solutions', logo: re },
-    { name: 'Telemedia Solutions', logo: tele },
-    { name: 'Touch Enterprises', logo: touch },
-    { name: 'Easy Tech', logo: Easy },
-    { name: 'DI Corporation', logo: di }
-  ];
-
-  const ipSupporters = [
-    { name: 'Facebook Research', logo: 'https://via.placeholder.com/150?text=FB' },
-    { name: 'Google AI', logo: 'https://via.placeholder.com/150?text=Google' },
-    { name: 'Microsoft Labs', logo: 'https://via.placeholder.com/150?text=MS' },
-    { name: 'OpenAI', logo: 'https://via.placeholder.com/150?text=OpenAI' }
-  ];
-
-  const networkPartners = [
-    { name: 'AWS', logo: 'https://via.placeholder.com/150?text=AWS' },
-    { name: 'IBM Watson', logo: 'https://via.placeholder.com/150?text=IBM' },
-    { name: 'NVIDIA AI', logo: 'https://via.placeholder.com/150?text=NVIDIA' },
-    { name: 'Intel Labs', logo: 'https://via.placeholder.com/150?text=Intel' }
-  ];
-
-  const investmentPartners = [
-    { name: 'Sequoia Capital', logo: 'https://via.placeholder.com/150?text=Sequoia' },
-    { name: 'Andreessen Horowitz', logo: 'https://via.placeholder.com/150?text=A16Z' },
-    { name: 'SoftBank Vision Fund', logo: 'https://via.placeholder.com/150?text=SoftBank' },
-    { name: 'Accel Partners', logo: 'https://via.placeholder.com/150?text=Accel' }
-  ];
-
+ const dispatch = useDispatch();
+       const { partners, loading, error } = useSelector((state) => state.partners);
+    useEffect(() => {
+       dispatch(fetchPartners(activeSection));
+     }, [dispatch, activeSection]);
+   
+     const filteredPartners = partners.filter(
+       (partner) => partner.type === activeSection
+     );
   const renderPartners = () => {
     let partners;
     switch (activeSection) {
@@ -103,9 +69,9 @@ function App() {
 
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-        {partners.map((partner, index) => (
+       {filteredPartners.map((partner, index) => (
           <div
-            key={index}
+              key={partner._id || index}
             className="relative group bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300"
           >
             <div className="w-full h-32 flex items-center justify-center">
@@ -149,7 +115,7 @@ function App() {
         <h2 className="text-3xl font-bold text-gray-800 mb-8">
           {activeSection} Partners
         </h2>
-        {renderPartners()}
+          {loading ? <div>Loading...</div> : error ? <div>{error}</div> : renderPartners()}
       </div>
     </div>
   );
