@@ -5,6 +5,12 @@ import api from "../Api/api";
 function Tenders() {
   const [tenderData, setTenderData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [pdfLoading, setPdfLoading] = useState({ 
+    id: null, 
+    type: null, 
+    progress: 0 
+  });
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchTenders();
@@ -12,21 +18,27 @@ function Tenders() {
 
   const fetchTenders = () => {
     setIsLoading(true);
+    setError(null);
     axios.get(`${api.web}api/v1/getTenders`)
       .then((res) => {
         if (res.data.success) {
           setTenderData(res.data.tenders);
         } else {
-          console.log("Error fetching tenders");
+          setError("Error fetching tenders");
         }
-        setIsLoading(false);
       })
       .catch(err => {
         console.error("Failed to fetch tenders:", err);
-        setIsLoading(false);
-      });
+        setError("Failed to load tenders. Please try again.");
+      })
+      .finally(() => setIsLoading(false));
   };
 
+  const handleApiError = (error) => {
+    console.error("API Error:", error);
+    setError(error.message || "An error occurred");
+    setTimeout(() => setError(null), 5000);
+  };
 
   const [filter, setFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
@@ -85,8 +97,105 @@ function Tenders() {
     };
   }, [processedTenders]);
 
+  const viewTenderPDF = async (id) => {
+    try {
+      setPdfLoading({ id, type: 'view', progress: 0 });
+      
+      const response = await axios.get(`${api.web}api/v1/downloadTender/${id}`, {
+        responseType: 'blob',
+        onDownloadProgress: (progressEvent) => {
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / (progressEvent.total || 1)
+          );
+          setPdfLoading(prev => ({ ...prev, progress: percentCompleted }));
+        }
+      });
+
+      // Create blob URL
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const pdfUrl = URL.createObjectURL(blob);
+      
+      // Open in new tab
+      const newWindow = window.open(pdfUrl, '_blank');
+      
+      if (newWindow) {
+        newWindow.focus();
+      } else {
+        // Fallback to download if popup blocked
+        const downloadLink = document.createElement('a');
+        downloadLink.href = pdfUrl;
+        downloadLink.download = `tender-${id}.pdf`;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+      }
+      
+      // Clean up after some time
+      setTimeout(() => URL.revokeObjectURL(pdfUrl), 30000);
+      
+    } catch (err) {
+      handleApiError(err);
+    } finally {
+      setTimeout(() => setPdfLoading({ id: null, type: null, progress: 0 }), 500);
+    }
+  };
+
+  const downloadTender = async (id, fileName = `tender-${id}.pdf`) => {
+    try {
+      setPdfLoading({ id, type: 'download', progress: 0 });
+      
+      const response = await axios.get(`${api.web}api/v1/downloadTender/${id}`, {
+        responseType: 'blob',
+        onDownloadProgress: (progressEvent) => {
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / (progressEvent.total || 1)
+          );
+          setPdfLoading(prev => ({ ...prev, progress: percentCompleted }));
+        }
+      });
+
+      // Create download link
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', fileName);
+      document.body.appendChild(link);
+      link.click();
+      
+      // Clean up
+      setTimeout(() => {
+        link.remove();
+        window.URL.revokeObjectURL(url);
+        setPdfLoading({ id: null, type: null, progress: 0 });
+      }, 500);
+      
+    } catch (err) {
+      handleApiError(err);
+      setPdfLoading({ id: null, type: null, progress: 0 });
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto my-12 px-4">
+      {/* Error Message */}
+      {error && (
+        <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-lg flex items-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5 mr-2"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fillRule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+              clipRule="evenodd"
+            />
+          </svg>
+          {error}
+        </div>
+      )}
+
       <div className="bg-gradient-to-r from-[#3f6197] to-[#5478b0] rounded-xl shadow-xl p-6 mb-8">
         <h1 className="text-4xl font-bold text-white mb-2">
           Tenders & Procurement
@@ -279,16 +388,76 @@ function Tenders() {
                   </div>
 
                   <div className="flex flex-col md:flex-row md:items-center gap-4 mt-6">
-                    <a
-                      href={`${api.web}api/v1/downloadTender/${tender._id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center p-4 bg-[#3f6197]/10 rounded-lg hover:bg-[#3f6197]/20 transition-colors gap-3 group"
+                    {/* View PDF Button */}
+                    <button
+                      onClick={() => viewTenderPDF(tender._id)}
+                      disabled={pdfLoading.id === tender._id && pdfLoading.type === 'view'}
+                      className={`flex items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors gap-3 group flex-1 ${
+                        pdfLoading.id === tender._id && pdfLoading.type === 'view' ? 'opacity-75 cursor-wait' : ''
+                      }`}
                     >
-                      <div className="p-2 bg-[#3f6197] rounded-lg text-white">
+                      <div className="p-2 bg-blue-500 rounded-lg text-white">
+                        {pdfLoading.id === tender._id && pdfLoading.type === 'view' ? (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-6 w-6 animate-spin"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
+                          </svg>
+                        ) : (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-6 w-6"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                            />
+                          </svg>
+                        )}
+                      </div>
+                      <div className="text-left">
+                        <p className="text-blue-700 font-semibold group-hover:text-blue-900">
+                          View PDF
+                          {pdfLoading.id === tender._id && pdfLoading.type === 'view' && (
+                            <span className="ml-2 text-blue-500 text-xs">
+                              {pdfLoading.progress}%
+                            </span>
+                          )}
+                        </p>
+                        <p className="text-sm text-gray-500 truncate max-w-xs">
+                          Open in browser viewer
+                        </p>
+                      </div>
+                      <div className="ml-auto">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
-                          className="h-6 w-6"
+                          className="h-5 w-5 text-gray-400 group-hover:text-blue-500"
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
@@ -297,16 +466,70 @@ function Tenders() {
                             strokeLinecap="round"
                             strokeLinejoin="round"
                             strokeWidth={2}
-                            d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
                           />
                         </svg>
                       </div>
-                      <div>
+                    </button>
+
+                    {/* Download PDF Button */}
+                    <button
+                      onClick={() => downloadTender(tender._id, tender.fileName)}
+                      disabled={pdfLoading.id === tender._id && pdfLoading.type === 'download'}
+                      className={`flex items-center p-4 bg-[#3f6197]/10 rounded-lg hover:bg-[#3f6197]/20 transition-colors gap-3 group flex-1 ${
+                        pdfLoading.id === tender._id && pdfLoading.type === 'download' ? 'opacity-75 cursor-wait' : ''
+                      }`}
+                    >
+                      <div className="p-2 bg-[#3f6197] rounded-lg text-white">
+                        {pdfLoading.id === tender._id && pdfLoading.type === 'download' ? (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-6 w-6 animate-spin"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
+                          </svg>
+                        ) : (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-6 w-6"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                            />
+                          </svg>
+                        )}
+                      </div>
+                      <div className="text-left">
                         <p className="text-[#3f6197] font-semibold group-hover:text-[#2c4b79]">
-                          Download Tender Document
+                          Download PDF
+                          {pdfLoading.id === tender._id && pdfLoading.type === 'download' && (
+                            <span className="ml-2 text-[#3f6197] text-xs">
+                              {pdfLoading.progress}%
+                            </span>
+                          )}
                         </p>
                         <p className="text-sm text-gray-500 truncate max-w-xs">
-                          {tender.fileName || "Tender PDF"}
+                          {tender.fileName || "Tender document"}
                         </p>
                       </div>
                       <div className="ml-auto">
@@ -325,7 +548,7 @@ function Tenders() {
                           />
                         </svg>
                       </div>
-                    </a>
+                    </button>
                   </div>
                 </div>
               </div>
