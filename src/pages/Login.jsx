@@ -180,11 +180,11 @@ const Login = () => {
               Remember me
             </label>
 
-            <button 
+            <p 
               onClick={() => navigate("/forgot-password")}
             className="ml-auto text-[#3f6197] font-medium hover:underline focus:outline-none">
               Forgot Password?
-            </button>
+            </p>
           </div>
 
           <button

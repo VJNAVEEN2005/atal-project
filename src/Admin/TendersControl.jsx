@@ -1,169 +1,11 @@
 import axios from "axios";
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import api from "../Api/api";
 
 const TendersControl = () => {
+  // Utility functions
   const getTodayDate = () => new Date().toISOString().split("T")[0];
-
-  const [tenderData, setTenderData] = useState([]);
-  const [viewMode, setViewMode] = useState("add"); // "add" or "view" mode
-  const [isLoading, setIsLoading] = useState(true);
-  const [dragActive, setDragActive] = useState(false);
-  const [selectedFile, setSelectedFile] = useState(null);
-
-  useEffect(() => {
-    fetchTenders();
-  }, []);
-
-  const fetchTenders = () => {
-    setIsLoading(true);
-    axios
-      .get(`${api.web}api/v1/getTenders`)
-      .then((res) => {
-        if (res.data.success) {
-          setTenderData(res.data.tenders);
-        } else {
-          console.log("Error fetching tenders");
-        }
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        console.error("Failed to fetch tenders:", err);
-        setIsLoading(false);
-      });
-  };
-
-  const deleteTender = async (id) => {
-    if (window.confirm("Are you sure you want to delete this tender?")) {
-      try {
-        const response = await axios.delete(`${api.web}api/v1/deleteTender/${id}`);
-        if (response.data.success) {
-          alert("Tender deleted successfully");
-          fetchTenders(); // Refresh the tenders list
-        } else {
-          alert("Failed to delete tender");
-        }
-      } catch (error) {
-        console.error("Error deleting tender:", error);
-        alert("An error occurred while deleting the tender");
-      }
-    }
-  };
-
-  const [formData, setFormData] = useState({
-    title: "",
-    date: getTodayDate(),
-    organization: "",
-    reference: "",
-    lastDate: "",
-    lastTime: "",
-  });
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [message, setMessage] = useState({ text: "", type: "" });
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-
-  const handleDrag = useCallback((e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
-  }, []);
-
-  const handleDrop = useCallback((e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const file = e.dataTransfer.files[0];
-      if (file.type === "application/pdf") {
-        setSelectedFile(file);
-      } else {
-        setMessage({ text: "Please upload only PDF files.", type: "error" });
-      }
-    }
-  }, []);
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file && file.type === "application/pdf") {
-      setSelectedFile(file);
-    } else if (file) {
-      setMessage({ text: "Please upload only PDF files.", type: "error" });
-      e.target.value = null;
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setMessage({ text: "", type: "" });
-
-    // Validate required fields
-    if (!selectedFile) {
-      setMessage({ text: "Please upload a PDF file.", type: "error" });
-      setIsSubmitting(false);
-      return;
-    }
-
-    try {
-      // Create a FormData object to send both text data and file
-      const data = new FormData();
-
-      // Append all form fields
-      Object.keys(formData).forEach((key) => {
-        data.append(key, formData[key]);
-      });
-
-      // Append the file
-      data.append("tenderFile", selectedFile);
-
-      const res = await axios.post(`${api.web}api/v1/createTender`, data, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
-      if (res.data.success) {
-        setMessage({ text: "Tender created successfully!", type: "success" });
-        fetchTenders(); // Refresh tenders list
-
-        // Reset form after success
-        setFormData({
-          title: "",
-          date: getTodayDate(),
-          organization: "",
-          reference: "",
-          lastDate: "",
-          lastTime: "",
-        });
-        setSelectedFile(null);
-      } else {
-        setMessage({ text: res.data.message, type: "error" });
-      }
-    } catch (err) {
-      console.error("Error submitting form:", err.message);
-      setMessage({
-        text: "Failed to create tender. Please try again.",
-        type: "error",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  // Format date to readable format
+  
   const formatDate = (dateString) => {
     if (!dateString) return "-";
     const date = new Date(dateString);
@@ -174,18 +16,366 @@ const TendersControl = () => {
     });
   };
 
-  // Calculate days remaining
   const getDaysRemaining = (endDate) => {
+    if (!endDate) return -1;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const lastDate = new Date(endDate);
     lastDate.setHours(0, 0, 0, 0);
-
     const diffTime = lastDate - today;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    return diffDays;
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
+
+  // State management
+  const [tenderData, setTenderData] = useState([]);
+  const [viewMode, setViewMode] = useState("add");
+  const [isLoading, setIsLoading] = useState(true);
+  const [dragActive, setDragActive] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [tenderToDelete, setTenderToDelete] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [error, setError] = useState(null);
+  const [message, setMessage] = useState({ text: "", type: "" });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const itemsPerPage = 10;
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
+  const [formData, setFormData] = useState({
+    title: "",
+    date: getTodayDate(),
+    organization: "",
+    reference: "",
+    lastDate: "",
+    lastTime: "",
+  });
+
+  const [errors, setErrors] = useState({
+    title: "",
+    organization: "",
+    lastDate: "",
+    lastTime: "",
+    file: ""
+  });
+
+  // Custom hook for error handling
+  const handleApiError = (err) => {
+    console.error(err);
+    let errorMessage = "An error occurred";
+    
+    if (err.response) {
+      errorMessage = err.response.data.message || 
+                   `Server error: ${err.response.status}`;
+    } else if (err.request) {
+      errorMessage = "Network error - please check your connection";
+    }
+    
+    setError(errorMessage);
+    setTimeout(() => setError(null), 5000);
+  };
+
+  // Data fetching
+  const fetchTenders = useCallback(() => {
+    setIsLoading(true);
+    axios
+      .get(`${api.web}api/v1/getTenders`)
+      .then((res) => {
+        if (res.data.success) {
+          setTenderData(res.data.tenders);
+        } else {
+          setError("Error fetching tenders");
+        }
+      })
+      .catch(handleApiError)
+      .finally(() => setIsLoading(false));
+  }, []);
+
+  useEffect(() => {
+    fetchTenders();
+  }, [fetchTenders]);
+
+  // Pagination calculations
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentTenders = useMemo(() => 
+    tenderData.slice(indexOfFirstItem, indexOfLastItem), 
+    [tenderData, indexOfFirstItem, indexOfLastItem]
+  );
+  const totalPages = Math.ceil(tenderData.length / itemsPerPage);
+
+  // Form handlers
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    setErrors(prev => ({ ...prev, [name]: "" }));
+  };
+
+  const handleDrag = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(e.type === "dragenter" || e.type === "dragover");
+  }, []);
+
+  const handleDrop = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+
+    if (e.dataTransfer.files?.[0]) {
+      handleFileSelection(e.dataTransfer.files[0]);
+    }
+  }, []);
+
+  const handleFileSelection = (file) => {
+    if (!file) return;
+
+    if (file.size > MAX_FILE_SIZE) {
+      setErrors(prev => ({ 
+        ...prev, 
+        file: "File size exceeds 10MB limit" 
+      }));
+      return;
+    }
+
+    if (file.type !== "application/pdf") {
+      setErrors(prev => ({ 
+        ...prev, 
+        file: "Only PDF files are allowed" 
+      }));
+      return;
+    }
+
+    setSelectedFile(file);
+    setErrors(prev => ({ ...prev, file: "" }));
+  };
+
+  const handleFileChange = (e) => {
+    handleFileSelection(e.target.files[0]);
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    let isValid = true;
+
+    if (!formData.title) {
+      newErrors.title = "Title is required";
+      isValid = false;
+    }
+    if (!formData.organization) {
+      newErrors.organization = "Organization is required";
+      isValid = false;
+    }
+    if (!formData.lastDate) {
+      newErrors.lastDate = "Last date is required";
+      isValid = false;
+    }
+    if (!formData.lastTime) {
+      newErrors.lastTime = "Last time is required";
+      isValid = false;
+    }
+    if (!selectedFile) {
+      newErrors.file = "PDF file is required";
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setMessage({ text: "", type: "" });
+
+    if (!validateForm()) {
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      const data = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        data.append(key, value);
+      });
+      data.append("tenderFile", selectedFile);
+
+      const res = await axios.post(`${api.web}api/v1/createTender`, data, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      if (res.data.success) {
+        setMessage({ 
+          text: "Tender created successfully!", 
+          type: "success" 
+        });
+        fetchTenders();
+        setFormData({
+          title: "",
+          date: getTodayDate(),
+          organization: "",
+          reference: "",
+          lastDate: "",
+          lastTime: "",
+        });
+        setSelectedFile(null);
+      }
+    } catch (err) {
+      handleApiError(err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Tender actions
+  const handleDeleteClick = (id) => {
+    setTenderToDelete(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await axios.delete(`${api.web}api/v1/deleteTender/${tenderToDelete}`);
+      fetchTenders();
+      setShowDeleteModal(false);
+    } catch (err) {
+      handleApiError(err);
+    }
+  };
+
+  const downloadTender = async (id, fileName) => {
+  try {
+    const response = await axios.get(`${api.web}api/v1/downloadTender/${id}`, {
+      responseType: 'blob',
+      onDownloadProgress: (progressEvent) => {
+        const percentCompleted = Math.round(
+          (progressEvent.loaded * 100) / (progressEvent.total || 1)
+        );
+        console.log(`Download progress: ${percentCompleted}%`);
+      }
+    });
+
+    // Create download link
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', fileName);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url); // Clean up
+  } catch (err) {
+    handleApiError(err);
+  }
+};
+
+const viewTender = async (id) => {
+  try {
+    const response = await axios.get(`${api.web}api/v1/downloadTender/${id}`, {
+      responseType: 'blob',
+      onDownloadProgress: (progressEvent) => {
+        const percentCompleted = Math.round(
+          (progressEvent.loaded * 100) / (progressEvent.total || 1)
+        );
+        console.log(`Loading PDF: ${percentCompleted}%`);
+      }
+    });
+
+    // Open PDF in new tab
+    const blob = new Blob([response.data], { type: 'application/pdf' });
+    const pdfUrl = URL.createObjectURL(blob);
+    window.open(pdfUrl, '_blank');
+    
+    // Optional: Clean up after some time
+    setTimeout(() => URL.revokeObjectURL(pdfUrl), 10000);
+  } catch (err) {
+    handleApiError(err);
+  }
+};
+
+  // Component rendering
+  const SkeletonRow = () => (
+    <tr>
+      {[...Array(6)].map((_, i) => (
+        <td key={i} className="px-6 py-4 whitespace-nowrap">
+          <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+        </td>
+      ))}
+    </tr>
+  );
+
+  const TenderRow = React.memo(({ tender }) => {
+    const daysRemaining = getDaysRemaining(tender.lastDate);
+    const statusColor = daysRemaining < 0 ? "red" : 
+                      daysRemaining < 3 ? "yellow" : "green";
+    const statusText = daysRemaining < 0 ? "Expired" :
+                     daysRemaining === 0 ? "Today" :
+                     `${daysRemaining} days left`;
+
+    return (
+      <tr className="hover:bg-gray-50">
+        <td className="px-6 py-4 whitespace-nowrap" data-label="Title">
+          <div className="text-sm font-medium text-gray-900">
+            {tender.title}
+          </div>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap" data-label="Reference">
+          <div className="text-sm text-gray-500">
+            {tender.reference || "-"}
+          </div>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap" data-label="Organization">
+          <div className="text-sm text-gray-500">
+            {tender.organization}
+          </div>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap" data-label="Last Date">
+          <div className="text-sm text-gray-500">
+            {formatDate(tender.lastDate)}
+          </div>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap" data-label="Status">
+          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-${statusColor}-100 text-${statusColor}-800`}>
+            {statusText}
+          </span>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium" data-label="Actions">
+  <div className="flex space-x-3">
+    <button
+      onClick={() => viewTender(tender._id)}
+      className="text-blue-600 hover:text-blue-800 flex items-center"
+      title="View PDF"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+        <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+      </svg>
+      View
+    </button>
+    <button
+      onClick={() => downloadTender(tender._id, tender.fileName)}
+      className="text-green-600 hover:text-green-800 flex items-center"
+      title="Download PDF"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+      </svg>
+      Download
+    </button>
+    <button
+      onClick={() => handleDeleteClick(tender._id)}
+      className="text-red-600 hover:text-red-800 flex items-center"
+      title="Delete Tender"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+      </svg>
+      Delete
+    </button>
+  </div>
+</td>
+      </tr>
+    );
+  });
 
   return (
     <div className="max-w-6xl mx-auto my-8 px-4">
@@ -221,8 +411,28 @@ const TendersControl = () => {
         </div>
       </div>
 
+      {/* Error Message */}
+      {error && (
+        <div className="mb-6 p-4 bg-red-100 text-red-800 rounded-lg flex items-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5 mr-2"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fillRule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+              clipRule="evenodd"
+            />
+          </svg>
+          {error}
+        </div>
+      )}
+
       {viewMode === "add" ? (
         <div className="bg-white rounded-xl shadow-lg p-6">
+          {/* Success/Error Message */}
           {message.text && (
             <div
               className={`mb-6 p-4 rounded-lg flex items-center ${
@@ -265,14 +475,12 @@ const TendersControl = () => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Tender Information Section */}
             <div className="bg-[#f5f8fc] p-4 rounded-lg mb-6">
               <h2 className="text-lg font-medium text-[#3f6197] mb-2">Tender Information</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label
-                    htmlFor="title"
-                    className="block text-gray-700 font-medium mb-2"
-                  >
+                  <label htmlFor="title" className="block text-gray-700 font-medium mb-2">
                     Tender Title*
                   </label>
                   <input
@@ -281,17 +489,18 @@ const TendersControl = () => {
                     name="title"
                     value={formData.title}
                     onChange={handleChange}
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3f6197]"
+                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+                      errors.title ? "border-red-500 focus:ring-red-200" : "border-gray-300 focus:ring-[#3f6197]"
+                    }`}
                     placeholder="Enter tender title"
                   />
+                  {errors.title && (
+                    <p className="mt-1 text-sm text-red-600">{errors.title}</p>
+                  )}
                 </div>
 
                 <div>
-                  <label
-                    htmlFor="organization"
-                    className="block text-gray-700 font-medium mb-2"
-                  >
+                  <label htmlFor="organization" className="block text-gray-700 font-medium mb-2">
                     Organization*
                   </label>
                   <input
@@ -300,24 +509,24 @@ const TendersControl = () => {
                     name="organization"
                     value={formData.organization}
                     onChange={handleChange}
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3f6197]"
+                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+                      errors.organization ? "border-red-500 focus:ring-red-200" : "border-gray-300 focus:ring-[#3f6197]"
+                    }`}
                     placeholder="Enter organization name"
                   />
+                  {errors.organization && (
+                    <p className="mt-1 text-sm text-red-600">{errors.organization}</p>
+                  )}
                 </div>
               </div>
             </div>
 
+            {/* Reference Information Section */}
             <div className="bg-[#f5f8fc] p-4 rounded-lg mb-6">
-              <h2 className="text-lg font-medium text-[#3f6197] mb-2">
-                Reference Information
-              </h2>
+              <h2 className="text-lg font-medium text-[#3f6197] mb-2">Reference Information</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label
-                    htmlFor="reference"
-                    className="block text-gray-700 font-medium mb-2"
-                  >
+                  <label htmlFor="reference" className="block text-gray-700 font-medium mb-2">
                     Reference Number
                   </label>
                   <input
@@ -335,10 +544,7 @@ const TendersControl = () => {
                 </div>
 
                 <div>
-                  <label
-                    htmlFor="date"
-                    className="block text-gray-700 font-medium mb-2"
-                  >
+                  <label htmlFor="date" className="block text-gray-700 font-medium mb-2">
                     Tender Date
                   </label>
                   <input
@@ -353,16 +559,12 @@ const TendersControl = () => {
               </div>
             </div>
 
+            {/* Submission Details Section */}
             <div className="bg-[#f5f8fc] p-4 rounded-lg mb-6">
-              <h2 className="text-lg font-medium text-[#3f6197] mb-2">
-                Submission Details
-              </h2>
+              <h2 className="text-lg font-medium text-[#3f6197] mb-2">Submission Details</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label
-                    htmlFor="lastDate"
-                    className="block text-gray-700 font-medium mb-2"
-                  >
+                  <label htmlFor="lastDate" className="block text-gray-700 font-medium mb-2">
                     Last Date for Submission*
                   </label>
                   <input
@@ -371,16 +573,17 @@ const TendersControl = () => {
                     name="lastDate"
                     value={formData.lastDate}
                     onChange={handleChange}
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3f6197]"
+                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+                      errors.lastDate ? "border-red-500 focus:ring-red-200" : "border-gray-300 focus:ring-[#3f6197]"
+                    }`}
                   />
+                  {errors.lastDate && (
+                    <p className="mt-1 text-sm text-red-600">{errors.lastDate}</p>
+                  )}
                 </div>
 
                 <div>
-                  <label
-                    htmlFor="lastTime"
-                    className="block text-gray-700 font-medium mb-2"
-                  >
+                  <label htmlFor="lastTime" className="block text-gray-700 font-medium mb-2">
                     Last Time for Submission*
                   </label>
                   <input
@@ -389,17 +592,20 @@ const TendersControl = () => {
                     name="lastTime"
                     value={formData.lastTime}
                     onChange={handleChange}
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3f6197]"
+                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+                      errors.lastTime ? "border-red-500 focus:ring-red-200" : "border-gray-300 focus:ring-[#3f6197]"
+                    }`}
                   />
+                  {errors.lastTime && (
+                    <p className="mt-1 text-sm text-red-600">{errors.lastTime}</p>
+                  )}
                 </div>
               </div>
             </div>
 
+            {/* Tender Document Section */}
             <div className="bg-[#f5f8fc] p-4 rounded-lg mb-6">
-              <h2 className="text-lg font-medium text-[#3f6197] mb-2">
-                Tender Document
-              </h2>
+              <h2 className="text-lg font-medium text-[#3f6197] mb-2">Tender Document</h2>
 
               <div
                 className={`border-2 border-dashed p-8 rounded-lg text-center cursor-pointer ${
@@ -439,6 +645,18 @@ const TendersControl = () => {
                     <p className="text-sm text-gray-500 mt-1">
                       {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
                     </p>
+                    <div className="mt-2 w-full bg-gray-200 rounded-full h-2.5">
+                      <div 
+                        className="bg-blue-600 h-2.5 rounded-full" 
+                        style={{ 
+                          width: `${(selectedFile.size / MAX_FILE_SIZE) * 100}%` 
+                        }}
+                      ></div>
+                    </div>
+                    <div className="flex justify-between text-xs text-gray-500 mt-1 w-full">
+                      <span>0 MB</span>
+                      <span>10 MB</span>
+                    </div>
                     <button
                       type="button"
                       className="mt-3 text-sm text-red-600 hover:text-red-800"
@@ -478,6 +696,9 @@ const TendersControl = () => {
                   </div>
                 )}
               </div>
+              {errors.file && (
+                <p className="mt-2 text-sm text-red-600 text-center">{errors.file}</p>
+              )}
             </div>
 
             <div className="flex justify-end">
@@ -542,8 +763,24 @@ const TendersControl = () => {
           </h2>
 
           {isLoading ? (
-            <div className="flex justify-center items-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#3f6197]"></div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reference</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Organization</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {[...Array(5)].map((_, i) => (
+                    <SkeletonRow key={i} />
+                  ))}
+                </tbody>
+              </table>
             </div>
           ) : tenderData.length === 0 ? (
             <div className="bg-blue-50 rounded-lg p-8 text-center">
@@ -567,108 +804,77 @@ const TendersControl = () => {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      Title
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      Reference
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      Organization
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      Last Date
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      Status
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {tenderData.map((tender, index) => {
-                    const daysRemaining = getDaysRemaining(tender.lastDate);
-                    let statusColor = "green";
-                    if (daysRemaining < 0) {
-                      statusColor = "red";
-                    } else if (daysRemaining < 3) {
-                      statusColor = "yellow";
-                    }
+            <>
+              <div className="overflow-x-auto shadow ring-1 ring-black ring-opacity-5 rounded-lg">
+                <table className="min-w-full divide-y divide-gray-300">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reference</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Organization</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Date</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {currentTenders.map((tender) => (
+                      <TenderRow key={tender._id} tender={tender} />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
 
-                    return (
-                      <tr key={index} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">{tender.title}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-500">{tender.reference || "-"}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-500">{tender.organization}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-500">{formatDate(tender.lastDate)}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span
-                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-${statusColor}-100 text-${statusColor}-800`}
-                          >
-                            {daysRemaining < 0
-                              ? "Expired"
-                              : daysRemaining === 0
-                              ? "Today"
-                              : `${daysRemaining} days left`}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <div className="flex space-x-4">
-                            <button
-                              onClick={() => deleteTender(tender._id)}
-                              className="text-red-600 hover:text-red-800"
-                            >
-                              Delete
-                            </button>
-                            <a
-                              href={`${api.web}api/v1/downloadTender/${tender._id}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-[#3f6197] hover:text-[#2c4b79]"
-                            >
-                              Download
-                            </a>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex justify-between items-center mt-4">
+                  <button
+                    onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
+                    disabled={currentPage === 1}
+                    className="px-4 py-2 border rounded disabled:opacity-50"
+                  >
+                    Previous
+                  </button>
+                  
+                  <span className="text-sm text-gray-700">
+                    Page {currentPage} of {totalPages}
+                  </span>
+                  
+                  <button
+                    onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                    className="px-4 py-2 border rounded disabled:opacity-50"
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
+            </>
           )}
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+            <h3 className="text-lg font-medium mb-4">Confirm Deletion</h3>
+            <p className="mb-6">Are you sure you want to delete this tender?</p>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="px-4 py-2 border rounded"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
