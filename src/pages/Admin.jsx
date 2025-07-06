@@ -1,10 +1,16 @@
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 const Admin = () => {
   const [isAdmin, setIsAdmin] = useState(0);
+    const state = useSelector((state) => state);
   useEffect(() => {
-    setIsAdmin(localStorage.getItem("isAuthenticated") || 0);
+    if (state.authenticate) {
+      setIsAdmin(state.authenticate.admin);
+      console.log("Admin Status :", state.authenticate.admin);
+      console.log("Is Authenticated:", state.authenticate.isAuthenticated);
+    }
   }, []);
   const navigate = useNavigate();
 
@@ -92,7 +98,7 @@ const Admin = () => {
         {/* Main Content */}
         <div className="p-6 md:p-8">
           {/* Main Admin Access */}
-          {isAdmin === "1" && (
+          {isAdmin === 1 && (
             <div className="mb-12">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="font-semibold text-2xl text-gray-800">

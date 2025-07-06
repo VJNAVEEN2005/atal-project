@@ -266,8 +266,6 @@ const Profile = () => {
     }
 
     setTimeout(() => {
-      localStorage.removeItem("user_isLogin");
-      localStorage.removeItem("isAuthenticated");
       localStorage.removeItem("token");
       window.location.href = "/";
     }, 500);
