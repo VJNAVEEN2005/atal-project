@@ -228,7 +228,6 @@ const Profile = () => {
   const state = useSelector((state) => state);
 
   useEffect(() => {
-
     if (state.user.user) {
       setProfileData(state.user.user.user);
       setPhotoUrl(`${api.web}api/v1/profileImage/${state.user.user.user._id}`);
@@ -242,11 +241,20 @@ const Profile = () => {
     dispatch(fetchUser());
   }, []);
 
-  // Load user authentication data from localStorage
   useEffect(() => {
-    setIsAdmin(localStorage.getItem("isAuthenticated") || 0);
-    setUserId(localStorage.getItem("user_id"));
-  }, []);
+    if (state?.authenticate?.admin !== undefined) {
+      setIsAdmin(state.authenticate.admin);
+    }
+
+    const userId = state?.user?.user?.user?._id;
+
+    if (userId) {
+      setUserId(userId);
+      console.log("User ID:", state?.user?.user?.user);
+    } else {
+      console.warn("User ID not available", state);
+    }
+  }, [state]);
 
   // Handle logout with animation
   const handleLogout = useCallback(() => {
@@ -1307,8 +1315,6 @@ const Profile = () => {
             </div>
           </form>
         )}
-
-        
       </div>
 
       {/* Add custom CSS animations */}
