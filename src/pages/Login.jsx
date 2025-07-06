@@ -4,8 +4,11 @@ import { useNavigate } from "react-router-dom";
 import api from "../Api/api";
 import { Link } from "lucide-react";
 import { Button } from "bootstrap";
+import { notifications } from "@mantine/notifications";
+import { Eye, EyeOff } from "lucide-react"; // Optional icon library
 
 const Login = () => {
+   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -53,7 +56,14 @@ const Login = () => {
         setError("Please fill in all required fields");
         return;
       }
-
+      notifications.show({
+        id: "login-processing",
+        title: "Processing Login",
+        message: "Please wait while we log you in...",
+        color: "blue",
+        loading: true,
+        icon: <Link size={20} />,
+      });
       setIsLoading(true);
       setError("");
 
@@ -78,6 +88,14 @@ const Login = () => {
             token: data.token,
             isLogin: true,
           });
+          notifications.update({
+            id: "login-processing",
+            title: "Login Successful",
+            message: "You have successfully logged in.",
+            color: "green",
+            loading: false,
+            icon: <Link size={20} />,
+          });
 
           // Check if user is admin
           if (data.user.admin === 1) {
@@ -99,9 +117,27 @@ const Login = () => {
           window.location.href = "/";
         } else {
           setError(data.message || "Login failed");
+          notifications.update({
+            id: "login-processing",
+            title: "Login Failed",
+            message: data.message || "Invalid credentials. Please try again.",
+            color: "red",
+            loading: false,
+            icon: <Link size={20} />,
+          });
         }
       } catch (err) {
         console.error("Login error:", err);
+        notifications.update({
+          id: "login-processing",
+          title: "Login Error",
+          message:
+            err.response?.data?.message ||
+            "An error occurred. Please try again.",
+          color: "red",
+          loading: false,
+          icon: <Link size={20} />,
+        });
         setError(err.response?.data?.message || "Invalid credentials");
       } finally {
         setIsLoading(false);
@@ -148,24 +184,25 @@ const Login = () => {
             />
           </div>
 
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-gray-700 font-medium mb-2"
-            >
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3f6197] text-gray-700"
-              placeholder="Enter your password"
-              required
-            />
-          </div>
+           <div className="relative">
+      <input
+        type={showPassword ? "text" : "password"}
+        id="password"
+        name="password"
+        value={formData.password}
+        onChange={handleChange}
+        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3f6197] text-gray-700 pr-10"
+        placeholder="Enter your password"
+        required
+      />
+      <button
+        type="button"
+        onClick={() => setShowPassword((prev) => !prev)}
+        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600 focus:outline-none"
+      >
+        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+      </button>
+    </div>
 
           <div className="flex items-center">
             <input
@@ -180,9 +217,10 @@ const Login = () => {
               Remember me
             </label>
 
-            <p 
+            <p
               onClick={() => navigate("/forgot-password")}
-            className="ml-auto text-[#3f6197] font-medium hover:underline focus:outline-none">
+              className="ml-auto text-[#3f6197] font-medium hover:underline focus:outline-none"
+            >
               Forgot Password?
             </p>
           </div>

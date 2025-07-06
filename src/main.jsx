@@ -7,11 +7,14 @@ import { store } from "./Redux/store.js";
 import "@mantine/core/styles.css";
 import "@mantine/carousel/styles.css";
 import { MantineProvider } from "@mantine/core";
+import { Notifications } from '@mantine/notifications';
+import '@mantine/notifications/styles.css';
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <MantineProvider withGlobalStyles withNormalizeCSS>
       <Provider store={store}>
+        <Notifications position="top-right"/>
         <App />
       </Provider>
     </MantineProvider>
