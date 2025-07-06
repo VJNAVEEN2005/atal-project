@@ -73,8 +73,6 @@ function App() {
   useEffect(() => {
     if (state.authenticate) {
       setIsAdmin(state.authenticate.admin);
-      console.log("Admin Status:", state.authenticate.admin);
-      console.log("Is Authenticated:", state.authenticate.isAuthenticated);
     }
   }, [state.authenticate]);
 
@@ -126,7 +124,7 @@ function App() {
         {isAdmin > 0 && (
           <>
             <Route path="/admin" element={<Admin />} />
-            <Route path="/admin/tenderscontrol" element={<TendersControl />} />
+            <Route path="/admin/teamscontrol" element={<TeamsControl />} />
             <Route path="/admin/eventscontrol" element={<EventsControl />} />
             <Route path="/events/edit/:id" element={<EditEvent />} />
             <Route path="/admin/presscontrol" element={<PressMediaControl />} />
@@ -143,13 +141,21 @@ function App() {
               path="/admin/partnerscontrol"
               element={<PartnersControl />}
             />
-            <Route path="/admin/imagecarouselcontrol" element={<ImageCarouselControl />} />
-            <Route path="/admin/messagescontrol" element={<MessagesControl />} />
+            <Route
+              path="/admin/imagecarouselcontrol"
+              element={<ImageCarouselControl />}
+            />
+            <Route
+              path="/admin/messagescontrol"
+              element={<MessagesControl />}
+            />
             {isAdmin == 1 && (
               <>
-                <Route path="/admin/teamscontrol" element={<TeamsControl />} />
+                <Route
+                  path="/admin/tenderscontrol"
+                  element={<TendersControl />}
+                />
                 <Route path="/admin/admincontrol" element={<AdminControl />} />
-                
               </>
             )}
           </>
