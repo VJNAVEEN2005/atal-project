@@ -25,7 +25,10 @@ const Road_Map = () => {
   const state = useSelector((state) => state);
 
   useEffect(() => {
-    dispatch(fetchRoadmap());
+    if(!state.roadmap.roadmap){
+       dispatch(fetchRoadmap());
+    }
+   
   }, []);
 
   useEffect(() => {
