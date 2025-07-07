@@ -42,8 +42,10 @@ const NewsLetter = () => {
     }
   }, [state.newsletters]);
   // Fetch newsletters on component mount
-  useEffect((e) => {
-    dispatch(fetchNewsletters());
+  useEffect(() => {
+    if (!state.newsletters.newsletters) {
+      dispatch(fetchNewsletters());
+    }
   }, []);
 
   // Handle pagination

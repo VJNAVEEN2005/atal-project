@@ -5,7 +5,8 @@ import "react-loading-skeleton/dist/skeleton.css";
 import axios from "axios";
 import api from "../../Api/api";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch } from "../../Redux/store";
+import { store } from "../../Redux/store";
+type AppDispatch = typeof store.dispatch;
 import { fetchTeam } from "../../Redux/slice/teamsSlice";
 
 interface TeamMember {
@@ -99,32 +100,31 @@ const TeamMemberCard = ({ member }: { member: TeamMember }) => {
 
 const Team = () => {
   const dispatch: AppDispatch = useDispatch();
- 
-  const state = useSelector((state: { teams: { teams: { team: TeamMember[] } } }) => state);
+
+  const state = useSelector(
+    (state: { teams: { teams: { team: TeamMember[] } } }) => state
+  );
 
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("Core Team");
   const [error, setError] = useState<string | null>(null);
 
-  
-
-   useEffect(() => {
+  useEffect(() => {
+    if (!state.teams.teams) {
       dispatch(fetchTeam());
-    }, []);
+    }
+  }, []);
 
-    useEffect(()=>{
-      if(state.teams.teams){
-        setTeamMembers(state.teams.teams.team);
-        setLoading(false);
-        setError(null);}
-      else{
-        setLoading(true);
-      }
-    },[state])
-
-
-  
+  useEffect(() => {
+    if (state.teams.teams) {
+      setTeamMembers(state.teams.teams.team);
+      setLoading(false);
+      setError(null);
+    } else {
+      setLoading(true);
+    }
+  }, [state.teams.teams]);
 
   // Filter team members based on active tab
   const filteredMembers = teamMembers.filter(

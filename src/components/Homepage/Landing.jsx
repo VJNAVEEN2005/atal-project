@@ -42,8 +42,10 @@ const Landing = () => {
   ];
   const [images, setImages] = useState([]);
   useEffect(() => {
-    dispatch(fetchImageCarousel());
-    console.log("Fetching Image Carousel Data...");
+    if (!state.images) {
+      dispatch(fetchImageCarousel());
+      console.log("Fetching Image Carousel Data...");
+    }
   }, []);
 
   useEffect(() => {

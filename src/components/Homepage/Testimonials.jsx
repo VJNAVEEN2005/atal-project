@@ -41,7 +41,9 @@ const Testimonials = () => {
         setIsLoading(false);
       }
     };
-    fetchMessage();
+    if (!state.message.messages) {
+      fetchMessage();
+    }
   }, []);
 
   useEffect(() => {
