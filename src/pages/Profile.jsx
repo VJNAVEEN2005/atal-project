@@ -238,7 +238,9 @@ const Profile = () => {
   }, [state]);
 
   useEffect((e) => {
-    dispatch(fetchUser());
+    if (!state.user.user) {
+      dispatch(fetchUser());
+    }
   }, []);
 
   useEffect(() => {
