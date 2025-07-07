@@ -1,38 +1,39 @@
 import axios from "axios";
 import React, { useState, useMemo, useEffect } from "react";
 import api from "../Api/api";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchTenders } from "../Redux/slice/tendersSlice";
 
 function Tenders() {
   const [tenderData, setTenderData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [pdfLoading, setPdfLoading] = useState({ 
-    id: null, 
-    type: null, 
-    progress: 0 
+  const [pdfLoading, setPdfLoading] = useState({
+    id: null,
+    type: null,
+    progress: 0,
   });
   const [error, setError] = useState(null);
+  const dispatch = useDispatch();
+  const state = useSelector((state) => state.tenders);
 
   useEffect(() => {
-    fetchTenders();
+    if (!state.tenders) {
+      dispatch(fetchTenders());
+      setIsLoading(true);
+      setError(null);
+    }
   }, []);
 
-  const fetchTenders = () => {
-    setIsLoading(true);
-    setError(null);
-    axios.get(`${api.web}api/v1/getTenders`)
-      .then((res) => {
-        if (res.data.success) {
-          setTenderData(res.data.tenders);
-        } else {
-          setError("Error fetching tenders");
-        }
-      })
-      .catch(err => {
-        console.error("Failed to fetch tenders:", err);
-        setError("Failed to load tenders. Please try again.");
-      })
-      .finally(() => setIsLoading(false));
-  };
+  useEffect(() => {
+    if (state.tenders) {
+      setTenderData(state.tenders.tenders);
+      setIsLoading(false);
+    } else if (state.error) {
+      setError("Failed to load tenders. Please try again.");
+      setIsLoading(false);
+    }
+  }, [state.tenders, state.error]);
+
 
   const handleApiError = (error) => {
     console.error("API Error:", error);
@@ -48,7 +49,9 @@ function Tenders() {
     const now = new Date();
 
     return tenderData.map((tender) => {
-      const deadline = new Date(`${tender.lastDate}T${tender.lastTime || "23:59"}`);
+      const deadline = new Date(
+        `${tender.lastDate}T${tender.lastTime || "23:59"}`
+      );
       const status = now > deadline ? "closed" : "open";
 
       // Format the dates for display
@@ -84,7 +87,8 @@ function Tenders() {
         (tender) =>
           searchTerm === "" ||
           tender.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (tender.reference && tender.reference.toLowerCase().includes(searchTerm.toLowerCase()))
+          (tender.reference &&
+            tender.reference.toLowerCase().includes(searchTerm.toLowerCase()))
       );
   }, [processedTenders, filter, searchTerm]);
 
@@ -99,76 +103,83 @@ function Tenders() {
 
   const viewTenderPDF = async (id) => {
     try {
-      setPdfLoading({ id, type: 'view', progress: 0 });
-      
-      const response = await axios.get(`${api.web}api/v1/downloadTender/${id}`, {
-        responseType: 'blob',
-        onDownloadProgress: (progressEvent) => {
-          const percentCompleted = Math.round(
-            (progressEvent.loaded * 100) / (progressEvent.total || 1)
-          );
-          setPdfLoading(prev => ({ ...prev, progress: percentCompleted }));
+      setPdfLoading({ id, type: "view", progress: 0 });
+
+      const response = await axios.get(
+        `${api.web}api/v1/downloadTender/${id}`,
+        {
+          responseType: "blob",
+          onDownloadProgress: (progressEvent) => {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / (progressEvent.total || 1)
+            );
+            setPdfLoading((prev) => ({ ...prev, progress: percentCompleted }));
+          },
         }
-      });
+      );
 
       // Create blob URL
-      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const blob = new Blob([response.data], { type: "application/pdf" });
       const pdfUrl = URL.createObjectURL(blob);
-      
+
       // Open in new tab
-      const newWindow = window.open(pdfUrl, '_blank');
-      
+      const newWindow = window.open(pdfUrl, "_blank");
+
       if (newWindow) {
         newWindow.focus();
       } else {
         // Fallback to download if popup blocked
-        const downloadLink = document.createElement('a');
+        const downloadLink = document.createElement("a");
         downloadLink.href = pdfUrl;
         downloadLink.download = `tender-${id}.pdf`;
         document.body.appendChild(downloadLink);
         downloadLink.click();
         document.body.removeChild(downloadLink);
       }
-      
+
       // Clean up after some time
       setTimeout(() => URL.revokeObjectURL(pdfUrl), 30000);
-      
     } catch (err) {
       handleApiError(err);
     } finally {
-      setTimeout(() => setPdfLoading({ id: null, type: null, progress: 0 }), 500);
+      setTimeout(
+        () => setPdfLoading({ id: null, type: null, progress: 0 }),
+        500
+      );
     }
   };
 
   const downloadTender = async (id, fileName = `tender-${id}.pdf`) => {
     try {
-      setPdfLoading({ id, type: 'download', progress: 0 });
-      
-      const response = await axios.get(`${api.web}api/v1/downloadTender/${id}`, {
-        responseType: 'blob',
-        onDownloadProgress: (progressEvent) => {
-          const percentCompleted = Math.round(
-            (progressEvent.loaded * 100) / (progressEvent.total || 1)
-          );
-          setPdfLoading(prev => ({ ...prev, progress: percentCompleted }));
+      setPdfLoading({ id, type: "download", progress: 0 });
+
+      const response = await axios.get(
+        `${api.web}api/v1/downloadTender/${id}`,
+        {
+          responseType: "blob",
+          onDownloadProgress: (progressEvent) => {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / (progressEvent.total || 1)
+            );
+            setPdfLoading((prev) => ({ ...prev, progress: percentCompleted }));
+          },
         }
-      });
+      );
 
       // Create download link
       const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.setAttribute('download', fileName);
+      link.setAttribute("download", fileName);
       document.body.appendChild(link);
       link.click();
-      
+
       // Clean up
       setTimeout(() => {
         link.remove();
         window.URL.revokeObjectURL(url);
         setPdfLoading({ id: null, type: null, progress: 0 });
       }, 500);
-      
     } catch (err) {
       handleApiError(err);
       setPdfLoading({ id: null, type: null, progress: 0 });
@@ -381,7 +392,9 @@ function Tenders() {
                               : "text-gray-800"
                           }`}
                         >
-                          {tender.displayLastDate} {tender.lastTime && `at ${tender.lastTime.replace(":", ".")}`}
+                          {tender.displayLastDate}{" "}
+                          {tender.lastTime &&
+                            `at ${tender.lastTime.replace(":", ".")}`}
                         </span>
                       </p>
                     </div>
@@ -391,13 +404,20 @@ function Tenders() {
                     {/* View PDF Button */}
                     <button
                       onClick={() => viewTenderPDF(tender._id)}
-                      disabled={pdfLoading.id === tender._id && pdfLoading.type === 'view'}
+                      disabled={
+                        pdfLoading.id === tender._id &&
+                        pdfLoading.type === "view"
+                      }
                       className={`flex items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors gap-3 group flex-1 ${
-                        pdfLoading.id === tender._id && pdfLoading.type === 'view' ? 'opacity-75 cursor-wait' : ''
+                        pdfLoading.id === tender._id &&
+                        pdfLoading.type === "view"
+                          ? "opacity-75 cursor-wait"
+                          : ""
                       }`}
                     >
                       <div className="p-2 bg-blue-500 rounded-lg text-white">
-                        {pdfLoading.id === tender._id && pdfLoading.type === 'view' ? (
+                        {pdfLoading.id === tender._id &&
+                        pdfLoading.type === "view" ? (
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             className="h-6 w-6 animate-spin"
@@ -444,11 +464,12 @@ function Tenders() {
                       <div className="text-left">
                         <p className="text-blue-700 font-semibold group-hover:text-blue-900">
                           View PDF
-                          {pdfLoading.id === tender._id && pdfLoading.type === 'view' && (
-                            <span className="ml-2 text-blue-500 text-xs">
-                              {pdfLoading.progress}%
-                            </span>
-                          )}
+                          {pdfLoading.id === tender._id &&
+                            pdfLoading.type === "view" && (
+                              <span className="ml-2 text-blue-500 text-xs">
+                                {pdfLoading.progress}%
+                              </span>
+                            )}
                         </p>
                         <p className="text-sm text-gray-500 truncate max-w-xs">
                           Open in browser viewer
@@ -474,14 +495,23 @@ function Tenders() {
 
                     {/* Download PDF Button */}
                     <button
-                      onClick={() => downloadTender(tender._id, tender.fileName)}
-                      disabled={pdfLoading.id === tender._id && pdfLoading.type === 'download'}
+                      onClick={() =>
+                        downloadTender(tender._id, tender.fileName)
+                      }
+                      disabled={
+                        pdfLoading.id === tender._id &&
+                        pdfLoading.type === "download"
+                      }
                       className={`flex items-center p-4 bg-[#3f6197]/10 rounded-lg hover:bg-[#3f6197]/20 transition-colors gap-3 group flex-1 ${
-                        pdfLoading.id === tender._id && pdfLoading.type === 'download' ? 'opacity-75 cursor-wait' : ''
+                        pdfLoading.id === tender._id &&
+                        pdfLoading.type === "download"
+                          ? "opacity-75 cursor-wait"
+                          : ""
                       }`}
                     >
                       <div className="p-2 bg-[#3f6197] rounded-lg text-white">
-                        {pdfLoading.id === tender._id && pdfLoading.type === 'download' ? (
+                        {pdfLoading.id === tender._id &&
+                        pdfLoading.type === "download" ? (
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             className="h-6 w-6 animate-spin"
@@ -522,11 +552,12 @@ function Tenders() {
                       <div className="text-left">
                         <p className="text-[#3f6197] font-semibold group-hover:text-[#2c4b79]">
                           Download PDF
-                          {pdfLoading.id === tender._id && pdfLoading.type === 'download' && (
-                            <span className="ml-2 text-[#3f6197] text-xs">
-                              {pdfLoading.progress}%
-                            </span>
-                          )}
+                          {pdfLoading.id === tender._id &&
+                            pdfLoading.type === "download" && (
+                              <span className="ml-2 text-[#3f6197] text-xs">
+                                {pdfLoading.progress}%
+                              </span>
+                            )}
                         </p>
                         <p className="text-sm text-gray-500 truncate max-w-xs">
                           {tender.fileName || "Tender document"}
@@ -556,14 +587,23 @@ function Tenders() {
           ))}
         </div>
       )}
-      
+
       <div className="mt-8 flex justify-center">
         <button
           onClick={fetchTenders}
           className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 flex items-center"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5 mr-2"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fillRule="evenodd"
+              d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+              clipRule="evenodd"
+            />
           </svg>
           Refresh Tenders
         </button>
