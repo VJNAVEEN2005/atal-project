@@ -1,11 +1,19 @@
-import React, { useState, useEffect, Suspense } from "react";
-import axios from "axios";
+import React, { useEffect, Suspense } from "react";
 import { Search, Filter, RefreshCw } from "lucide-react";
 import PortfolioCard from "./PortfolioCards";
 import Modal from "./UI/Modal";
 import StartupDetails from "./StartupDetail";
 import AdvancedFilterForm from "./AdvancedFilterForm";
 import api from "../../Api/api";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  fetchStartups,
+  setActiveCategory,
+  setSelectedStartup,
+  setVisibleCount,
+  toggleAdvancedFilter,
+  setSearchTerm,
+} from "../../Redux/slice/startupPortfolioSlice";
 
 // Lazy loading PortfolioFilters
 const PortfolioFilters = React.lazy(() => import("./PortfolioFilter"));
@@ -13,77 +21,91 @@ const PortfolioFilters = React.lazy(() => import("./PortfolioFilter"));
 const ITEMS_PER_PAGE = 9;
 
 const PortfolioSection = () => {
-  const [startups, setStartups] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [activeCategory, setActiveCategory] = useState("All");
-  const [selectedStartup, setSelectedStartup] = useState(null);
-  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
-  const [isAdvancedFilterOpen, setIsAdvancedFilterOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [categories, setCategories] = useState(["All"]);
-  
-  // Fetch startups from API
+  const dispatch = useDispatch();
+
+  // Get state from Redux store
+  const {
+    startups,
+    loading,
+    error,
+    activeCategory,
+    selectedStartup,
+    visibleCount,
+    isAdvancedFilterOpen,
+    searchTerm,
+    categories,
+  } = useSelector((state) => state.startupPortfolio);
+
+  // Fetch startups from API on component mount
   useEffect(() => {
-    fetchStartups();
-  }, []);
-  
-  const fetchStartups = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get(`${api.web}api/v1/startup`);
-      const startupsData = response.data.data.startups;
-      setStartups(startupsData);
-      
-      // Extract unique categories from the fetched data
-      const uniqueCategories = ["All", ...Array.from(new Set(startupsData.map(startup => startup.category)))];
-      setCategories(uniqueCategories);
-      
-      setLoading(false);
-    } catch (err) {
-      console.error("Error fetching startups:", err);
-      setError("Failed to load startups. Please try again.");
-      setLoading(false);
+    if (!startups.length) {
+      dispatch(fetchStartups());
     }
-  };
+  }, [dispatch]);
 
   // Filter startups by category and search term
-  const filteredStartups = startups.filter(startup => {
-    const matchesCategory = activeCategory === "All" || startup.category === activeCategory;
-    
-    const matchesSearch = searchTerm === "" || 
+  const filteredStartups = startups.filter((startup) => {
+    const matchesCategory =
+      activeCategory === "All" || startup.category === activeCategory;
+
+    const matchesSearch =
+      searchTerm === "" ||
       startup.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       startup.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       startup.sector.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     return matchesCategory && matchesSearch;
   });
 
   const visibleStartups = filteredStartups.slice(0, visibleCount);
 
-  const handleLoadMore = () => setVisibleCount(prev => prev + ITEMS_PER_PAGE);
-  
+  const handleLoadMore = () => {
+    dispatch(setVisibleCount(visibleCount + ITEMS_PER_PAGE));
+  };
+
   const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-    setVisibleCount(ITEMS_PER_PAGE); // Reset visible count when searching
+    dispatch(setSearchTerm(e.target.value));
+    dispatch(setVisibleCount(ITEMS_PER_PAGE)); // Reset visible count when searching
+  };
+
+  const handleCategoryChange = (category) => {
+    dispatch(setActiveCategory(category));
+    dispatch(setVisibleCount(ITEMS_PER_PAGE)); // Reset visible count when changing category
+  };
+
+  const handleRefresh = () => {
+    dispatch(fetchStartups());
+  };
+
+  const handleStartupSelect = (startup) => {
+    dispatch(setSelectedStartup(startup));
+  };
+
+  const handleCloseModal = () => {
+    dispatch(setSelectedStartup(null));
+  };
+
+  const handleToggleAdvancedFilter = () => {
+    dispatch(toggleAdvancedFilter());
   };
 
   return (
     <section className="py-16 px-4 bg-gradient-to-b from-[#eef2f7] to-white">
       <div className="max-w-7xl mx-auto flex flex-col items-center">
         <section className="relative flex flex-col items-center text-center py-1 px-6 overflow-hidden mb-5">
-  
           <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900 leading-tight mb-6 animate-fadeIn">
             Welcome to <br />
             <span className="text-[#3f6197]">Our Startup Portfolio</span>
           </h1>
           <div className="bg-white shadow-xl rounded-b-2xl p-4 md:p-5">
-          <p className="text-lg md:text-xl text-gray-500 leading-relaxed">
-            Our portfolio features startups that are not only pioneering in their industries but are also making significant contributions to solving real-world problems. From technology and sustainability to healthcare and consumer products, our startups are at the forefront of innovation.
-          </p>
+            <p className="text-lg md:text-xl text-gray-500 leading-relaxed">
+              Our portfolio features startups that are not only pioneering in
+              their industries but are also making significant contributions to
+              solving real-world problems. From technology and sustainability to
+              healthcare and consumer products, our startups are at the
+              forefront of innovation.
+            </p>
           </div>
-
-        
         </section>
 
         {/* Search and Filter Controls */}
@@ -101,41 +123,47 @@ const PortfolioSection = () => {
                 className="pl-10 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3f6197]"
               />
             </div>
-            
+
             <div className="flex gap-2">
               {/* <button
-                onClick={() => setIsAdvancedFilterOpen(true)}
+                onClick={handleToggleAdvancedFilter}
                 className="py-2 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors flex items-center"
               >
                 <Filter size={16} className="mr-2" />
                 Filters
-              </button>
-               */}
-               
+              </button> */}
+
               <button
-                onClick={fetchStartups}
+                onClick={handleRefresh}
                 className="py-2 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors flex items-center"
                 disabled={loading}
               >
-                <RefreshCw size={16} className={`mr-2 ${loading ? 'animate-spin' : ''}`} />
+                <RefreshCw
+                  size={16}
+                  className={`mr-2 ${loading ? "animate-spin" : ""}`}
+                />
                 Refresh
               </button>
             </div>
           </div>
         </div>
-        
+
         {/* Category filters */}
         <div className="w-full mb-8">
-          <Suspense fallback={<div className="text-center py-4">Loading filters...</div>}>
+          <Suspense
+            fallback={
+              <div className="text-center py-4">Loading filters...</div>
+            }
+          >
             <div className="flex flex-wrap justify-center gap-2">
               {categories.map((category) => (
                 <button
                   key={category}
-                  onClick={() => setActiveCategory(category)}
+                  onClick={() => handleCategoryChange(category)}
                   className={`px-4 py-2 rounded-lg transition-colors ${
                     activeCategory === category
-                      ? 'bg-[#3f6197] text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? "bg-[#3f6197] text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
                 >
                   {category}
@@ -153,10 +181,7 @@ const PortfolioSection = () => {
         ) : error ? (
           <div className="bg-red-50 text-red-700 p-4 rounded-lg text-center">
             {error}
-            <button 
-              onClick={fetchStartups}
-              className="ml-2 underline"
-            >
+            <button onClick={handleRefresh} className="ml-2 underline">
               Try Again
             </button>
           </div>
@@ -165,8 +190,12 @@ const PortfolioSection = () => {
             <div className="w-16 h-16 mx-auto bg-gray-200 rounded-full flex items-center justify-center mb-4">
               <Search size={24} className="text-gray-400" />
             </div>
-            <h3 className="text-lg font-medium text-gray-700 mb-2">No startups found</h3>
-            <p className="text-gray-500">Try adjusting your filters or search terms</p>
+            <h3 className="text-lg font-medium text-gray-700 mb-2">
+              No startups found
+            </h3>
+            <p className="text-gray-500">
+              Try adjusting your filters or search terms
+            </p>
           </div>
         ) : (
           // Portfolio Grid
@@ -184,7 +213,7 @@ const PortfolioSection = () => {
                 revenue={startup.revenue}
                 jobs={startup.jobs}
                 achievements={startup.achievements}
-                onClick={() => setSelectedStartup(startup)}
+                onClick={() => handleStartupSelect(startup)}
               />
             ))}
           </div>
@@ -192,7 +221,7 @@ const PortfolioSection = () => {
 
         {!loading && !error && visibleCount < filteredStartups.length && (
           <div className="text-center mt-12">
-            <button 
+            <button
               onClick={handleLoadMore}
               className="py-3 px-6 bg-[#3f6197] text-white rounded-lg hover:bg-[#2d4974] transition-colors font-medium"
             >
@@ -200,28 +229,23 @@ const PortfolioSection = () => {
             </button>
           </div>
         )}
-        
+
         {!loading && !error && filteredStartups.length > 0 && (
           <div className="mt-6 text-sm text-gray-500">
-            Showing {Math.min(visibleCount, filteredStartups.length)} of {filteredStartups.length} startups
+            Showing {Math.min(visibleCount, filteredStartups.length)} of{" "}
+            {filteredStartups.length} startups
           </div>
         )}
       </div>
 
-      <Modal
-        isOpen={!!selectedStartup}
-        onClose={() => setSelectedStartup(null)}
-      >
-        {selectedStartup && <StartupDetails startup={selectedStartup}   />}
+      <Modal isOpen={!!selectedStartup} onClose={handleCloseModal}>
+        {selectedStartup && <StartupDetails startup={selectedStartup} />}
       </Modal>
 
-      <Modal
-        isOpen={isAdvancedFilterOpen}
-        onClose={() => setIsAdvancedFilterOpen(false)}
-      >
+      <Modal isOpen={isAdvancedFilterOpen} onClose={handleToggleAdvancedFilter}>
         Filter
         {/* <AdvancedFilterForm 
-          onConfirm={() => setIsAdvancedFilterOpen(false)} 
+          onConfirm={handleToggleAdvancedFilter} 
           sectors={Array.from(new Set(startups.map(s => s.sector)))}
           foundedYears={Array.from(new Set(startups.map(s => s.founded)))}
         /> */}
