@@ -60,6 +60,11 @@ const Admin = () => {
       link: "/admin/messagescontrol",
       icon: "💬", // Changed to chat icon
     },
+    {
+      name: "Ecosystem Control",
+      link: "/admin/ecosystemcontrol",
+      icon: "🌐",
+    }
   ];
 
   const mainAdminControls = [
