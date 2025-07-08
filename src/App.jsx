@@ -60,6 +60,7 @@ import ImageCarouselControl from "./Admin/ImageCarouselControl.jsx";
 import MessagesControl from "./Admin/MessagesControl.jsx";
 import ForgotPassword from "./pages/ForgotPassword.jsx";
 import ResetPassword from "./pages/ResetPassword.jsx";
+import EcosystemControl from "./Admin/EcosystemControl.jsx";
 
 function App() {
   const [isAdmin, setIsAdmin] = useState(0);
@@ -148,6 +149,10 @@ function App() {
             <Route
               path="/admin/messagescontrol"
               element={<MessagesControl />}
+            />
+            <Route
+              path="/admin/ecosystemcontrol"
+              element={<EcosystemControl />} 
             />
             {isAdmin == 1 && (
               <>
