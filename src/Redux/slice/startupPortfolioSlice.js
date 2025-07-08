@@ -20,7 +20,7 @@ export const startupPortfolioSlice = createSlice({
         error: null,
         activeCategory: "All",
         selectedStartup: null,
-        visibleCount: 1,
+        visibleCount: 9,
         isAdvancedFilterOpen: false,
         searchTerm: "",
         categories: ["All"],
