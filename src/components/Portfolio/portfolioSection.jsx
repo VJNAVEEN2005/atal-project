@@ -90,7 +90,7 @@ const PortfolioSection = () => {
   };
 
   return (
-    <section className="py-16 px-4 bg-gradient-to-b from-[#eef2f7] to-white">
+    <section className="py-16 px-4 bg-gradient-to-b from-[#eef2f7] to-white ">
       <div className="max-w-7xl mx-auto flex flex-col items-center">
         <section className="relative flex flex-col items-center text-center py-1 px-6 overflow-hidden mb-5">
           <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900 leading-tight mb-6 animate-fadeIn">
@@ -199,23 +199,25 @@ const PortfolioSection = () => {
           </div>
         ) : (
           // Portfolio Grid
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
-            {visibleStartups.map((startup) => (
-              <PortfolioCard
-                key={startup._id}
-                id={startup._id}
-                title={startup.title}
-                description={startup.description}
-                image={`${api.web}api/v1/startup/${startup._id}/image`}
-                category={startup.category}
-                sector={startup.sector}
-                founded={startup.founded}
-                revenue={startup.revenue}
-                jobs={startup.jobs}
-                achievements={startup.achievements}
-                onClick={() => handleStartupSelect(startup)}
-              />
-            ))}
+          <div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full ">
+              {visibleStartups.map((startup) => (
+                <PortfolioCard
+                  key={startup._id}
+                  id={startup._id}
+                  title={startup.title}
+                  description={startup.description}
+                  image={`${api.web}api/v1/startup/${startup._id}/image`}
+                  category={startup.category}
+                  sector={startup.sector}
+                  founded={startup.founded}
+                  revenue={startup.revenue}
+                  jobs={startup.jobs}
+                  achievements={startup.achievements}
+                  onClick={() => handleStartupSelect(startup)}
+                />
+              ))}
+            </div>
           </div>
         )}
 

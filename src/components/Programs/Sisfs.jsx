@@ -624,9 +624,20 @@ const ImageModal = ({ isOpen, onClose, image }) => {
 const FloatCardSuccess = ({ image }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   const handleOpen = useCallback(() => setIsOpen(true), []);
   const handleClose = useCallback(() => setIsOpen(false), []);
+
+  const handleImageLoad = useCallback(() => {
+    setImageLoaded(true);
+    setImageError(false);
+  }, []);
+
+  const handleImageError = useCallback(() => {
+    setImageLoaded(true);
+    setImageError(true);
+  }, []);
 
   return (
     <>
@@ -641,16 +652,31 @@ const FloatCardSuccess = ({ image }) => {
         {/* Card content */}
         <div className="absolute inset-0 bg-white shadow-2xl border rounded-lg transition-transform group-hover:scale-105">
           <div className="h-full p-5 relative">
-            {!imageLoaded && <Skeleton height="100%" width="100%" />}
-            <img
-              className={`w-full h-full object-contain border ${
-                !imageLoaded ? "hidden" : ""
-              }`}
-              src={image}
-              alt=""
-              loading="lazy"
-              onLoad={() => setImageLoaded(true)}
-            />
+            {!imageLoaded && (
+              <div className="w-full h-full flex items-center justify-center">
+                <Skeleton height="100%" width="100%" />
+              </div>
+            )}
+            
+            {imageError ? (
+              <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-500">
+                <div className="text-center">
+                  <div className="text-2xl mb-2">📷</div>
+                  <div className="text-sm">Image failed to load</div>
+                </div>
+              </div>
+            ) : (
+              <img
+                className={`w-full h-full object-contain border transition-opacity ${
+                  !imageLoaded ? "opacity-0 absolute" : "opacity-100"
+                }`}
+                src={image}
+                alt=""
+                loading="lazy"
+                onLoad={handleImageLoad}
+                onError={handleImageError}
+              />
+            )}
           </div>
         </div>
       </div>
@@ -660,6 +686,7 @@ const FloatCardSuccess = ({ image }) => {
     </>
   );
 };
+
 
 const DropdownCard = ({ title, items, themeColors }) => {
   const [isOpen, setIsOpen] = useState(false);
