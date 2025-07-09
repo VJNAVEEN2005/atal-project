@@ -61,6 +61,7 @@ import MessagesControl from "./Admin/MessagesControl.jsx";
 import ForgotPassword from "./pages/ForgotPassword.jsx";
 import ResetPassword from "./pages/ResetPassword.jsx";
 import EcosystemControl from "./Admin/EcosystemControl.jsx";
+import { fetchStartups } from "./Redux/slice/startupPortfolioSlice.js";
 
 function App() {
   const [isAdmin, setIsAdmin] = useState(0);
@@ -69,6 +70,12 @@ function App() {
 
   useEffect(() => {
     dispatch(authenticateUser());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (!state.startupPortfolio.startups.length) {
+      dispatch(fetchStartups());
+    }
   }, [dispatch]);
 
   useEffect(() => {
@@ -118,8 +125,8 @@ function App() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
-        <Route path="/profile" element={<Profile />} />
 
+        <Route path="/profile" element={<Profile />} />
         <Route path="/profile/:id" element={<ProfileShare />} />
 
         {isAdmin > 0 && (
@@ -152,7 +159,7 @@ function App() {
             />
             <Route
               path="/admin/ecosystemcontrol"
-              element={<EcosystemControl />} 
+              element={<EcosystemControl />}
             />
             {isAdmin == 1 && (
               <>
