@@ -6,6 +6,9 @@ import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { fetchUser } from "../Redux/slice/userSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { IconCapRounded, IconFaceMaskFilled } from "@tabler/icons-react";
+import { Check, ContactRound, GraduationCap, Phone, Scale, X } from "lucide-react";
+import { showNotification, updateNotification } from "@mantine/notifications";
 
 // Component for displaying information in view mode with improved styling
 const Field = ({ label, value }) => (
@@ -49,23 +52,51 @@ const InputField = ({
   value,
   type = "text",
   required = false,
+  options = null,
+  disabled = false,
   onChange,
-}) => (
-  <div className="mb-5">
-    <label className="block text-gray-700 font-medium mb-2">
-      {label} {required && <span className="text-red-500">*</span>}
-    </label>
-    <input
-      type={type}
-      name={name}
-      value={value || ""}
-      onChange={onChange}
-      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3f6197] transition-colors duration-200"
-      required={required}
-      placeholder={`Enter ${label.toLowerCase()}`}
-    />
-  </div>
-);
+}) => {
+  if (options) {
+    return (
+      <div className="mb-5">
+        <label className="block text-gray-700 font-medium mb-2">
+          {label} {required && <span className="text-red-500">*</span>}
+        </label>
+        <select
+          name={name}
+          value={value || ""}
+          onChange={onChange}
+          required={required}
+          disabled={disabled}
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3f6197] text-gray-700 bg-white"
+        >
+          <option value="">Select {label}</option>
+          {options.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </div>
+    );
+  }
+  return (
+    <div className="mb-5">
+      <label className="block text-gray-700 font-medium mb-2">
+        {label} {required && <span className="text-red-500">*</span>}
+      </label>
+      <input
+        type={type}
+        name={name}
+        value={value || ""}
+        onChange={onChange}
+        required={required}
+        disabled={disabled}
+        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3f6197] transition-colors duration-200"
+      />
+    </div>
+  );
+};
 
 // Enhanced ProfilePhoto component with animation effects
 const ProfilePhoto = ({
@@ -140,14 +171,87 @@ const ProfilePhoto = ({
 // Stats component to display user profile completion
 const ProfileStats = ({ profileData }) => {
   // Calculate profile completion percentage
+
+  const isStudent =
+    profileData.educationLevel ||
+    profileData.collegeName ||
+    profileData.schoolName;
+
   const calculateCompletion = () => {
-    const totalFields = Object.keys(profileData).length;
-    const filledFields = Object.values(profileData).filter((value) => {
-      if (value === null || value === undefined) return false;
-      if (typeof value === "string") return value.trim() !== "";
-      return true;
-    }).length;
-    return Math.round((filledFields / totalFields) * 100);
+    if (isStudent) {
+      // Base student fields
+      const baseStudentFields = [
+        "profilePhoto",
+        "name",
+        "email",
+        "dateOfBirth",
+        "fatherName",
+        "motherName",
+        "guardianName",
+        "bloodGroup",
+        "address",
+        "educationLevel",
+      ];
+
+      // Education level specific fields
+      let educationSpecificFields = [];
+      if (profileData.educationLevel === "college") {
+        educationSpecificFields = ["department", "yearOfGraduation"];
+        // Special case for Puducherry Technological University
+        if (profileData.collegeName === "Puducherry Technological University") {
+          educationSpecificFields.push("registrationNumber");
+        } else {
+          educationSpecificFields.push("collegeName");
+        }
+      } else if (profileData.educationLevel === "school") {
+        educationSpecificFields = ["standard", "schoolName"];
+      }
+
+      const studentFields = [...baseStudentFields, ...educationSpecificFields];
+      const totalFields = studentFields.length;
+      const filledFields = studentFields.filter((field) => {
+        const value = profileData[field];
+        if (value === null || value === undefined) return false;
+        if (typeof value === "string") return value.trim() !== "";
+        return true;
+      }).length;
+
+      return Math.round((filledFields / totalFields) * 100);
+    } else {
+      // Startup fields to check
+      const startupFields = [
+        "profilePhoto",
+        "name",
+        "email",
+        "phoneNumber",
+        "organizationName",
+        "organizationSize",
+        "organizationIndustry",
+        "founderName",
+        "founderWhatsApp",
+        "dpiitNumber",
+        "sector",
+        "womenLed",
+        "panNumber",
+        "gstNumber",
+        "address",
+        "cityStatePostal",
+        "productDescription",
+        "businessType",
+        "websiteUrl",
+        "growthPotential",
+      ];
+
+      const totalFields = startupFields.length;
+      const filledFields = startupFields.filter((field) => {
+        const value = profileData[field];
+        if (value === null || value === undefined) return false;
+        if (typeof value === "string") return value.trim() !== "";
+        return true;
+      }).length;
+
+      return Math.round((filledFields / totalFields) * 100);
+    }
   };
 
   const completion = calculateCompletion();
@@ -230,7 +334,10 @@ const Profile = () => {
   useEffect(() => {
     if (state.user.user) {
       setProfileData(state.user.user.user);
-      setPhotoUrl(`${api.web}api/v1/profileImage/${state.user.user.user._id}`);
+      if (state.user.user.user.profilePhoto){
+        setPhotoUrl(`${api.web}api/v1/profileImage/${state.user.user.user._id}`);
+      }
+      
       setIsLoading(false);
     } else {
       setIsLoading(true);
@@ -285,13 +392,25 @@ const Profile = () => {
 
     // Size validation
     if (file.size > 5 * 1024 * 1024) {
-      alert("File is too large. Maximum size is 5MB.");
+      showNotification({
+        id: "file-size-error",
+        title: "File Size Error",
+        message: "File is too large. Maximum size is 5MB.",
+        color: "red",
+        autoClose: 3000,
+      });
       return;
     }
 
     // Type validation
     if (!file.type.match(/image\/(jpeg|jpg|png|gif)/i)) {
-      alert("Only image files (JPG, PNG, GIF) are allowed.");
+      showNotification({
+        id: "file-type-error",
+        title: "File Type Error",
+        message: "Only image files (JPG, PNG, GIF) are allowed.",
+        color: "red",
+        autoClose: 3000,
+      });
       return;
     }
 
@@ -313,14 +432,34 @@ const Profile = () => {
             setPhotoPreview(null);
             setPhotoFile(null);
             setPhotoUrl(null);
-            alert("Profile photo deleted successfully!");
+            showNotification({
+              id: "photo-delete-success",
+              title: "Photo Deleted",
+              message: "Your profile photo has been deleted successfully.",
+              color: "green",
+              autoClose: 3000,
+            });
           } else {
-            alert("Error deleting profile photo: " + res.data.message);
+            showNotification({
+              id: "photo-delete-error",
+              title: "Delete Failed",
+              message:
+                res.data.message ||
+                "An error occurred while deleting the photo.",
+              color: "red",
+              autoClose: 3000,
+            });
           }
         })
         .catch((err) => {
           console.error("API Error:", err);
-          alert("Failed to delete profile photo");
+          showNotification({
+            id: "photo-delete-error",
+            title: "Delete Failed",
+            message: "An error occurred while deleting your profile photo.",
+            color: "red",
+            autoClose: 3000,
+          });
         });
     }
   }, [userId]);
@@ -361,12 +500,28 @@ const Profile = () => {
         setPhotoPreview(null);
         return true;
       } else {
-        alert("Error uploading profile photo: " + response.data.message);
+        showNotification({
+          id: "photo-upload-error",
+          title: "Upload Failed",
+          message:
+            response.data.message ||
+            "An error occurred while uploading the photo.",
+          color: "red",
+          autoClose: 3000,
+        });
+
         return false;
       }
     } catch (err) {
       console.error("API Error:", err.message);
-      alert("Failed to upload profile photo");
+      showNotification({
+        id: "photo-upload-error",
+        title: "Upload Failed",
+        message: "An error occurred while uploading your profile photo.",
+        color: "red",
+        autoClose: 3000,
+      });
+
       return false;
     }
   }, [photoFile, userId]);
@@ -381,6 +536,15 @@ const Profile = () => {
       if (submitButton) {
         submitButton.innerText = "Saving...";
         submitButton.disabled = true;
+
+        showNotification({
+          id: "update-profile",
+          title: "Saving Changes",
+          message: "Please wait while we save your profile.",
+          color: "blue",
+          autoClose: false,
+          loading: true,
+        });
       }
 
       // First handle profile photo upload if there is a new photo
@@ -402,24 +566,39 @@ const Profile = () => {
         .then((response) => {
           if (response.data.success) {
             setIsEditing(false);
-            // Show success message
-            const successElement = document.createElement("div");
-            successElement.className =
-              "fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50";
-            successElement.innerText = "Profile updated successfully!";
-            document.body.appendChild(successElement);
 
-            // Remove success message after a few seconds
-            setTimeout(() => {
-              document.body.removeChild(successElement);
-            }, 3000);
+            updateNotification({
+              id: "update-profile",
+              title: "Profile Updated",
+              message: "Your profile has been updated successfully.",
+              color: "green",
+              autoClose: 3000,
+              loading: false,
+              icon: <Check size={16} />,
+            });
           } else {
-            alert("Error updating profile: " + response.data.message);
+            updateNotification({
+              id: "update-profile",
+              title: "Update Failed",
+              message: response.data.message,
+              color: "red",
+              autoClose: 3000,
+              loading: false,
+              icon: <X size={16} />,
+            });
           }
         })
         .catch((error) => {
           console.error("API Error:", error);
-          alert("Error updating profile: " + error.message);
+          updateNotification({
+            id: "update-profile",
+            title: "Update Failed",
+            message: "An error occurred while updating your profile.",
+            color: "red",
+            autoClose: 3000,
+            loading: false,
+            icon: <X size={16} />,
+          });
         })
         .finally(() => {
           if (submitButton) {
@@ -625,53 +804,100 @@ const Profile = () => {
     );
 
   // Tab Navigation Component
-  const TabNav = ({ isEditing }) => {
-    return !isEditing ? (
+  const TabNav = ({ isEditing, profileData }) => {
+    if (isEditing) return null;
+
+    const isStudent =
+      profileData.educationLevel ||
+      profileData.collegeName ||
+      profileData.schoolName;
+
+    return (
       <div className="bg-white shadow-md rounded-xl mb-8 overflow-hidden">
         <div className="flex flex-wrap">
-          <button
-            onClick={() => setActiveTab("personal")}
-            className={`px-4 py-3 font-medium flex items-center transition-colors duration-200 ${
-              activeTab === "personal"
-                ? "bg-[#3f6197] text-white"
-                : "bg-white text-gray-700 hover:bg-gray-100"
-            }`}
-          >
-            <PersonIcon /> <span className="ml-2">Personal</span>
-          </button>
-          <button
-            onClick={() => setActiveTab("organization")}
-            className={`px-4 py-3 font-medium flex items-center transition-colors duration-200 ${
-              activeTab === "organization"
-                ? "bg-[#3f6197] text-white"
-                : "bg-white text-gray-700 hover:bg-gray-100"
-            }`}
-          >
-            <OrgIcon /> <span className="ml-2">Organization</span>
-          </button>
-          <button
-            onClick={() => setActiveTab("contact")}
-            className={`px-4 py-3 font-medium flex items-center transition-colors duration-200 ${
-              activeTab === "contact"
-                ? "bg-[#3f6197] text-white"
-                : "bg-white text-gray-700 hover:bg-gray-100"
-            }`}
-          >
-            <ContactIcon /> <span className="ml-2">Contact</span>
-          </button>
-          <button
-            onClick={() => setActiveTab("business")}
-            className={`px-4 py-3 font-medium flex items-center transition-colors duration-200 ${
-              activeTab === "business"
-                ? "bg-[#3f6197] text-white"
-                : "bg-white text-gray-700 hover:bg-gray-100"
-            }`}
-          >
-            <BusinessIcon /> <span className="ml-2">Business</span>
-          </button>
+          {isStudent ? (
+            // Student tabs
+            <>
+              <button
+                onClick={() => setActiveTab("personal")}
+                className={`px-4 py-3 font-medium flex items-center transition-colors duration-200 ${
+                  activeTab === "personal"
+                    ? "bg-[#3f6197] text-white"
+                    : "bg-white text-gray-700 hover:bg-gray-100"
+                }`}
+              >
+                <PersonIcon /> <span className="ml-2">Personal</span>
+              </button>
+              <button
+                onClick={() => setActiveTab("family")}
+                className={`px-4 py-3 font-medium flex items-center transition-colors duration-200 ${
+                  activeTab === "family"
+                    ? "bg-[#3f6197] text-white"
+                    : "bg-white text-gray-700 hover:bg-gray-100"
+                }`}
+              >
+                <ContactRound /> <span className="ml-2">Family</span>
+              </button>
+              <button
+                onClick={() => setActiveTab("education")}
+                className={`px-4 py-3 font-medium flex items-center transition-colors duration-200 ${
+                  activeTab === "education"
+                    ? "bg-[#3f6197] text-white"
+                    : "bg-white text-gray-700 hover:bg-gray-100"
+                }`}
+              >
+                <GraduationCap /> <span className="ml-2">Education</span>
+              </button>
+            </>
+          ) : (
+            // Startup tabs
+            <>
+              <button
+                onClick={() => setActiveTab("personal")}
+                className={`px-4 py-3 font-medium flex items-center transition-colors duration-200 ${
+                  activeTab === "personal"
+                    ? "bg-[#3f6197] text-white"
+                    : "bg-white text-gray-700 hover:bg-gray-100"
+                }`}
+              >
+                <PersonIcon /> <span className="ml-2">Personal</span>
+              </button>
+              <button
+                onClick={() => setActiveTab("organization")}
+                className={`px-4 py-3 font-medium flex items-center transition-colors duration-200 ${
+                  activeTab === "organization"
+                    ? "bg-[#3f6197] text-white"
+                    : "bg-white text-gray-700 hover:bg-gray-100"
+                }`}
+              >
+                <OrgIcon /> <span className="ml-2">Organization</span>
+              </button>
+               <button
+                onClick={() => setActiveTab("contact")}
+                className={`px-4 py-3 font-medium flex items-center transition-colors duration-200 ${
+                  activeTab === "contact"
+                    ? "bg-[#3f6197] text-white"
+                    : "bg-white text-gray-700 hover:bg-gray-100"
+                }`}
+              >
+                <Phone /> <span className="ml-2">Contact</span>
+              </button>
+              <button
+                onClick={() => setActiveTab("business")}
+                className={`px-4 py-3 font-medium flex items-center transition-colors duration-200 ${
+                  activeTab === "business"
+                    ? "bg-[#3f6197] text-white"
+                    : "bg-white text-gray-700 hover:bg-gray-100"
+                }`}
+              >
+                <BusinessIcon /> <span className="ml-2">Business</span>
+              </button>
+             
+            </>
+          )}
         </div>
       </div>
-    ) : null;
+    );
   };
 
   const shareProfile = () => {
@@ -690,7 +916,13 @@ const Profile = () => {
     } else {
       // Fallback for browsers that don't support Web Share API
       navigator.clipboard.writeText(shareUrl).then(() => {
-        alert("Profile link copied to clipboard!");
+        showNotification({
+          id: "profile-copied",
+          title: "Profile Link Copied",
+          message: "Profile link copied to clipboard!",
+          color: "green",
+          autoClose: 3000,
+        });
       });
     }
   };
@@ -832,16 +1064,30 @@ const Profile = () => {
               <div className="flex flex-col md:flex-row items-center">
                 <ProfilePhoto photoUrl={photoUrl} isEditing={false} />
                 <div className="md:ml-6 mt-4 md:mt-0 text-center md:text-left">
-                  <h2 className="text-3xl font-bold">
-                    {profileData.name || "Your Name"}
-                  </h2>
+                  <div className="flex items-center gap-5">
+                    <h2 className="text-3xl font-bold">
+                      {profileData.name || "Your Name"}
+                    </h2>
+                    <h2 className="text-2xl font-bold text-blue-100">
+                      {"|"}
+                    </h2>
+                    <h3 className="text-lg font-semibold text-blue-100">
+                      {profileData.userId || "Your Id"}
+                    </h3>
+                  </div>
                   <p className="text-blue-100">{profileData.email}</p>
                   <p className="text-blue-100">{profileData.phoneNumber}</p>
                   <p className="mt-2 text-white font-semibold text-xl">
-                    {profileData.organizationName || "Your Organization"}
+                    {profileData.organizationName ||
+                      profileData.collegeName ||
+                      profileData.schoolName ||
+                      ""}
                   </p>
                   <div className="mt-3 inline-flex bg-white bg-opacity-20 px-3 py-1 rounded-full text-sm">
-                    {profileData.sector || "Your Sector"}
+                    {profileData.sector ||
+                      profileData.department ||
+                      profileData.standard ||
+                      ""}
                   </div>
                   <div
                     onClick={shareProfile}
@@ -871,7 +1117,7 @@ const Profile = () => {
             <ProfileStats profileData={profileData} />
 
             {/* Tab Navigation */}
-            <TabNav isEditing={isEditing} />
+            <TabNav isEditing={isEditing} profileData={profileData} />
 
             {/* Content Based on Active Tab */}
             {activeTab === "personal" && (
@@ -879,9 +1125,63 @@ const Profile = () => {
                 <Field label="Full Name" value={profileData.name} />
                 <Field label="Email" value={profileData.email} />
                 <Field label="Phone Number" value={profileData.phoneNumber} />
+                {profileData.domain === "Students" && (
+                  <>
+                    <Field
+                      label="Date of Birth"
+                      value={profileData.dateOfBirth}
+                    />
+                    <Field label="Blood Group" value={profileData.bloodGroup} />
+                    <Field label="Address" value={profileData.address} />
+                  </>
+                )}
               </InfoCard>
             )}
 
+            {/* Students */}
+            {activeTab === "family" && (
+              <InfoCard title="Family Information" icon={<ContactIcon />}>
+                <Field label="Father's Name" value={profileData.fatherName} />
+                <Field label="Mother's Name" value={profileData.motherName} />
+                <Field
+                  label="Guardian's Name"
+                  value={profileData.guardianName}
+                />
+              </InfoCard>
+            )}
+
+            {activeTab === "education" && (
+              <InfoCard title="Education Details" icon={<GraduationCap />}>
+                {profileData.educationLevel === "college" && (
+                  <>
+                    <Field
+                      label="College Name"
+                      value={profileData.collegeName}
+                    />
+                    {profileData.collegeName ===
+                      "Puducherry Technological University" && (
+                      <Field
+                        label="Registration Number"
+                        value={profileData.registrationNumber}
+                      />
+                    )}
+                    <Field label="Deptartment" value={profileData.department} />
+                    <Field
+                      label="Year of Graduation"
+                      value={profileData.yearOfGraduation}
+                    />
+                  </>
+                )}
+                {profileData.educationLevel === "school" && (
+                  <>
+                    <Field label="School Name" value={profileData.schoolName} />
+                    <Field label="Standard" value={profileData.standard} />
+                  </>
+                )}
+              </InfoCard>
+            )}
+
+            {/*Startups */}
             {activeTab === "organization" && (
               <InfoCard title="Organization Details" icon={<OrgIcon />}>
                 <Field
@@ -1028,39 +1328,71 @@ const Profile = () => {
                 >
                   <PersonIcon /> <span className="ml-2">Personal</span>
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("organization")}
-                  className={`px-4 py-3 font-medium flex items-center transition-colors duration-200 ${
-                    activeTab === "organization"
-                      ? "bg-[#3f6197] text-white border-b-2 border-[#3f6197]"
-                      : "bg-white text-gray-700 hover:bg-gray-100"
-                  }`}
-                >
-                  <OrgIcon /> <span className="ml-2">Organization</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("contact")}
-                  className={`px-4 py-3 font-medium flex items-center transition-colors duration-200 ${
-                    activeTab === "contact"
-                      ? "bg-[#3f6197] text-white border-b-2 border-[#3f6197]"
-                      : "bg-white text-gray-700 hover:bg-gray-100"
-                  }`}
-                >
-                  <ContactIcon /> <span className="ml-2">Contact</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("business")}
-                  className={`px-4 py-3 font-medium flex items-center transition-colors duration-200 ${
-                    activeTab === "business"
-                      ? "bg-[#3f6197] text-white border-b-2 border-[#3f6197]"
-                      : "bg-white text-gray-700 hover:bg-gray-100"
-                  }`}
-                >
-                  <BusinessIcon /> <span className="ml-2">Business</span>
-                </button>
+
+                {profileData.domain === "Students" && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab("family")}
+                      className={`px-4 py-3 font-medium flex items-center transition-colors duration-200 ${
+                        activeTab === "family"
+                          ? "bg-[#3f6197] text-white border-b-2 border-[#3f6197]"
+                          : "bg-white text-gray-700 hover:bg-gray-100"
+                      }`}
+                    >
+                      <ContactRound /> <span className="ml-2">Family</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab("education")}
+                      className={`px-4 py-3 font-medium flex items-center transition-colors duration-200 ${
+                        activeTab === "education"
+                          ? "bg-[#3f6197] text-white border-b-2 border-[#3f6197]"
+                          : "bg-white text-gray-700 hover:bg-gray-100"
+                      }`}
+                    >
+                      <GraduationCap /> <span className="ml-2">Education</span>
+                    </button>
+                  </>
+                )}
+
+                {profileData.domain === "Startups" && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab("organization")}
+                      className={`px-4 py-3 font-medium flex items-center transition-colors duration-200 ${
+                        activeTab === "organization"
+                          ? "bg-[#3f6197] text-white border-b-2 border-[#3f6197]"
+                          : "bg-white text-gray-700 hover:bg-gray-100"
+                      }`}
+                    >
+                      <OrgIcon /> <span className="ml-2">Organization</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab("contact")}
+                      className={`px-4 py-3 font-medium flex items-center transition-colors duration-200 ${
+                        activeTab === "contact"
+                          ? "bg-[#3f6197] text-white border-b-2 border-[#3f6197]"
+                          : "bg-white text-gray-700 hover:bg-gray-100"
+                      }`}
+                    >
+                      <ContactIcon /> <span className="ml-2">Contact</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab("business")}
+                      className={`px-4 py-3 font-medium flex items-center transition-colors duration-200 ${
+                        activeTab === "business"
+                          ? "bg-[#3f6197] text-white border-b-2 border-[#3f6197]"
+                          : "bg-white text-gray-700 hover:bg-gray-100"
+                      }`}
+                    >
+                      <BusinessIcon /> <span className="ml-2">Business</span>
+                    </button>
+                  </>
+                )}
               </div>
 
               <div className="p-6">
@@ -1093,6 +1425,149 @@ const Profile = () => {
                       required
                       onChange={handleChange}
                     />
+                    {profileData.domain === "Students" && (
+                      <>
+                        <InputField
+                          label="Date of Birth"
+                          name="dateOfBirth"
+                          value={profileData.dateOfBirth}
+                          type="date"
+                          required
+                          onChange={handleChange}
+                        />
+                        <InputField
+                          label="Blood Group"
+                          name="bloodGroup"
+                          value={profileData.bloodGroup}
+                          required
+                          type="select"
+                          options={[
+                            { value: "A+", label: "A+" },
+                            { value: "A-", label: "A-" },
+                            { value: "B+", label: "B+" },
+                            { value: "B-", label: "B-" },
+                            { value: "AB+", label: "AB+" },
+                            { value: "AB-", label: "AB-" },
+                            { value: "O+", label: "O+" },
+                            { value: "O-", label: "O-" },
+                          ]}
+                          onChange={handleChange}
+                        />
+                        <InputField
+                          label="Address"
+                          name="address"
+                          value={profileData.address}
+                          required
+                          onChange={handleChange}
+                        />
+                      </>
+                    )}
+                  </div>
+                )}
+                {/* Family Information Tab */}
+                {activeTab === "family" && (
+                  <div className="animate-fadeIn">
+                    <h3 className="text-xl font-semibold text-[#3f6197] mb-6 flex items-center">
+                      <ContactRound />{" "}
+                      <span className="ml-2">Family Information</span>
+                    </h3>
+                    <InputField
+                      label="Father's Name"
+                      name="fatherName"
+                      value={profileData.fatherName}
+                      onChange={handleChange}
+                    />
+                    <InputField
+                      label="Mother's Name"
+                      name="motherName"
+                      value={profileData.motherName}
+                      onChange={handleChange}
+                    />
+                    <InputField
+                      label="Guardian's Name"
+                      name="guardianName"
+                      value={profileData.guardianName}
+                      onChange={handleChange}
+                    />
+                  </div>
+                )}
+                {/* Education Details Tab */}
+                {activeTab === "education" && (
+                  <div className="animate-fadeIn">
+                    <h3 className="text-xl font-semibold text-[#3f6197] mb-6 flex items-center">
+                      <GraduationCap />{" "}
+                      <span className="ml-2">Education Details</span>
+                    </h3>
+
+                    {profileData.educationLevel === "college" && (
+                      <>
+                        <InputField
+                          label="College Name"
+                          name="collegeName"
+                          value={profileData.collegeName}
+                          required
+                          disabled={true}
+                          onChange={handleChange}
+                        />
+                        {profileData.collegeName ===
+                          "Puducherry Technological University" && (
+                          <InputField
+                            label="Registration Number"
+                            name="registrationNumber"
+                            value={profileData.registrationNumber}
+                            required
+                            onChange={handleChange}
+                          />
+                        )}
+                        <InputField
+                          label="Department"
+                          name="department"
+                          value={profileData.department}
+                          required
+                          onChange={handleChange}
+                        />
+                        <InputField
+                          label="Year of Graduation"
+                          name="yearOfGraduation"
+                          value={profileData.yearOfGraduation}
+                          required
+                          onChange={handleChange}
+                        />
+                      </>
+                    )}
+                    {profileData.educationLevel === "school" && (
+                      <>
+                        <InputField
+                          label="School Name"
+                          name="schoolName"
+                          value={profileData.schoolName}
+                          required
+                          onChange={handleChange}
+                        />
+                        <InputField
+                          label="Standard"
+                          name="standard"
+                          value={profileData.standard}
+                          type="select"
+                          options={[
+                            { value: "1st", label: "1st Standard" },
+                            { value: "2nd", label: "2nd Standard" },
+                            { value: "3rd", label: "3rd Standard" },
+                            { value: "4th", label: "4th Standard" },
+                            { value: "5th", label: "5th Standard" },
+                            { value: "6th", label: "6th Standard" },
+                            { value: "7th", label: "7th Standard" },
+                            { value: "8th", label: "8th Standard" },
+                            { value: "9th", label: "9th Standard" },
+                            { value: "10th", label: "10th Standard" },
+                            { value: "11th", label: "11th Standard" },
+                            { value: "12th", label: "12th Standard" },
+                          ]}
+                          required
+                          onChange={handleChange}
+                        />
+                      </>
+                    )}
                   </div>
                 )}
 

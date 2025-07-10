@@ -43,26 +43,22 @@ const PersonIcon = () => (
   </svg>
 );
 
-const OrgIcon = () => (
+const FamilyIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
   </svg>
 );
 
-const ContactIcon = () => (
+const EducationIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+    <path d="M12 14l9-5-9-5-9 5 9 5z" />
+    <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
   </svg>
 );
 
-const BusinessIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-  </svg>
-);
-
-// Main ProfileShare component
-const ProfileShare = () => {
+// Main StudentProfileShare component
+const StudentProfileShare = () => {
   const { id } = useParams();
   const [profileData, setProfileData] = useState({});
   const [photoUrl, setPhotoUrl] = useState(null);
@@ -70,7 +66,7 @@ const ProfileShare = () => {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('personal');
 
-  // Fetch user data based on ID from URL params
+  // Fetch student data based on ID from URL params
   useEffect(() => {
     if (!id) {
       setError("No profile ID provided");
@@ -86,11 +82,12 @@ const ProfileShare = () => {
         if (res.data.success) {
           setProfileData(res.data.user);
           // Set profile photo URL if user has one
-          if (res.data.user._id) {
+          if (res.data.user.profilePhoto) {
             setPhotoUrl(`${api.web}api/v1/profileImage/${res.data.user._id}?t=${new Date().getTime()}`);
+            console.log("Profile photo URL set:", photoUrl);
           }
         } else {
-          setError("Profile not found or not available for sharing");
+          setError("Student profile not found or not available for sharing");
         }
       })
       .catch((err) => {
@@ -153,34 +150,24 @@ const ProfileShare = () => {
           <PersonIcon /> <span className="ml-2">Personal</span>
         </button>
         <button 
-          onClick={() => setActiveTab('organization')}
+          onClick={() => setActiveTab('family')}
           className={`px-4 py-3 font-medium flex items-center transition-colors duration-200 ${
-            activeTab === 'organization' 
+            activeTab === 'family' 
               ? 'bg-[#3f6197] text-white' 
               : 'bg-white text-gray-700 hover:bg-gray-100'
           }`}
         >
-          <OrgIcon /> <span className="ml-2">Organization</span>
+          <FamilyIcon /> <span className="ml-2">Family</span>
         </button>
         <button 
-          onClick={() => setActiveTab('contact')}
+          onClick={() => setActiveTab('education')}
           className={`px-4 py-3 font-medium flex items-center transition-colors duration-200 ${
-            activeTab === 'contact' 
+            activeTab === 'education' 
               ? 'bg-[#3f6197] text-white' 
               : 'bg-white text-gray-700 hover:bg-gray-100'
           }`}
         >
-          <ContactIcon /> <span className="ml-2">Contact</span>
-        </button>
-        <button 
-          onClick={() => setActiveTab('business')}
-          className={`px-4 py-3 font-medium flex items-center transition-colors duration-200 ${
-            activeTab === 'business' 
-              ? 'bg-[#3f6197] text-white' 
-              : 'bg-white text-gray-700 hover:bg-gray-100'
-          }`}
-        >
-          <BusinessIcon /> <span className="ml-2">Business</span>
+          <EducationIcon /> <span className="ml-2">Education</span>
         </button>
       </div>
     </div>
@@ -217,8 +204,7 @@ const ProfileShare = () => {
         <SkeletonField />
       </InfoCard>
 
-      <InfoCard title="Organization Details" isLoading={true} icon={<OrgIcon />}>
-        <SkeletonField />
+      <InfoCard title="Family Information" isLoading={true} icon={<FamilyIcon />}>
         <SkeletonField />
         <SkeletonField />
         <SkeletonField />
@@ -247,10 +233,10 @@ const ProfileShare = () => {
   );
 
   const shareProfile = () => {
-    const shareUrl = `${window.location.origin}/profile/${id}`;
+    const shareUrl = `${window.location.origin}/student-profile/${id}`;
     const shareData = {
-      title: 'Check out this profile',
-      text: 'Have a look at this awesome profile!',
+      title: 'Check out this student profile',
+      text: 'Have a look at this student profile!',
       url: shareUrl
     };
   
@@ -265,7 +251,15 @@ const ProfileShare = () => {
       });
     }
   };
-  
+
+  // Helper function to format education level
+  const formatEducationLevel = (level) => {
+    switch(level) {
+      case 'college': return 'College';
+      case 'school': return 'School';
+      default: return level || 'Not specified';
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8">
@@ -274,15 +268,17 @@ const ProfileShare = () => {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-[#3f6197] mb-4 sm:mb-0 flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
             </svg>
-            Shared Profile
+            Student Profile
           </h1>
           <div onClick={shareProfile} className="px-4 py-2 cursor-pointer bg-blue-100 text-[#3f6197] rounded-full inline-flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
             </svg>
-            Public View
+            Share Profile
           </div>
         </div>
 
@@ -298,15 +294,17 @@ const ProfileShare = () => {
                 <ProfilePhoto photoUrl={photoUrl} isLoading={false} />
                 <div className="md:ml-6 mt-4 md:mt-0 text-center md:text-left">
                   <h2 className="text-3xl font-bold">
-                    {profileData.name || "Name Not Available"}
+                    {profileData.name || "Student Name"}
                   </h2>
                   <p className="text-blue-100">{profileData.email}</p>
                   <p className="text-blue-100">{profileData.phoneNumber}</p>
                   <p className="mt-2 text-white font-semibold text-xl">
-                    {profileData.organizationName || "Organization Not Available"}
+                    {profileData.educationLevel === 'college' 
+                      ? profileData.collegeName 
+                      : profileData.schoolName}
                   </p>
                   <div className="mt-3 inline-flex bg-white bg-opacity-20 px-3 py-1 rounded-full text-sm">
-                    {profileData.sector || "Sector Not Available"}
+                    {formatEducationLevel(profileData.educationLevel)}
                   </div>
                 </div>
               </div>
@@ -321,44 +319,42 @@ const ProfileShare = () => {
                 <Field label="Full Name" value={profileData.name} />
                 <Field label="Email" value={profileData.email} />
                 <Field label="Phone Number" value={profileData.phoneNumber} />
-              </InfoCard>
-            )}
-
-            {activeTab === 'organization' && (
-              <InfoCard title="Organization Details" icon={<OrgIcon />}>
-                <Field label="Organization Name" value={profileData.organizationName} />
-                <Field label="Entity Type" value={profileData.organizationSize} />
-                <Field label="Sector" value={profileData.sector} />
-                <Field label="Business Type" value={profileData.businessType} />
-                <Field label="DPIIT Number" value={profileData.dpiitNumber} />
-                <Field label="Women Led" value={profileData.womenLed} />
-                <Field label="Display Product" value={profileData.displayProduct} />
-              </InfoCard>
-            )}
-
-            {activeTab === 'contact' && (
-              <InfoCard title="Contact Information" icon={<ContactIcon />}>
-                <Field label="Founder Name" value={profileData.founderName} />
-                <Field label="Founder WhatsApp" value={profileData.founderWhatsApp} />
-                <Field label="Representative Name" value={profileData.representativeName} />
-                <Field label="Representative Designation" value={profileData.representativeDesignation} />
-                <Field label="Representative WhatsApp" value={profileData.representativeWhatsApp} />
-              </InfoCard>
-            )}
-
-            {activeTab === 'business' && (
-              <InfoCard title="Business Information" icon={<BusinessIcon />}>
-                <Field label="PAN Number" value={profileData.panNumber} />
-                <Field label="GST Number" value={profileData.gstNumber} />
+                <Field label="Date of Birth" value={profileData.dateOfBirth} />
+                <Field label="Blood Group" value={profileData.bloodGroup} />
                 <Field label="Address" value={profileData.address} />
-                <Field label="City, State, Postal" value={profileData.cityStatePostal} />
-                <Field label="Website URL" value={profileData.websiteUrl} />
-                <div className="py-3 border-b border-gray-100">
-                  <span className="text-gray-600 font-medium">Product Description:</span>
-                  <div className="mt-2 text-gray-800 bg-gray-50 p-4 rounded-lg">
-                    {profileData.productDescription || <span className="text-gray-400 italic">Not provided</span>}
-                  </div>
-                </div>
+              </InfoCard>
+            )}
+
+            {activeTab === 'family' && (
+              <InfoCard title="Family Information" icon={<FamilyIcon />}>
+                <Field label="Father's Name" value={profileData.fatherName} />
+                <Field label="Mother's Name" value={profileData.motherName} />
+                <Field label="Guardian's Name" value={profileData.guardianName} />
+              </InfoCard>
+            )}
+
+            {activeTab === 'education' && (
+              <InfoCard title="Education Information" icon={<EducationIcon />}>
+                <Field 
+                  label="Education Level" 
+                  value={formatEducationLevel(profileData.educationLevel)} 
+                />
+                
+                {profileData.educationLevel === 'college' ? (
+                  <>
+                    <Field label="College Name" value={profileData.collegeName} />
+                    {profileData.collegeName === "Puducherry Technological University" && (
+                      <Field label="Registration Number" value={profileData.registrationNumber} />
+                    )}
+                    <Field label="Department" value={profileData.department} />
+                    <Field label="Year of Graduation" value={profileData.yearOfGraduation} />
+                  </>
+                ) : (
+                  <>
+                    <Field label="School Name" value={profileData.schoolName} />
+                    <Field label="Standard" value={profileData.standard} />
+                  </>
+                )}
               </InfoCard>
             )}
 
@@ -394,7 +390,7 @@ const ProfileShare = () => {
         
         {/* Footer */}
         <div className="text-center text-gray-500 mt-12 mb-8">
-          <p>This is a shared profile view. Some information may be limited.</p>
+          <p>This is a shared student profile view. Some information may be limited.</p>
           <p className="text-sm mt-2">© {new Date().getFullYear()} AIC-PECF. All rights reserved.</p>
         </div>
       </div>
@@ -421,4 +417,4 @@ const ProfileShare = () => {
   );
 };
 
-export default ProfileShare;
+export default StudentProfileShare;
