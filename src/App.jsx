@@ -62,6 +62,8 @@ import ForgotPassword from "./pages/ForgotPassword.jsx";
 import ResetPassword from "./pages/ResetPassword.jsx";
 import EcosystemControl from "./Admin/EcosystemControl.jsx";
 import { fetchStartups } from "./Redux/slice/startupPortfolioSlice.js";
+import InternshipRecords from "./Admin/Records/InternshipRecords.jsx";
+import InternshipRecordsData from "./Admin/Records/InternshipRecordsData.jsx";
 
 function App() {
   const [isAdmin, setIsAdmin] = useState(0);
@@ -161,6 +163,12 @@ function App() {
               path="/admin/ecosystemcontrol"
               element={<EcosystemControl />}
             />
+
+            {/* Records */}
+            <Route path="/admin/internshipRecords" element={<InternshipRecords />} />
+
+            <Route path="/admin/internshipRecordsData" element={<InternshipRecordsData />} />
+
             {isAdmin == 1 && (
               <>
                 <Route
