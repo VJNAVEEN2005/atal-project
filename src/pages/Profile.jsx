@@ -391,7 +391,7 @@ const Profile = () => {
     if (!file) return;
 
     // Size validation
-    if (file.size > 5 * 1024 * 1024) {
+    if (file.size > 2 * 1024 * 1024) {
       showNotification({
         id: "file-size-error",
         title: "File Size Error",
