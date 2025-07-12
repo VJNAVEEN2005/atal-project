@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Camera,
   Calendar,
@@ -10,8 +10,13 @@ import {
   Heart,
   Home,
   ArrowLeft,
+  Check,
+  X,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
+import api from "../../Api/api";
+import { showNotification, updateNotification } from "@mantine/notifications";
 
 const InternshipRecords = () => {
   const [formData, setFormData] = useState({
@@ -24,14 +29,50 @@ const InternshipRecords = () => {
     fatherName: "",
     bloodGroup: "",
     permanentAddress: "",
-    mobileNo: "",
+    phoneNumber: "",
     communicationAddress: "",
     emailId: "",
-    passportExpiry: "",
+    dateOfExpiry: "",
     maritalStatus: "single",
   });
-
+  const [isEdit, setIsEdit] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const [isValidUserId, setIsValidUserId] = useState(null);
+  useEffect(() => {
+    if (location.state && location.state.isEdit) {
+      setFormData(location.state.record);
+      setIsEdit(true);
+    }
+  }, []);
+
+  let debounceTimeout;
+
+  useEffect(() => {
+    // Clear previous timer if user types quickly
+    clearTimeout(debounceTimeout);
+
+    // Set null when input is empty
+    if (formData.userId === "") {
+      setIsValidUserId(null);
+      return;
+    }
+
+    // Debounce API call
+    debounceTimeout = setTimeout(() => {
+      console.log("Checking user ID:", formData.userId);
+      axios
+        .get(`${api.web}api/v1/validUserId/${formData.userId}`)
+        .then((response) => {
+          setIsValidUserId(response.data.success);
+        })
+        .catch(() => {
+          setIsValidUserId(false);
+        });
+    }, 500); // adjust delay as needed (500ms is common)
+
+    return () => clearTimeout(debounceTimeout);
+  }, [formData.userId]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -43,7 +84,97 @@ const InternshipRecords = () => {
 
   const handleSubmit = () => {
     console.log("Form submitted:", formData);
-    // Handle form submission logic here
+    if (isValidUserId === false) {
+      showNotification({
+        id: "form-error",
+        title: "Form Error",
+        message: "Please enter a valid User ID or remove it.",
+        color: "red",
+        icon: <X className="w-4 h-4" />,
+        autoClose: 3000,
+      });
+      return;
+    }
+    showNotification({
+      id: "form-submission",
+      title: "Form Submission",
+      message: "Intern profile submitting...",
+      color: "blue",
+      loading: true,
+      autoClose: false,
+    });
+
+    if (isEdit) {
+      console.log("Editing existing record");
+      axios
+        .put(`${api.web}api/v1/internship/${formData._id}`, formData, {
+          headers: {
+            token: localStorage.getItem("token"),
+          },
+        })
+        .then((response) => {
+          console.log(response);
+          updateNotification({
+            id: "form-submission",
+            title: "Form Submission",
+            message: "Intern profile updated successfully!",
+            color: "green",
+            icon: <Check className="w-4 h-4" />,
+            loading: false,
+            autoClose: 3000,
+          });
+          navigate("/admin/internshipRecordsData");
+        })
+        .catch((error) => {
+          console.error("There was an error submitting the form!", error);
+          updateNotification({
+            id: "form-submission",
+            title: "Form Submission",
+            message:
+              error.response?.data?.message ||
+              "Failed to update intern profile.",
+            color: "red",
+            icon: <X className="w-4 h-4" />,
+            loading: false,
+            autoClose: 3000,
+          });
+        });
+      return;
+    } else {
+      axios
+        .post(`${api.web}api/v1/internship`, formData, {
+          headers: {
+            token: localStorage.getItem("token"),
+          },
+        })
+        .then((response) => {
+          console.log(response);
+          updateNotification({
+            id: "form-submission",
+            title: "Form Submission",
+            message: "Intern profile submitted successfully!",
+            color: "green",
+            icon: <Check className="w-4 h-4" />,
+            loading: false,
+            autoClose: 3000,
+          });
+        })
+        .catch((error) => {
+          console.error("There was an error submitting the form!", error);
+          updateNotification({
+            id: "form-submission",
+            title: "Form Submission",
+            message:
+              error.response?.data?.message ||
+              "Failed to submit intern profile.",
+
+            color: "red",
+            icon: <X className="w-4 h-4" />,
+            loading: false,
+            autoClose: 3000,
+          });
+        });
+    }
   };
 
   const inputFocusStyle = {
@@ -86,7 +217,7 @@ const InternshipRecords = () => {
                     <input
                       type="text"
                       name="internNo"
-                      value={formData.internNo}
+                      value={formData.internNo || "AIC-PECF/INT-"}
                       onChange={handleInputChange}
                       placeholder="AIC-PECF/INT-"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none transition-all duration-200"
@@ -148,7 +279,7 @@ const InternshipRecords = () => {
                 <h2 className="text-xl font-bold" style={{ color: "#3f6197" }}>
                   PERSONAL INFORMATION
                 </h2>
-                <div className="border-2 border-gray-300 rounded-lg p-4 w-32 h-40 flex flex-col items-center justify-center bg-gray-50">
+                {/* <div className="border-2 border-gray-300 rounded-lg p-4 w-32 h-40 flex flex-col items-center justify-center bg-gray-50">
                   <Camera className="w-8 h-8 text-gray-400 mb-2" />
                   <p className="text-xs text-gray-500 text-center">
                     Affix one
@@ -157,7 +288,7 @@ const InternshipRecords = () => {
                     <br />
                     Photograph
                   </p>
-                </div>
+                </div> */}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -201,7 +332,7 @@ const InternshipRecords = () => {
                     }}
                   />
                 </div>
-                <div>
+                <div className="relative">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     <User className="inline-block w-4 h-4 mr-2" />
                     USER ID
@@ -220,6 +351,18 @@ const InternshipRecords = () => {
                       e.target.style.boxShadow = "none";
                     }}
                   />
+                  <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                    {isValidUserId === false && (
+                      <p className="text-red-500 text-xs mt-1">
+                        Invalid User ID
+                      </p>
+                    )}
+                    {isValidUserId === true && (
+                      <p className="text-green-500 text-xs mt-1">
+                        Valid User ID
+                      </p>
+                    )}
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -299,8 +442,8 @@ const InternshipRecords = () => {
                   </label>
                   <input
                     type="tel"
-                    name="mobileNo"
-                    value={formData.mobileNo}
+                    name="phoneNumber"
+                    value={formData.phoneNumber}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none transition-all duration-200"
                     onFocus={(e) =>
@@ -365,8 +508,8 @@ const InternshipRecords = () => {
                 </label>
                 <input
                   type="date"
-                  name="passportExpiry"
-                  value={formData.passportExpiry}
+                  name="dateOfExpiry"
+                  value={formData.dateOfExpiry}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none transition-all duration-200"
                   onFocus={(e) =>

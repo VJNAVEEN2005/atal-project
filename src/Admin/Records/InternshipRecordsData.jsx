@@ -12,84 +12,23 @@ import {
   Mail,
   MapPin,
   Plus,
+  X,
+  Check,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import api from "../../Api/api";
+import { showNotification, updateNotification } from "@mantine/notifications";
+import { Modal } from "@mantine/core";
+import { IoReload } from "react-icons/io5";
 
 const InternshipRecordsData = () => {
   // Sample data - replace with your actual data source
-  const [records] = useState([
-    {
-      id: 1,
-      internNo: "AIC-PECF/INT-001",
-      name: "John Doe",
-      dateOfJoining: "2024-01-15",
-      designation: "Software Developer Intern",
-      fatherName: "Robert Doe",
-      bloodGroup: "A+",
-      mobileNo: "+91 9876543210",
-      emailId: "john.doe@email.com",
-      permanentAddress: "123 Main St, City, State",
-      maritalStatus: "single",
-      status: "Active",
-    },
-    {
-      id: 2,
-      internNo: "AIC-PECF/INT-002",
-      name: "Jane Smith",
-      dateOfJoining: "2024-02-01",
-      designation: "Marketing Intern",
-      fatherName: "Michael Smith",
-      bloodGroup: "B+",
-      mobileNo: "+91 9876543211",
-      emailId: "jane.smith@email.com",
-      permanentAddress: "456 Oak Ave, City, State",
-      maritalStatus: "single",
-      status: "Active",
-    },
-    {
-      id: 3,
-      internNo: "AIC-PECF/INT-003",
-      name: "Alice Johnson",
-      dateOfJoining: "2024-01-20",
-      designation: "Data Analyst Intern",
-      fatherName: "David Johnson",
-      bloodGroup: "O+",
-      mobileNo: "+91 9876543212",
-      emailId: "alice.johnson@email.com",
-      permanentAddress: "789 Pine Rd, City, State",
-      maritalStatus: "married",
-      status: "Completed",
-    },
-    {
-      id: 4,
-      internNo: "AIC-PECF/INT-004",
-      name: "Bob Wilson",
-      dateOfJoining: "2024-02-15",
-      designation: "UI/UX Design Intern",
-      fatherName: "James Wilson",
-      bloodGroup: "AB+",
-      mobileNo: "+91 9876543213",
-      emailId: "bob.wilson@email.com",
-      permanentAddress: "321 Elm St, City, State",
-      maritalStatus: "single",
-      status: "Active",
-    },
-    {
-      id: 5,
-      internNo: "AIC-PECF/INT-005",
-      name: "Carol Brown",
-      dateOfJoining: "2024-01-10",
-      designation: "HR Intern",
-      fatherName: "William Brown",
-      bloodGroup: "A-",
-      mobileNo: "+91 9876543214",
-      emailId: "carol.brown@email.com",
-      permanentAddress: "654 Maple Dr, City, State",
-      maritalStatus: "single",
-      status: "Active",
-    },
-  ]);
-
+  const [records, setRecords] = useState([]);
+  const [isEdit, setIsEdit] = useState({
+    isEdit: false,
+    record: null,
+  });
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [selectedRecord, setSelectedRecord] = useState(null);
@@ -97,11 +36,38 @@ const InternshipRecordsData = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
+  const [isReload, setIsReload] = useState(false);
 
   const navigate = useNavigate();
 
   const searchInputRef = useRef(null);
   const suggestionsRef = useRef(null);
+
+useEffect(() => {
+  if (!isReload) return;
+
+  axios
+    .get(`${api.web}api/v1/internships`)
+    .then((response) => {
+      if (response.data.success) {
+        setRecords(response.data.data);
+      } else {
+        console.error("Failed to fetch internship records");
+      }
+    })
+    .catch((error) => {
+      console.error("Error fetching internship records:", error);
+    })
+    .finally(() => {
+      setIsReload(false); // only runs if isReload was true
+    });
+
+  console.log("Reloading records:", isReload);
+}, [isReload]);
+
+useEffect(()=>{
+  setIsReload(true);
+},[])
 
   // Generate suggestions based on search term
   useEffect(() => {
@@ -127,6 +93,16 @@ const InternshipRecordsData = () => {
             value: record.internNo,
             record: record,
             label: `${record.internNo} (Intern No)`,
+          });
+        }
+
+        // check userId
+        if (record.userId.toLowerCase().includes(searchLower)) {
+          newSuggestions.push({
+            type: "userId",
+            value: record.userId,
+            record: record,
+            label: `${record.userId} (User Id)`,
           });
         }
 
@@ -235,11 +211,77 @@ const InternshipRecordsData = () => {
     }
   };
 
+  const updateInternshipStatus = () => {
+    // Add logic to update internship status
+    const updatedStatus =
+      selectedRecord.status === "active" ? "completed" : "active";
+    setSelectedRecord({ ...selectedRecord, status: updatedStatus });
+    console.log("Updating internship status to:", selectedRecord);
+    showNotification({
+      id: "status-update",
+      title: "Status Updated",
+      message: `Internship status changing to ${updatedStatus}`,
+      color: "green",
+      loading: true,
+      autoClose: false,
+    });
+    axios
+      .put(
+        `${api.web}api/v1/internship/${selectedRecord._id}`,
+        { ...selectedRecord, status: updatedStatus },
+        {
+          headers: {
+            token: localStorage.getItem("token"),
+          },
+        }
+      )
+      .then((response) => {
+        if (response.data.success) {
+          console.log("Internship status updated successfully");
+          updateNotification({
+            id: "status-update",
+            title: "Status Updated",
+            message: `Internship status changed to ${updatedStatus}`,
+            color: "green",
+            icon: <Check className="w-4 h-4" />,
+            loading: false,
+            autoClose: 3000,
+          });
+          handleCloseDetails();
+          setIsReload(true);
+        } else {
+          updateNotification({
+            id: "status-update",
+            title: "Status Update Failed",
+            message: "Failed to update internship status",
+            color: "red",
+            loading: false,
+            icon: <X className="w-4 h-4" />,
+            autoClose: 3000,
+          });
+          console.error("Failed to update internship status");
+        }
+      })
+      .catch((error) => {
+        console.error("Error updating internship status:", error);
+        updateNotification({
+          id: "status-update",
+          title: "Status Update Failed",
+          message: error.message || "An error occurred while updating status",
+          color: "red",
+          loading: false,
+          icon: <X className="w-4 h-4" />,
+          autoClose: 3000,
+        });
+      });
+  };
+
   // Filter records based on search term and status
   const filteredRecords = records.filter((record) => {
     const matchesSearch =
       record.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       record.internNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      record.userId.toLowerCase().includes(searchTerm.toLowerCase()) ||
       record.designation.toLowerCase().includes(searchTerm.toLowerCase()) ||
       record.emailId.toLowerCase().includes(searchTerm.toLowerCase());
 
@@ -262,12 +304,65 @@ const InternshipRecordsData = () => {
 
   const handleEdit = (record) => {
     console.log("Edit record:", record);
+    navigate("/admin/internshipRecords", {
+      state: { record: record, isEdit: true },
+    });
     // Add edit functionality here
   };
 
-  const handleDelete = (record) => {
-    console.log("Delete record:", record);
-    // Add delete functionality here
+  const handleDelete = () => {
+    showNotification({
+      id: "delete-confirm",
+      title: "Delete Record",
+      message: `The Record ${isEdit.record.internNo} will be deleted`,
+      color: "blue",
+      loading: true,
+      autoClose: false,
+    });
+    console.log("Delete record:", isEdit.record);
+    axios
+      .delete(`${api.web}api/v1/internship/${isEdit.record._id}`, {
+        headers: {
+          token: localStorage.getItem("token"),
+        },
+      })
+      .then((response) => {
+        if (response.data.success) {
+          setRecords(records.filter((r) => r._id !== isEdit.record._id));
+          updateNotification({
+            id: "delete-confirm",
+            title: "Record Deleted",
+            message: `Internship record ${isEdit.record.internNo} deleted successfully`,
+            color: "green",
+            icon: <Check className="w-4 h-4" />,
+            loading: false,
+            autoClose: 3000,
+          });
+          setIsEdit({ isEdit: false, record: null });
+        } else {
+          updateNotification({
+            id: "delete-confirm",
+            title: "Delete Failed",
+            message: response.data.message || "Failed to delete record",
+            color: "red",
+            loading: false,
+            icon: <X className="w-4 h-4" />,
+            autoClose: 3000,
+          });
+        }
+      })
+      .catch((error) => {
+        console.error("Error deleting record:", error);
+        updateNotification({
+          id: "delete-confirm",
+          title: "Delete Error",
+          message: error.message || "An error occurred while deleting record",
+          color: "red",
+          loading: false,
+          icon: <X className="w-4 h-4" />,
+          autoClose: 3000,
+        });
+      });
   };
 
   const handleExport = () => {
@@ -275,6 +370,7 @@ const InternshipRecordsData = () => {
     const headers = [
       "Intern No",
       "Name",
+      "UserId",
       "Designation",
       "Date of Joining",
       "Father Name",
@@ -291,11 +387,12 @@ const InternshipRecordsData = () => {
         [
           `"${record.internNo}"`,
           `"${record.name}"`,
+          `"${record.userId}"`,
           `"${record.designation}"`,
           `"${record.dateOfJoining}"`,
           `"${record.fatherName}"`,
           `"${record.bloodGroup}"`,
-          `"${record.mobileNo}"`,
+          `"${record.phoneNumber}"`,
           `"${record.emailId}"`,
           `"${record.permanentAddress}"`,
           `"${record.maritalStatus}"`,
@@ -387,6 +484,9 @@ const InternshipRecordsData = () => {
                           {suggestion.type === "internNo" && (
                             <Search className="w-4 h-4 text-gray-400" />
                           )}
+                          {suggestion.type === "userId" && (
+                            <User className="w-4 h-4 text-gray-400" />
+                          )}
                           {suggestion.type === "designation" && (
                             <Calendar className="w-4 h-4 text-gray-400" />
                           )}
@@ -446,7 +546,6 @@ const InternshipRecordsData = () => {
                 <button
                   onClick={() => navigate("/admin/internshipRecords")}
                   className="flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-all bg-[#3f6197] duration-200 hover:shadow-lg"
-                 
                 >
                   <Plus className="w-4 h-4" />
                   Add Record
@@ -478,8 +577,20 @@ const InternshipRecordsData = () => {
             </div>
           </div>
 
-          <div className="mt-4 text-sm text-gray-600">
-            Showing {filteredRecords.length} of {records.length} records
+          <div className=" flex items-center justify-between">
+            <div className="mt-4 text-sm text-gray-600">
+              Showing {filteredRecords.length} of {records.length} records
+            </div>
+            <button
+              className="flex items-center text-sm text-white border hover:shadow-lg  p-2 rounded-lg bg-gray-100 hover:text-gray-800 transition-all mt-4"
+              onClick={() => {
+                setIsReload(true);
+               
+              }}
+            >
+              <IoReload className="w-5 h-5 text-gray-600 hover:rotate-90 transition-all" />
+              <span className="ml-1 text-sm text-gray-600">Reload</span>
+            </button>
           </div>
         </div>
 
@@ -494,6 +605,9 @@ const InternshipRecordsData = () => {
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-semibold">
                     Name
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold">
+                    UserId
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-semibold">
                     Designation
@@ -527,6 +641,9 @@ const InternshipRecordsData = () => {
                       {record.name}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-700">
+                      {record.userId}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-700">
                       {record.designation}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-700">
@@ -536,7 +653,7 @@ const InternshipRecordsData = () => {
                       <div className="space-y-1">
                         <div className="flex items-center gap-1">
                           <Phone className="w-3 h-3 text-gray-400" />
-                          <span className="text-xs">{record.mobileNo}</span>
+                          <span className="text-xs">{record.phoneNumber}</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <Mail className="w-3 h-3 text-gray-400" />
@@ -547,7 +664,7 @@ const InternshipRecordsData = () => {
                     <td className="px-6 py-4 text-sm">
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          record.status === "Active"
+                          record.status === "active"
                             ? "bg-green-100 text-green-800"
                             : "bg-blue-100 text-blue-800"
                         }`}
@@ -572,7 +689,9 @@ const InternshipRecordsData = () => {
                           <Edit className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={() => handleDelete(record)}
+                          onClick={() =>
+                            setIsEdit({ isEdit: true, record: record })
+                          }
                           className="p-1 text-red-600 hover:text-red-800 transition-colors"
                           title="Delete"
                         >
@@ -621,6 +740,10 @@ const InternshipRecordsData = () => {
                     <p>
                       <span className="font-medium">Name:</span>{" "}
                       {selectedRecord.name}
+                    </p>
+                    <p>
+                      <span className="font-medium">UserId:</span>{" "}
+                      {selectedRecord.userId}
                     </p>
                     <p>
                       <span className="font-medium">Father's Name:</span>{" "}
@@ -679,7 +802,7 @@ const InternshipRecordsData = () => {
                   <div className="space-y-2 text-sm">
                     <p>
                       <span className="font-medium">Mobile:</span>{" "}
-                      {selectedRecord.mobileNo}
+                      {selectedRecord.phoneNumber}
                     </p>
                     <p>
                       <span className="font-medium">Email:</span>{" "}
@@ -732,10 +855,61 @@ const InternshipRecordsData = () => {
               >
                 Edit Record
               </button>
+              <button
+                onClick={updateInternshipStatus}
+                className={`px-4 py-2 rounded-lg text-white transition-all duration-200 ${
+                  selectedRecord.status === "active"
+                    ? "bg-green-400 hover:bg-green-500"
+                    : "bg-blue-400 hover:bg-blue-500"
+                }`}
+              >
+                {selectedRecord.status}
+              </button>
             </div>
           </div>
         </div>
       )}
+      {/* Modal for deleting popup */}
+      <Modal
+        opened={isEdit.isEdit}
+        onClose={() =>
+          setIsEdit({
+            ...isEdit,
+            isEdit: false,
+          })
+        }
+        title="Delete Record"
+        centered
+      >
+        <div className="bg-white p-6 rounded-lg shadow-lg max-w-md mx-auto">
+          <h2 className="text-xl font-semibold mb-4">Delete Record</h2>
+          <p className="text-gray-700 mb-6">
+            Are you sure you want to delete this record? This action cannot be
+            undone.
+          </p>
+          <div className="flex justify-end gap-3">
+            <button
+              onClick={() =>
+                setIsEdit({
+                  ...isEdit,
+                  isEdit: false,
+                })
+              }
+              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => {
+                handleDelete();
+              }}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };
