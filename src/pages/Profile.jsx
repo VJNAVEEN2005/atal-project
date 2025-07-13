@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { IconCapRounded, IconFaceMaskFilled } from "@tabler/icons-react";
 import { Check, ContactRound, GraduationCap, Phone, Scale, X } from "lucide-react";
 import { showNotification, updateNotification } from "@mantine/notifications";
+import TeamProfile from "../components/Profile/TeamProfile";
 
 // Component for displaying information in view mode with improved styling
 const Field = ({ label, value }) => (
