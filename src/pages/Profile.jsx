@@ -1087,6 +1087,7 @@ const Profile = () => {
                     {profileData.sector ||
                       profileData.department ||
                       profileData.standard ||
+                      profileData.domain ||
                       ""}
                   </div>
                   <div

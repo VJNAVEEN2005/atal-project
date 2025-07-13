@@ -64,6 +64,8 @@ import EcosystemControl from "./Admin/EcosystemControl.jsx";
 import { fetchStartups } from "./Redux/slice/startupPortfolioSlice.js";
 import InternshipRecords from "./Admin/Records/InternshipRecords.jsx";
 import InternshipRecordsData from "./Admin/Records/InternshipRecordsData.jsx";
+import TeamsSignUp from "./Admin/TeamsSignUp.jsx";
+import TeamsSignUpControl from "./Admin/TeamsSignUpControl.jsx";
 
 function App() {
   const [isAdmin, setIsAdmin] = useState(0);
@@ -162,6 +164,11 @@ function App() {
             <Route
               path="/admin/ecosystemcontrol"
               element={<EcosystemControl />}
+            />
+            <Route path="/admin/teamsSignUp" element={<TeamsSignUp />} />
+            <Route
+              path="/admin/teamsSignUpControl"
+              element={<TeamsSignUpControl />}
             />
 
             {/* Records */}
