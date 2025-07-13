@@ -66,6 +66,7 @@ import InternshipRecords from "./Admin/Records/InternshipRecords.jsx";
 import InternshipRecordsData from "./Admin/Records/InternshipRecordsData.jsx";
 import TeamsSignUp from "./Admin/TeamsSignUp.jsx";
 import TeamsSignUpControl from "./Admin/TeamsSignUpControl.jsx";
+import TeamProfile from "./components/Profile/TeamProfile.jsx";
 
 function App() {
   const [isAdmin, setIsAdmin] = useState(0);
@@ -131,6 +132,7 @@ function App() {
         <Route path="/reset-password/:token" element={<ResetPassword />} />
 
         <Route path="/profile" element={<Profile />} />
+        <Route path="/teamProfile" element={<TeamProfile />} />
         <Route path="/profile/:id" element={<ProfileShare />} />
 
         {isAdmin > 0 && (
