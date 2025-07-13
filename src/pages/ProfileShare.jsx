@@ -257,7 +257,7 @@ const StudentProfileShare = () => {
     switch(level) {
       case 'college': return 'College';
       case 'school': return 'School';
-      default: return level || 'Not specified';
+      default: return level || profileData?.domain || 'Not specified';
     }
   };
 
@@ -304,7 +304,7 @@ const StudentProfileShare = () => {
                       : profileData.schoolName}
                   </p>
                   <div className="mt-3 inline-flex bg-white bg-opacity-20 px-3 py-1 rounded-full text-sm">
-                    {formatEducationLevel(profileData.educationLevel)}
+                    {formatEducationLevel(profileData.educationLevel) }
                   </div>
                 </div>
               </div>
