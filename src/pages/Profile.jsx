@@ -7,7 +7,14 @@ import "react-loading-skeleton/dist/skeleton.css";
 import { fetchUser } from "../Redux/slice/userSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { IconCapRounded, IconFaceMaskFilled } from "@tabler/icons-react";
-import { Check, ContactRound, GraduationCap, Phone, Scale, X } from "lucide-react";
+import {
+  Check,
+  ContactRound,
+  GraduationCap,
+  Phone,
+  Scale,
+  X,
+} from "lucide-react";
 import { showNotification, updateNotification } from "@mantine/notifications";
 import TeamProfile from "../components/Profile/TeamProfile";
 
@@ -335,10 +342,12 @@ const Profile = () => {
   useEffect(() => {
     if (state.user.user) {
       setProfileData(state.user.user.user);
-      if (state.user.user.user.profilePhoto){
-        setPhotoUrl(`${api.web}api/v1/profileImage/${state.user.user.user._id}`);
+      if (state.user.user.user.profilePhoto) {
+        setPhotoUrl(
+          `${api.web}api/v1/profileImage/${state.user.user.user._id}`
+        );
       }
-      
+
       setIsLoading(false);
     } else {
       setIsLoading(true);
@@ -873,7 +882,7 @@ const Profile = () => {
               >
                 <OrgIcon /> <span className="ml-2">Organization</span>
               </button>
-               <button
+              <button
                 onClick={() => setActiveTab("contact")}
                 className={`px-4 py-3 font-medium flex items-center transition-colors duration-200 ${
                   activeTab === "contact"
@@ -893,7 +902,6 @@ const Profile = () => {
               >
                 <BusinessIcon /> <span className="ml-2">Business</span>
               </button>
-             
             </>
           )}
         </div>
@@ -1069,9 +1077,7 @@ const Profile = () => {
                     <h2 className="text-3xl font-bold">
                       {profileData.name || "Your Name"}
                     </h2>
-                    <h2 className="text-2xl font-bold text-blue-100">
-                      {"|"}
-                    </h2>
+                    <h2 className="text-2xl font-bold text-blue-100">{"|"}</h2>
                     <h3 className="text-lg font-semibold text-blue-100">
                       {profileData.userId || "Your Id"}
                     </h3>
@@ -1116,10 +1122,14 @@ const Profile = () => {
             </div>
 
             {/* Profile Completion Stats */}
-            <ProfileStats profileData={profileData} />
+            {profileData.domain !== "Team Member" && (
+              <ProfileStats profileData={profileData} />
+            )}
 
             {/* Tab Navigation */}
-            <TabNav isEditing={isEditing} profileData={profileData} />
+            {profileData.domain !== "Team Member" && (
+              <TabNav isEditing={isEditing} profileData={profileData} />
+            )}
 
             {/* Content Based on Active Tab */}
             {activeTab === "personal" && (
@@ -1135,6 +1145,30 @@ const Profile = () => {
                     />
                     <Field label="Blood Group" value={profileData.bloodGroup} />
                     <Field label="Address" value={profileData.address} />
+                  </>
+                )}
+                {profileData.domain === "Team Member" && (
+                  <>
+                    <Field
+                      label="Date of Birth"
+                      value={profileData.dateOfBirth}
+                    />
+                    <Field label="Domain" value={profileData.domain} />
+                    <Field label={"Role"} value={profileData.role} />
+                    <Field label="Address" value={profileData.address} />
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2 py-3 border-b border-gray-100 hover:bg-blue-50 transition-colors duration-200 rounded-md px-2">
+                      <span className="text-gray-600 font-medium">
+                        {"LinkedIn"}:
+                      </span>
+                      <a
+                        href={profileData.linkedin}
+                        target="_blank"
+                        className="md:col-span-2 text-[#3f6197] font-bold hover:underline"
+                      >
+                        {"Link"}
+                      </a>
+                    </div>
                   </>
                 )}
               </InfoCard>
@@ -1459,6 +1493,49 @@ const Profile = () => {
                           label="Address"
                           name="address"
                           value={profileData.address}
+                          required
+                          onChange={handleChange}
+                        />
+                      </>
+                    )}
+                    {profileData.domain === "Team Member" && (
+                      <>
+                        <InputField
+                          label="Date of Birth"
+                          name="dateOfBirth"
+                          value={profileData.dateOfBirth}
+                          type="date"
+                          required
+                          onChange={handleChange}
+                        />
+
+                        <InputField
+                          label="Domain"
+                          name="domain"
+                          value={profileData.domain}
+                          disabled={true}
+                          required
+                          onChange={handleChange}
+                        />
+                        <InputField
+                          label="Role"
+                          name="role"
+                          value={profileData.role}
+                          required
+                          onChange={handleChange}
+                        />
+                        <InputField
+                          label="Address"
+                          name="address"
+                          value={profileData.address}
+                          required
+                          onChange={handleChange}
+                        />
+                        <InputField
+                          label="LinkedIn Profile"
+                          name="linkedin"
+                          value={profileData.linkedin}
+                          type="url"
                           required
                           onChange={handleChange}
                         />
