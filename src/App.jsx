@@ -67,6 +67,8 @@ import InternshipRecordsData from "./Admin/Records/InternshipRecordsData.jsx";
 import TeamsSignUp from "./Admin/TeamsSignUp.jsx";
 import TeamsSignUpControl from "./Admin/TeamsSignUpControl.jsx";
 import TeamProfile from "./components/Profile/TeamProfile.jsx";
+import CreateStocks from "./Admin/Records/CreateStocks.jsx";
+import StocksData from "./Admin/Records/StocksData.jsx";
 
 function App() {
   const [isAdmin, setIsAdmin] = useState(0);
@@ -177,6 +179,11 @@ function App() {
             <Route path="/admin/internshipRecords" element={<InternshipRecords />} />
 
             <Route path="/admin/internshipRecordsData" element={<InternshipRecordsData />} />
+
+            {/* Stocks */}
+            <Route path="/admin/createStocks" element={<CreateStocks />} />
+
+            <Route path="/admin/stocksData" element={<StocksData />} />
 
             {isAdmin == 1 && (
               <>
