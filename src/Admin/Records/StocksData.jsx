@@ -16,6 +16,7 @@ import {
 import axios from "axios";
 import api from "../../Api/api";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const StocksData = () => {
   const [stocks, setStocks] = useState([]);
@@ -33,7 +34,7 @@ const StocksData = () => {
     { value: "Stationry Items", label: "Stationry Items", icon: Archive },
     { value: "Food Inventory", label: "Food Inventory", icon: Utensils },
   ];
-
+  const state = useSelector((state) => state);
   // Fetch stocks data
   const fetchStocks = async () => {
     try {
@@ -350,11 +351,32 @@ const StocksData = () => {
 
                     {/* Action Buttons */}
                     <div className="flex gap-2">
-                      <button className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-[#3f6197] to-[#5a7fb8] text-white rounded-lg hover:from-[#2d4a7a] hover:to-[#4a6ea6] transition-all duration-300">
+                      <button
+                        onClick={() =>
+                          navigate(`/admin/viewStocksUpdateRecords`, {
+                            state: {
+                              stockId: stock.stockId,
+                              
+                            },
+                          })
+                        }
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-[#3f6197] to-[#5a7fb8] text-white rounded-lg hover:from-[#2d4a7a] hover:to-[#4a6ea6] transition-all duration-300"
+                      >
                         <Eye className="w-4 h-4" />
                         <span>View</span>
                       </button>
-                      <button className="flex items-center justify-center p-2 border-2 border-gray-300 rounded-lg hover:border-[#3f6197] hover:text-[#3f6197] transition-all duration-300">
+                      <button
+                        onClick={() => {
+                          navigate(`/admin/updatestocks`, {
+                            state: {
+                              stockId: stock.stockId,
+                              userId: state.user.user.user.userId,
+                              userName: state.user.user.user.name,
+                            },
+                          });
+                        }}
+                        className="flex items-center justify-center p-2 border-2 border-gray-300 rounded-lg hover:border-[#3f6197] hover:text-[#3f6197] transition-all duration-300"
+                      >
                         <Edit className="w-4 h-4" />
                       </button>
                       <button
