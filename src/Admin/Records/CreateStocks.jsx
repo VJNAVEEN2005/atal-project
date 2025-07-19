@@ -1,8 +1,20 @@
 import React, { useState } from "react";
-import { Upload, Package, Save, X, Zap, Archive, Utensils, ArrowLeft } from "lucide-react";
+import {
+  Upload,
+  Package,
+  Save,
+  X,
+  Zap,
+  Archive,
+  Utensils,
+  ArrowLeft,
+  CheckCircle,
+  AlertCircle,
+} from "lucide-react";
 import axios from "axios";
 import api from "../../Api/api";
 import { useNavigate } from "react-router-dom";
+import { showNotification, updateNotification } from "@mantine/notifications";
 
 const CreateStocks = () => {
   const navigate = useNavigate();
@@ -116,46 +128,70 @@ const CreateStocks = () => {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  
-  if (!validateForm()) return;
+    e.preventDefault();
 
-  setIsSubmitting(true);
+    if (!validateForm()) return;
 
-  try {
-    const formDataToSend = new FormData();
-    formDataToSend.append('stockId', formData.stockId);
-    formDataToSend.append('stockName', formData.stockName);
-    formDataToSend.append('stockType', formData.stockType);
-    formDataToSend.append('count', '0');
-    if (formData.stockImage) {
-      formDataToSend.append('stockImage', formData.stockImage);
-    }
+    setIsSubmitting(true);
 
-    await axios.post(`${api.web}api/v1/stock`, formDataToSend, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        token: localStorage.getItem("token")
+    showNotification({
+      id: "create-stock",
+      loading: true,
+      title: "Creating Stock",
+      message: "Please wait while we create the stock...",
+      autoClose: false,
+      color: "blue",
+    });
+
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("stockId", formData.stockId);
+      formDataToSend.append("stockName", formData.stockName);
+      formDataToSend.append("stockType", formData.stockType);
+      formDataToSend.append("count", "0");
+      if (formData.stockImage) {
+        formDataToSend.append("stockImage", formData.stockImage);
       }
-    });
 
-    // Reset form
-    setFormData({
-      stockId: "AICPECF",
-      stockName: "",
-      stockImage: null,
-      stockType: "Electronic",
-    });
-    setPreviewImage(null);
-    
-    alert("Stock created successfully!");
-  } catch (error) {
-    console.error("Error creating stock:", error);
-    alert("Failed to create stock. Please try again.");
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+      await axios.post(`${api.web}api/v1/stock`, formDataToSend, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          token: localStorage.getItem("token"),
+        },
+      });
+
+      // Reset form
+      setFormData({
+        stockId: "AICPECF",
+        stockName: "",
+        stockImage: null,
+        stockType: "Electronic",
+      });
+      setPreviewImage(null);
+      updateNotification({
+        id: "create-stock",
+        title: "Stock Created",
+        message: "The stock has been created successfully.",
+        autoClose: 5000,
+        color: "green",
+        icon: <CheckCircle className="w-5 h-5" />,
+        loading: false,
+      });
+    } catch (error) {
+      console.error("Error creating stock:", error);
+      updateNotification({
+        id: "create-stock",
+        title: "Creation Failed",
+        message: `There was an error creating the stock. Error: ${error.response.data.message}`,
+        autoClose: 5000,
+        color: "red",
+        icon: <AlertCircle className="w-5 h-5" />,
+        loading: false,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white py-8 px-4">
