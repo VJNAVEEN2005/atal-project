@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import { Upload, Package, Save, X, Zap, Archive, Utensils } from "lucide-react";
+import { Upload, Package, Save, X, Zap, Archive, Utensils, ArrowLeft } from "lucide-react";
 import axios from "axios";
 import api from "../../Api/api";
+import { useNavigate } from "react-router-dom";
 
 const CreateStocks = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     stockId: "AICPECF",
     stockName: "",
@@ -156,12 +158,22 @@ const CreateStocks = () => {
 };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-8 px-4">
+    <div className="min-h-screen bg-white py-8 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Header with animated background */}
         <div className="text-center mb-12 relative">
           <div className="absolute inset-0 bg-gradient-to-r from-[#3f6197]/10 to-[#5a7fb8]/10 rounded-3xl blur-3xl"></div>
           <div className="relative">
+            {/* Back Button */}
+            <div className="flex justify-start mb-6">
+              <button
+                onClick={() => navigate(-1)}
+                className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl hover:border-[#3f6197] hover:text-[#3f6197] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              >
+                <ArrowLeft className="w-5 h-5" />
+                <span>Back</span>
+              </button>
+            </div>
             <div className="flex justify-center mb-6">
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-[#3f6197] to-[#5a7fb8] rounded-full blur-lg opacity-60 animate-pulse"></div>

@@ -5,8 +5,9 @@ import {
   DollarSign,
   AlertCircle,
   CheckCircle,
+  ArrowLeft,
 } from "lucide-react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { FaRupeeSign } from "react-icons/fa";
 import axios from "axios";
 import { showNotification, updateNotification } from "@mantine/notifications";
@@ -16,6 +17,7 @@ const UpdateStocks = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
   const location = useLocation();
+  const navigate = useNavigate();
   const { stockId, userId, userName } = location.state || {};
   const [formData, setFormData] = useState({
     stockId: stockId || "",
@@ -32,6 +34,11 @@ const UpdateStocks = () => {
       [name]: value,
     }));
   };
+
+  // on loading move to the top
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [loading]);
 
   const handleSubmit = async () => {
     if (!formData.stockId || !formData.countChanged || !formData.userId) {
@@ -117,6 +124,17 @@ const UpdateStocks = () => {
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-2xl mx-auto">
         <div className="bg-white rounded-lg shadow-lg p-6">
+          {/* Back Button */}
+          <div className="mb-6">
+            <button
+              onClick={() => navigate(-1)}
+              className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-[#3f6197] hover:bg-gray-50 rounded-lg transition-all duration-300 border border-gray-200 hover:border-[#3f6197]"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              <span>Back</span>
+            </button>
+          </div>
+
           <div className="flex items-center mb-6">
             <Package className="h-8 w-8 mr-3" style={{ color: "#3f6197" }} />
             <h1 className="text-2xl font-bold text-gray-900">Update Stock</h1>

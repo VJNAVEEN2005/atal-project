@@ -12,7 +12,9 @@ import {
   AlertCircle,
   RefreshCw,
   Plus,
+  ArrowLeft,
 } from "lucide-react";
+import { Modal, Button, Text, Group, Box } from '@mantine/core';
 import axios from "axios";
 import api from "../../Api/api";
 import { useNavigate } from "react-router-dom";
@@ -27,6 +29,12 @@ const StocksData = () => {
   const [selectedType, setSelectedType] = useState("All");
   const [sortBy, setSortBy] = useState("stockName");
   const [sortOrder, setSortOrder] = useState("asc");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
+  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [stockToDelete, setStockToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const navigate = useNavigate();
   const stockTypes = [
     { value: "All", label: "All Types", icon: Package },
@@ -35,6 +43,7 @@ const StocksData = () => {
     { value: "Food Inventory", label: "Food Inventory", icon: Utensils },
   ];
   const state = useSelector((state) => state);
+  
   // Fetch stocks data
   const fetchStocks = async () => {
     try {
@@ -56,6 +65,108 @@ const StocksData = () => {
       setLoading(false);
     }
   };
+
+  // Generate search suggestions
+  const generateSuggestions = (query) => {
+    if (!query.trim()) {
+      setSuggestions([]);
+      return;
+    }
+
+    const queryLower = query.toLowerCase();
+    const stockSuggestions = [];
+    
+    // Get unique stock names and IDs that match the query
+    const uniqueSuggestions = new Set();
+    
+    stocks.forEach((stock) => {
+      if (stock.stockName.toLowerCase().includes(queryLower)) {
+        uniqueSuggestions.add(stock.stockName);
+      }
+      if (stock.stockId.toLowerCase().includes(queryLower)) {
+        uniqueSuggestions.add(stock.stockId);
+      }
+    });
+
+    // Convert to array and limit to 5 suggestions
+    const suggestionsArray = Array.from(uniqueSuggestions).slice(0, 5);
+    setSuggestions(suggestionsArray);
+  };
+
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    generateSuggestions(value);
+    setShowSuggestions(true);
+    setSelectedSuggestionIndex(-1); // Reset selection when typing
+  };
+
+  // Handle suggestion click
+  const handleSuggestionClick = (suggestion) => {
+    setSearchTerm(suggestion);
+    setShowSuggestions(false);
+    setSuggestions([]);
+    setSelectedSuggestionIndex(-1);
+  };
+
+  // Handle keyboard navigation
+  const handleKeyDown = (e) => {
+    if (!showSuggestions || suggestions.length === 0) return;
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setSelectedSuggestionIndex(prev => 
+          prev < suggestions.length - 1 ? prev + 1 : 0
+        );
+        break;
+      
+      case 'ArrowUp':
+        e.preventDefault();
+        setSelectedSuggestionIndex(prev => 
+          prev > 0 ? prev - 1 : suggestions.length - 1
+        );
+        break;
+      
+      case 'Enter':
+        e.preventDefault();
+        if (selectedSuggestionIndex >= 0 && selectedSuggestionIndex < suggestions.length) {
+          handleSuggestionClick(suggestions[selectedSuggestionIndex]);
+        }
+        break;
+      
+      case 'Escape':
+        setShowSuggestions(false);
+        setSelectedSuggestionIndex(-1);
+        break;
+      
+      default:
+        break;
+    }
+  };
+
+  // Handle search input focus
+  const handleSearchFocus = () => {
+    if (searchTerm) {
+      generateSuggestions(searchTerm);
+      setShowSuggestions(true);
+    }
+  };
+
+  // Handle search input blur
+  const handleSearchBlur = () => {
+    // Delay hiding suggestions to allow clicking on them
+    setTimeout(() => {
+      setShowSuggestions(false);
+      setSelectedSuggestionIndex(-1);
+    }, 200);
+  };
+
+  // on loading move to the top
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [loading]);
 
   // Filter and sort stocks
   useEffect(() => {
@@ -108,27 +219,46 @@ const StocksData = () => {
 
   // Handle delete stock
   const handleDeleteStock = async (stockId) => {
-    if (window.confirm("Are you sure you want to delete this stock?")) {
-      try {
-        await axios.delete(`${api.web}api/v1/stock/${stockId}`, {
-          headers: {
-            token: localStorage.getItem("token"),
-          },
-        });
+    const stock = stocks.find(s => s._id === stockId);
+    setStockToDelete(stock);
+    setDeleteModalOpen(true);
+  };
 
-        // Refresh the stocks list
-        fetchStocks();
-        alert("Stock deleted successfully!");
-      } catch (err) {
-        console.error("Error deleting stock:", err);
-        alert("Failed to delete stock. Please try again.");
-      }
+  // Confirm delete stock
+  const confirmDeleteStock = async () => {
+    if (!stockToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      await axios.delete(`${api.web}api/v1/stock/${stockToDelete._id}`, {
+        headers: {
+          token: localStorage.getItem("token"),
+        },
+      });
+
+      // Refresh the stocks list
+      fetchStocks();
+      setDeleteModalOpen(false);
+      setStockToDelete(null);
+      // You can add a success notification here if needed
+    } catch (err) {
+      console.error("Error deleting stock:", err);
+      alert("Failed to delete stock. Please try again.");
+    } finally {
+      setIsDeleting(false);
     }
+  };
+
+  // Cancel delete
+  const cancelDelete = () => {
+    setDeleteModalOpen(false);
+    setStockToDelete(null);
+    setIsDeleting(false);
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-8 px-4">
+      <div className="min-h-screen bg-white py-8 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="text-center">
@@ -142,12 +272,22 @@ const StocksData = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-8 px-4">
+    <div className="min-h-screen bg-white py-8 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12 relative">
           <div className="absolute inset-0 bg-gradient-to-r from-[#3f6197]/10 to-[#5a7fb8]/10 rounded-3xl blur-3xl"></div>
           <div className="relative">
+            {/* Back Button */}
+            <div className="flex justify-start mb-6">
+              <button
+                onClick={() => navigate(-1)}
+                className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl hover:border-[#3f6197] hover:text-[#3f6197] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              >
+                <ArrowLeft className="w-5 h-5" />
+                <span>Back</span>
+              </button>
+            </div>
             <div className="flex justify-center mb-6">
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-[#3f6197] to-[#5a7fb8] rounded-full blur-lg opacity-60 animate-pulse"></div>
@@ -166,18 +306,71 @@ const StocksData = () => {
         </div>
 
         {/* Controls */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 mb-8 p-6">
+        <div className="bg-gray-50 rounded-3xl shadow-2xl border border-gray-200 mb-8 p-6">
           <div className="flex flex-col lg:flex-row gap-6 items-center justify-between">
             {/* Search */}
             <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 z-[11]" />
               <input
                 type="text"
-                placeholder="Search stocks..."
+                placeholder="Try searching by stock name, ID, or type"
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl bg-white/50 backdrop-blur-sm focus:ring-4 focus:ring-[#3f6197]/30 focus:border-[#3f6197] transition-all duration-300"
+                onChange={handleSearchChange}
+                onFocus={handleSearchFocus}
+                onBlur={handleSearchBlur}
+                onKeyDown={handleKeyDown}
+                className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl bg-white focus:ring-4 focus:ring-[#3f6197]/30 focus:border-[#3f6197] transition-all duration-300 relative z-10"
+                autoComplete="off"
               />
+              
+              {/* Search Suggestions Dropdown */}
+              {showSuggestions && suggestions.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white border-2 border-gray-200 rounded-xl shadow-xl z-20 max-h-60 overflow-y-auto">
+                  <div className="py-2">
+                    <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100">
+                      Suggestions
+                    </div>
+                    {suggestions.map((suggestion, index) => (
+                      <button
+                        key={index}
+                        onClick={() => handleSuggestionClick(suggestion)}
+                        className={`w-full px-4 py-3 text-left transition-all duration-200 flex items-center gap-3 group ${
+                          index === selectedSuggestionIndex 
+                            ? 'bg-[#3f6197]/10 text-[#3f6197] border-r-4 border-[#3f6197]' 
+                            : 'hover:bg-[#3f6197]/5 hover:text-[#3f6197]'
+                        }`}
+                      >
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 ${
+                          index === selectedSuggestionIndex
+                            ? 'bg-gradient-to-r from-[#3f6197]/20 to-[#5a7fb8]/20'
+                            : 'bg-gradient-to-r from-[#3f6197]/10 to-[#5a7fb8]/10 group-hover:from-[#3f6197]/20 group-hover:to-[#5a7fb8]/20'
+                        }`}>
+                          <Search className="w-4 h-4 text-[#3f6197]" />
+                        </div>
+                        <div className="flex-1">
+                          <div className={`text-sm font-medium transition-colors duration-200 ${
+                            index === selectedSuggestionIndex 
+                              ? 'text-[#3f6197]' 
+                              : 'text-gray-800 group-hover:text-[#3f6197]'
+                          }`}>
+                            {suggestion}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {stocks.find(s => s.stockName === suggestion || s.stockId === suggestion)?.stockType || 'Stock Item'}
+                          </div>
+                        </div>
+                        <div className={`transition-opacity duration-200 ${
+                          index === selectedSuggestionIndex ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                        }`}>
+                          <div className="w-2 h-2 bg-[#3f6197] rounded-full"></div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+            
             </div>
 
             {/* Filter by Type */}
@@ -186,7 +379,7 @@ const StocksData = () => {
               <select
                 value={selectedType}
                 onChange={(e) => setSelectedType(e.target.value)}
-                className="px-4 py-3 border-2 border-gray-200 rounded-xl bg-white/50 backdrop-blur-sm focus:ring-4 focus:ring-[#3f6197]/30 focus:border-[#3f6197] transition-all duration-300"
+                className="px-4 py-3 border-2 border-gray-200 rounded-xl bg-white focus:ring-4 focus:ring-[#3f6197]/30 focus:border-[#3f6197] transition-all duration-300"
               >
                 {stockTypes.map((type) => (
                   <option key={type.value} value={type.value}>
@@ -202,7 +395,7 @@ const StocksData = () => {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="px-4 py-3 border-2 border-gray-200 rounded-xl bg-white/50 backdrop-blur-sm focus:ring-4 focus:ring-[#3f6197]/30 focus:border-[#3f6197] transition-all duration-300"
+                className="px-4 py-3 border-2 border-gray-200 rounded-xl bg-white focus:ring-4 focus:ring-[#3f6197]/30 focus:border-[#3f6197] transition-all duration-300"
               >
                 <option value="stockName">Name</option>
                 <option value="stockId">ID</option>
@@ -252,7 +445,7 @@ const StocksData = () => {
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20">
+          <div className="bg-gray-50 rounded-2xl p-6 shadow-lg border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-600 text-sm">Total Items</p>
@@ -272,7 +465,7 @@ const StocksData = () => {
             return (
               <div
                 key={type.value}
-                className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20"
+                className="bg-gray-50 rounded-2xl p-6 shadow-lg border border-gray-200"
               >
                 <div className="flex items-center justify-between">
                   <div>
@@ -288,7 +481,7 @@ const StocksData = () => {
 
         {/* Stocks Grid */}
         {filteredStocks.length === 0 ? (
-          <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 p-12 text-center">
+          <div className="bg-gray-50 rounded-3xl shadow-2xl border border-gray-200 p-12 text-center">
             <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-600 mb-2">
               No Stocks Found
@@ -306,7 +499,7 @@ const StocksData = () => {
               return (
                 <div
                   key={stock.stockId}
-                  className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                  className="bg-gray-50 rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
                 >
                   {/* Stock Image */}
                   <div className="relative h-48 bg-gradient-to-br from-gray-100 to-gray-200">
@@ -344,7 +537,7 @@ const StocksData = () => {
                       <h3 className="text-lg font-semibold text-gray-800 mb-1 truncate">
                         {stock.stockName}
                       </h3>
-                      <p className="text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded inline-block">
+                      <p className="text-sm text-gray-600 bg-gray-200 px-2 py-1 rounded inline-block">
                         ID: {stock.stockId}
                       </p>
                     </div>
@@ -380,7 +573,7 @@ const StocksData = () => {
                         <Edit className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => handleDeleteStock(stock.stockId)}
+                        onClick={() => handleDeleteStock(stock._id)}
                         className="flex items-center justify-center p-2 border-2 border-red-300 text-red-500 rounded-lg hover:bg-red-50 hover:border-red-500 transition-all duration-300"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -392,6 +585,105 @@ const StocksData = () => {
             })}
           </div>
         )}
+
+        {/* Delete Confirmation Modal */}
+        <Modal
+          opened={deleteModalOpen}
+          onClose={cancelDelete}
+          title={
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                <Trash2 className="w-4 h-4 text-red-600" />
+              </div>
+              <Text size="lg" fw={600} c="red">
+                Delete Stock Item
+              </Text>
+            </div>
+          }
+          centered
+          size="md"
+          radius="lg"
+          overlayProps={{
+            backgroundOpacity: 0.55,
+            blur: 3,
+          }}
+          styles={{
+            modal: {
+              padding: '1.5rem',
+            },
+            header: {
+              paddingBottom: '1rem',
+            },
+            body: {
+              paddingTop: 0,
+            }
+          }}
+        >
+          {stockToDelete && (
+            <Box>
+              <div className="mb-6">
+                <Text size="md" c="dimmed" mb="xs">
+                  You are about to permanently delete this stock item:
+                </Text>
+                <div className="bg-red-50 border border-red-200 rounded-xl p-4 mt-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                      <Package className="w-6 h-6 text-red-600" />
+                    </div>
+                    <div className="flex-1">
+                      <Text fw={600} size="sm" c="red.8">
+                        {stockToDelete.stockName}
+                      </Text>
+                      <Text size="xs" c="red.6">
+                        ID: {stockToDelete.stockId} • Type: {stockToDelete.stockType}
+                      </Text>
+                      <Text size="xs" c="red.6">
+                        Count: {stockToDelete.count || 0}
+                      </Text>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <Text size="sm" fw={500} c="yellow.8" mb="xs">
+                      Warning: This action cannot be undone
+                    </Text>
+                    <Text size="xs" c="yellow.7">
+                      All data associated with this stock item will be permanently removed from the system.
+                    </Text>
+                  </div>
+                </div>
+              </div>
+
+              <Group justify="flex-end" gap="sm">
+                <Button
+                  variant="outline"
+                  color="gray"
+                  onClick={cancelDelete}
+                  disabled={isDeleting}
+                  radius="lg"
+                  size="md"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  color="red"
+                  onClick={confirmDeleteStock}
+                  loading={isDeleting}
+                  radius="lg"
+                  size="md"
+                  leftSection={<Trash2 size={16} />}
+                >
+                  {isDeleting ? 'Deleting...' : 'Delete Stock'}
+                </Button>
+              </Group>
+            </Box>
+          )}
+        </Modal>
       </div>
     </div>
   );

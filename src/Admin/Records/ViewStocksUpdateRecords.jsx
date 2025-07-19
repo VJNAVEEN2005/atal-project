@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Calendar, User, TrendingUp, TrendingDown, Package, RefreshCw, AlertCircle, ArrowLeft, BarChart3 } from 'lucide-react';
 import api from '../../Api/api';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const ViewStocksUpdateRecords = () => {
@@ -17,12 +17,17 @@ const ViewStocksUpdateRecords = () => {
   // Get stockId from URL params or props
   const location = useLocation();
   const { stockId } = location.state || {};
-
+  const navigate = useNavigate();
   useEffect(() => {
     if (stockId) {
       fetchStockUpdateRecords(stockId);
     }
   }, [stockId]);
+
+  // while loading move to the top
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [loading]);
 
   const fetchStockUpdateRecords = async (stockId) => {
     setLoading(true);
@@ -157,7 +162,7 @@ const ViewStocksUpdateRecords = () => {
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'INR',
       minimumFractionDigits: 2
     }).format(amount || 0);
   };
@@ -196,13 +201,17 @@ const ViewStocksUpdateRecords = () => {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center mb-4">
-            <button className="mr-4 p-2 rounded-lg hover:bg-gray-200">
+            <button onClick={()=>{
+              navigate(-1);
+            }} className="mr-4 p-2 rounded-lg hover:bg-gray-200">
               <ArrowLeft className="h-5 w-5 text-gray-600" />
             </button>
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Stock Update Records</h1>
-              <p className="text-gray-600">
-                {stockDetail ? `${stockDetail.name} (${stockDetail.symbol})` : 'Loading...'}
+              <p className="text-gray-600" onClick={()=>{
+                console.log('Stock Name:', stockDetail);
+              }}>
+                {stockDetail ? `${stockDetail.stockName} (${stockDetail.stockType})` : 'Loading...'}
               </p>
             </div>
           </div>
@@ -215,7 +224,7 @@ const ViewStocksUpdateRecords = () => {
               <div className="flex-shrink-0 mr-4">
                 {stockDetail.stockImage ? (
                   <img 
-                    src={`data:${stockDetail.stockImage.contentType};base64,${stockDetail.stockImage.data}`}
+                    src={`${api.web}api/v1/stock/${stockDetail._id}/image`}
                     alt={stockDetail.stockName}
                     className="h-16 w-16 rounded-lg object-cover"
                   />
