@@ -67,6 +67,11 @@ import InternshipRecordsData from "./Admin/Records/InternshipRecordsData.jsx";
 import TeamsSignUp from "./Admin/TeamsSignUp.jsx";
 import TeamsSignUpControl from "./Admin/TeamsSignUpControl.jsx";
 import TeamProfile from "./components/Profile/TeamProfile.jsx";
+import CreateStocks from "./Admin/Records/CreateStocks.jsx";
+import StocksData from "./Admin/Records/StocksData.jsx";
+import UpdateStocks from "./Admin/Records/UpdateStocks.jsx";
+import { fetchUser } from "./Redux/slice/userSlice.js";
+import ViewStocksUpdateRecords from "./Admin/Records/ViewStocksUpdateRecords.jsx";
 
 function App() {
   const [isAdmin, setIsAdmin] = useState(0);
@@ -82,6 +87,12 @@ function App() {
       dispatch(fetchStartups());
     }
   }, [dispatch]);
+
+  useEffect(()=>{
+    if (!state.user.user) {
+      dispatch(fetchUser());
+    }
+  },[dispatch])
 
   useEffect(() => {
     if (state.authenticate) {
@@ -177,6 +188,15 @@ function App() {
             <Route path="/admin/internshipRecords" element={<InternshipRecords />} />
 
             <Route path="/admin/internshipRecordsData" element={<InternshipRecordsData />} />
+
+            {/* Stocks */}
+            <Route path="/admin/createStocks" element={<CreateStocks />} />
+
+            <Route path="/admin/stocksData" element={<StocksData />} />
+
+            <Route path="/admin/updateStocks" element={<UpdateStocks />} />
+
+            <Route path="/admin/viewStocksUpdateRecords" element={<ViewStocksUpdateRecords />} />
 
             {isAdmin == 1 && (
               <>
