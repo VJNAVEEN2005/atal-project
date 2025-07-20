@@ -72,6 +72,7 @@ import StocksData from "./Admin/Records/StocksData.jsx";
 import UpdateStocks from "./Admin/Records/UpdateStocks.jsx";
 import { fetchUser } from "./Redux/slice/userSlice.js";
 import ViewStocksUpdateRecords from "./Admin/Records/ViewStocksUpdateRecords.jsx";
+import StudentRecords from "./pages/StudentRecords.jsx";
 
 function App() {
   const [isAdmin, setIsAdmin] = useState(0);
@@ -145,6 +146,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/teamProfile" element={<TeamProfile />} />
         <Route path="/profile/:id" element={<ProfileShare />} />
+        <Route path="/profile/studentRecords" element={<StudentRecords />} />
 
         {isAdmin > 0 && (
           <>
