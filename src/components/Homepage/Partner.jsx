@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
-// import { AIM, PTU, aws, IFET, SMVEC, River, NIT, RJ, Pip, Zoho, Resuegent, START, touch, Ktech, Kris, Lucas,
-//   Easy, Idea, Seed, Start, Schn, Eagle, S, Bee, CII, MSME, BCIL, Digi } from '../../assets/Homepage/Partners/Keypartner';
-// import { di, digi, idea, kris, ktech, lucas, re, schneider, tele, zoho } from '../../assets/Partnerspage/Corporate/CooperatePartner';
-// import { ifetlogo, nitLogo, pip, river, rj, smvec } from '../../assets/Partnerspage/Academic/AcadamicPartner';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchPartners } from '../../Redux/slice/partnerSlice';
+import api from '../../Api/api';
+
+// Configure API base URL
+const API_BASE_URL = `${api.web}api/v1`;
 
 const DirectionalPartnerCarousel = ({ title, logos, direction }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -91,32 +91,40 @@ const DirectionalPartnerCarousel = ({ title, logos, direction }) => {
 
 const Partner = () => {
   const dispatch = useDispatch();
-  const { partners, loading } = useSelector(state => state.partners);
-
+  const state = useSelector(state => state.partners);
+  const partners = state?.partners || [];
+  const loading = state?.loading || false;
+  
   useEffect(() => {
     dispatch(fetchPartners());
   }, [dispatch]);
 
-  // Debug: log partners
   useEffect(() => {
-    if (partners) {
-      console.log('Partners:', partners);
-    }
-  }, [partners]);
+    console.log("Partner: Redux state changed", state);
+  }, [state]);
+
+
 
   // Helper to get full image URL
-  // No longer needed. Use partner.logo directly as the image source.
-
+  const getImageUrl = (partnerId, imageType = 'logo') => {
+    return `${API_BASE_URL}/partners/${imageType}/${partnerId}`;
+  };
 
   // Process logo data for consistent rendering
-  const processLogo = (src, alt, maxWidth = 'auto', height = 50) => (
-    <img
-      src={src}
-      alt={alt}
-      className="max-w-full object-contain"
-      style={{ maxWidth, height }}
-      onError={e => { e.target.style.display = 'none'; }}
-    />
+  const processLogo = (partnerId, alt, maxWidth = 'auto', height = 50) => (
+    <div key={partnerId} className="flex items-center justify-center h-full">
+      <img
+        src={getImageUrl(partnerId, 'logo')}
+        alt={alt}
+        className="max-w-full object-contain"
+        style={{ maxWidth, height }}
+        onError={(e) => { 
+          e.target.style.display = 'none';
+          e.target.nextSibling.style.display = 'block';
+        }}
+      />
+
+    </div>
   );
 
   // Corporate partner logos (static data commented out)
@@ -148,14 +156,14 @@ const Partner = () => {
   ];
   */
 
-  // Filter Redux partners by type
+  // Filter Redux partners by type and only include those with logos
   const corporateLogos = (partners || [])
-    .filter(p => p.type === 'Corporate')
-    .map((p, idx) => processLogo(p.logo, p.name || `Corporate Partner ${idx+1}`));
+    .filter(p => p.type === 'Corporate' && p.logo === true)
+    .map((p, idx) => processLogo(p._id, p.name || `Corporate Partner ${idx+1}`));
 
   const academicLogos = (partners || [])
-    .filter(p => p.type === 'Academic')
-    .map((p, idx) => processLogo(p.logo, p.name || `Academic Partner ${idx+1}`));
+    .filter(p => p.type === 'Academic' && p.logo === true)
+    .map((p, idx) => processLogo(p._id, p.name || `Academic Partner ${idx+1}`));
 
   // All partner logos (original size preserved)
   /*
@@ -232,7 +240,7 @@ const Partner = () => {
           <DirectionalPartnerCarousel 
             title="Corporate Partners" 
             logos={corporateLogos} 
-            direction="left" 
+            direction="right" 
           />
           <DirectionalPartnerCarousel 
             title="Academic Partners" 

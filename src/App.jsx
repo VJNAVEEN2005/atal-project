@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 // Pages
 import Home from "./pages/Homepage";
-import LoadingPage from "./pages/LoadingPage.jsx";
 import About from "./pages/about.jsx";
 import Contact from "./pages/contact.jsx";
 import Partners from "./pages/Partners.jsx";
@@ -50,7 +49,6 @@ import RoadMapControl from "./Admin/RoadMapControl.jsx";
 import NewsLetterControl from "./Admin/NewsLetterControl.jsx";
 import TeamsControl from "./Admin/TeamsControl.jsx";
 import AdminControl from "./Admin/AdminControl.jsx";
-import Projects from "./pages/Projects.jsx";
 import ProfileShare from "./pages/ProfileShare.jsx";
 
 import StartupDetailsControl from "./Admin/StartupDetailsControl.jsx";
@@ -62,63 +60,15 @@ import ImageCarouselControl from "./Admin/ImageCarouselControl.jsx";
 import MessagesControl from "./Admin/MessagesControl.jsx";
 import ForgotPassword from "./pages/ForgotPassword.jsx";
 import ResetPassword from "./pages/ResetPassword.jsx";
+import LoadingPage from "./pages/LoadingPage.jsx";
+import { fetchImageCarousel } from "./Redux/slice/imageCarouselSlice.js";
 
 function App() {
   const [isAdmin, setIsAdmin] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadingProgress, setLoadingProgress] = useState(0);
   const dispatch = useDispatch();
   const state = useSelector((state) => state);
-  const [loading, setLoading] = useState(true);
-  const [hasShownLoading, setHasShownLoading] = useState(false); // session-based flag
-  const [carouselLoaded, setCarouselLoaded] = useState(false);
-  const [loadingProgress, setLoadingProgress] = useState(0);
-
-  // Handle loading splash only on first visit
-  useEffect(() => {
-    const alreadyShown = sessionStorage.getItem("hasShownLoading");
-    if (!alreadyShown) {
-      sessionStorage.setItem("hasShownLoading", "true");
-    } else {
-      console.log("App: Already shown loading in this session");
-    }
-
-    setLoadingProgress(5);
-    
-    // Fallback timeout to prevent infinite loading
-    const fallbackTimeout = setTimeout(() => {
-      if (!carouselLoaded) {
-        console.log("App: Fallback timeout - stopping loading screen");
-        setLoading(false);
-      }
-    }, 15000);
-    
-    return () => clearTimeout(fallbackTimeout);
-  }, [carouselLoaded]);
-
-  // Stop loading when carousel is ready
-  useEffect(() => {
-    if (carouselLoaded) {
-      console.log("App: Carousel loaded, stopping loading screen");
-      setLoading(false);
-    }
-  }, [carouselLoaded]);
-
-  const handleCarouselLoaded = () => {
-    console.log("App: handleCarouselLoaded called");
-    setCarouselLoaded(true);
-  };
-
-  const handleLoadingProgress = (progress) => {
-    console.log("App: Loading progress updated to", progress, "%");
-    setLoadingProgress(progress);
-  };
-
-  // Debug: Log current loading state
-  // console.log("App: Current state", {
-  //   loading,
-  //   loadingProgress,
-  //   carouselLoaded,
-  //   hasShownLoading
-  // });
 
   useEffect(() => {
     dispatch(authenticateUser());
@@ -132,22 +82,55 @@ function App() {
     }
   }, [state.authenticate]);
 
+  useEffect(()=>{
+    if(!state.imageCarousel.images?.images) {
+      dispatch(fetchImageCarousel());
+      setIsLoading(true);
+      setLoadingProgress(0);
+    }
+    console.log("Fetching Image Carousel Data", state.imageCarousel);
+  },[dispatch])
 
+  // Smooth loading progress animation
+  useEffect(() => {
+    if (isLoading && state.imageCarousel.loading) {
+      // Gradually increase progress from 0 to 80 while loading
+      const interval = setInterval(() => {
+        setLoadingProgress(prev => {
+          if (prev < 80) {
+            return prev + Math.random() * 3 + 1; // Increase by 1-4% each time
+          }
+          return prev;
+        });
+      }, 100); // Update every 100ms
+
+      return () => clearInterval(interval);
+    }
+  }, [isLoading, state.imageCarousel.loading]);
+
+  useEffect(() => {
+    if (state.imageCarousel.images?.images?.length > 0) {
+      // Complete the progress quickly when data is loaded
+      setLoadingProgress(100);
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 300); // Small delay to show 100% before hiding
+    } else if (state.imageCarousel.error) {
+      // Handle error case
+      setLoadingProgress(100);
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 300);
+    }
+  }, [state.imageCarousel]);
 
   return (
     <Router>
       <NewNav />
       <MoveToTop />
-      {loading && <LoadingPage progress={loadingProgress} />}
-      <div style={{ 
-        position: loading ? 'absolute' : 'relative',
-        top: loading ? '-9999px' : 'auto',
-        left: loading ? '-9999px' : 'auto',
-        visibility: loading ? 'hidden' : 'visible'
-      }}>
-        <Routes>
-          <Route path="/" element={<Home onCarouselLoaded={handleCarouselLoaded} onLoadingProgress={handleLoadingProgress} />} />
-        <Route path="/projects" element={<Projects />} />
+      {isLoading && (<LoadingPage progress={Math.round(loadingProgress)} />)}
+      <Routes>
+        <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/partners" element={<Partners />} />
@@ -204,8 +187,7 @@ function App() {
         {/* 404 */}
         <Route path="*" element={<Page_Not_Found />} />
       </Routes>
-    </div>
-    <Footer />
+      <Footer />
     </Router>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import Stats from "../components/Homepage/Stat";
 
@@ -14,19 +14,13 @@ import Choose_Us from "../components/Homepage/Choose_Us";
 import Infrastructure_services from "../components/Homepage/Infrastructure_services";
 import ScrollToTop from '../components/ScrollToTop'
 
-const Home = ({ onCarouselLoaded, onLoadingProgress }) => {
+const Home = () => {
   const navigate = useNavigate();
-  const [hasShownLoading, setHasShownLoading] = useState(false);
-
-  console.log("Home: Component rendered with callbacks", {
-    hasOnCarouselLoaded: !!onCarouselLoaded,
-    hasOnLoadingProgress: !!onLoadingProgress
-  });
 
   return (
     <Container>
       <ScrollToTop/>
-      <Landing onCarouselLoaded={onCarouselLoaded} onLoadingProgress={onLoadingProgress} />
+      <Landing />
       <AboutNew /> 
       <Testimonials/>
       <Focus/>
