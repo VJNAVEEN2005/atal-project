@@ -72,6 +72,11 @@ const Admin = () => {
       name: "Internship Records",
       link: "/admin/internshipRecordsData",
       icon: "📄"
+    },
+    {
+      name: "Project Records",
+      link: "/admin/projectRecordsData",
+      icon: "🗂️"
     }
   ]
 
