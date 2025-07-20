@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import Stats from "../components/Homepage/Stat";
 
 import styled, { keyframes, css } from "styled-components";
@@ -12,7 +13,10 @@ import Testimonials from "../components/Homepage/Testimonials";
 import Choose_Us from "../components/Homepage/Choose_Us";
 import Infrastructure_services from "../components/Homepage/Infrastructure_services";
 import ScrollToTop from '../components/ScrollToTop'
+
 const Home = () => {
+  const navigate = useNavigate();
+
   return (
     <Container>
       <ScrollToTop/>

@@ -28,32 +28,36 @@ const Landing = () => {
   const dispatch = useDispatch();
   const state = useSelector((state) => state.imageCarousel);
   const image = [
-    co_working_space2,
-    home2,
-    home3,
-    home4,
-    home5,
-    home6,
-    home7,
-    home8,
-    home10,
-    home11,
-    home12,
+    { imageUrl: co_working_space2 },
+    { imageUrl: home2 },
+    { imageUrl: home3 },
+    { imageUrl: home4 },
+    { imageUrl: home5 },
+    { imageUrl: home6 },
+    { imageUrl: home7 },
+    { imageUrl: home8 },
+    { imageUrl: home10 },
+    { imageUrl: home11 },
+    { imageUrl: home12 },
   ];
   const [images, setImages] = useState([]);
+  
   useEffect(() => {
-    if (!state.images) {
+    if(!state.images){
       dispatch(fetchImageCarousel());
-      console.log("Fetching Image Carousel Data...");
     }
-  }, []);
+  }, [dispatch]);
+
 
   useEffect(() => {
     if (state.images) {
       const imageList = state.images.images;
       setImages(imageList);
+    } else if (!state.loading && images.length === 0) {
+      // If API failed and we have no images, use fallback
+      setImages(image);
     }
-  }, [state.images]);
+  }, [state.images, state.loading, images.length, image]);
 
   return (
     <div className="py-6 sm:py-8 md:py-0 px-4 sm:px-6 md:px-8 lg:px-12">
@@ -76,12 +80,24 @@ const Landing = () => {
 
       {/* Mobile Carousel with improved spacing */}
       <div className="mt-6 sm:mt-8 md:mt-10 md:hidden">
-        <Image_Carousel images={images} />
+        {images.length > 0 ? (
+          <Image_Carousel images={images} />
+        ) : (
+          <div className="flex justify-center items-center h-64 bg-gray-100 rounded-lg">
+            <p className="text-gray-500">Loading carousel...</p>
+          </div>
+        )}
       </div>
 
       {/* Desktop Slider with responsive padding */}
       <div className="hidden md:block mt-10 px-2 sm:px-4 md:px-6 lg:px-8">
-        <MainSlider images={images} />
+        {images.length > 0 ? (
+          <MainSlider images={images} />
+        ) : (
+          <div className="flex justify-center items-center h-96 bg-gray-100 rounded-lg">
+            <p className="text-gray-500">Loading carousel...</p>
+          </div>
+        )}
       </div>
 
       {/* Uncomment if you want to include WhoAmI component */}
