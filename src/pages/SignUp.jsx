@@ -2,18 +2,37 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import api from "../Api/api";
+import { v4 as uuidv4 } from "uuid";
 
 const SignUp = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [error, setError] = useState("");
+  const [domainType, setDomainType] = useState("");
   const [formData, setFormData] = useState({
+    userId: "",
     domain: "",
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
     phoneNumber: "",
+    // Student specific fields
+    dateOfBirth: "",
+    fatherName: "",
+    motherName: "",
+    guardianName: "",
+    bloodGroup: "",
+    address: "",
+    educationLevel: "", // "college" or "school"
+    collegeName: "",
+    collegeNameOther: "",
+    registrationNumber: "",
+    department: "",
+    yearOfGraduation: "",
+    standard: "",
+    schoolName: "",
+    // Startup specific fields
     organizationName: "",
     organizationSize: "",
     organizationIndustry: "",
@@ -24,7 +43,6 @@ const SignUp = () => {
     womenLed: "",
     panNumber: "",
     gstNumber: "",
-    address: "",
     cityStatePostal: "",
     productDescription: "",
     businessType: "",
@@ -46,14 +64,16 @@ const SignUp = () => {
     // Convert the password string to a Uint8Array
     const encoder = new TextEncoder();
     const data = encoder.encode(password);
-    
+
     // Generate hash using SHA-256
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+
     // Convert the hash to a hex string
     const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
-    
+    const hashHex = hashArray
+      .map((byte) => byte.toString(16).padStart(2, "0"))
+      .join("");
+
     return hashHex;
   };
 
@@ -87,17 +107,78 @@ const SignUp = () => {
         return false;
       }
     } else if (step === 3) {
-      // Only validate required organization fields
-      const requiredFields = {
-        organizationName: "Name of the Startup",
-        sector: "Sector",
-        businessType: "Business Type",
-      };
+      if (formData.domain === "Students") {
+        // Student validation
+        const requiredStudentFields = {
+          dateOfBirth: "Date of Birth",
+          bloodGroup: "Blood Group",
+          address: "Address",
+          educationLevel: "Education Level",
+        };
 
-      for (const [field, label] of Object.entries(requiredFields)) {
-        if (!formData[field]) {
-          setError(`${label} is required`);
+        // Check for at least one parent/guardian name
+        if (
+          !formData.fatherName &&
+          !formData.motherName &&
+          !formData.guardianName
+        ) {
+          setError(
+            "Please provide at least one: Father's Name, Mother's Name, or Guardian's Name"
+          );
           return false;
+        }
+
+        for (const [field, label] of Object.entries(requiredStudentFields)) {
+          if (!formData[field]) {
+            setError(`${label} is required`);
+            return false;
+          }
+        }
+
+        // Additional validation based on education level
+        if (formData.educationLevel === "college") {
+          if (!formData.collegeName) {
+            setError("College Name is required");
+            return false;
+          }
+          if (
+            formData.collegeName === "Puducherry Technological University" &&
+            !formData.registrationNumber
+          ) {
+            setError("Registration Number is required for PTU students");
+            return false;
+          }
+          if (!formData.department) {
+            setError("Department is required");
+            return false;
+          }
+          if (!formData.yearOfGraduation) {
+            setError("Year of Graduation is required");
+            return false;
+          }
+        } else if (formData.educationLevel === "school") {
+          if (!formData.schoolName) {
+            setError("School Name is required");
+            return false;
+          }
+          if (!formData.standard) {
+            setError("Standard is required");
+            return false;
+          }
+        }
+      } else if (formData.domain === "Startups") {
+        // Startup validation
+        const requiredStartupFields = {
+          organizationName: "Name of the Startup",
+          sector: "Sector",
+          businessType: "Business Type",
+        };
+
+        for (const [field, label] of Object.entries(requiredStartupFields)) {
+          if (!formData[field]) {
+            setError(`${label} is required`);
+            return false;
+          }
         }
       }
     }
@@ -123,24 +204,38 @@ const SignUp = () => {
     e.preventDefault();
     if (validateStep()) {
       try {
+        // Generate a unique user ID according to the domain all are in caps without spaces only letters and numbers no special characters and '_
+        const domainCode = formData.domain
+          .toUpperCase()
+          .replace(/\s+/g, "")
+          .slice(0, 3);
+        const userId = `AICPECF${domainCode}${uuidv4()
+          .slice(0, 11).replace(/-/g, "")
+          .toUpperCase()}`;
+
         // Hash the password using browser's crypto API
         const hashedPassword = await hashPassword(formData.password);
-        
+
         // Create a new form data object with hashed password
         const submissionData = {
           ...formData,
+          userId: userId,
+          collegeName: formData.collegeNameOther || formData.collegeName,
           password: hashedPassword,
-          isHashed: true // Flag to inform backend that password is already hashed
+          isHashed: true, // Flag to inform backend that password is already hashed
         };
-        
+
         // Remove confirmPassword as it's not needed in the API request
         delete submissionData.confirmPassword;
-        
+
         console.log("Submitting with hashed password");
-        
-        const response = await axios.post(`${api.web}api/v1/register`, submissionData);
-        
-        if(response.data.success){
+
+        const response = await axios.post(
+          `${api.web}api/v1/register`,
+          submissionData
+        );
+
+        if (response.data.success) {
           localStorage.setItem("user_id", response.data.user._id);
           localStorage.setItem("user_name", response.data.user.email);
           localStorage.setItem("user_isLogin", response.data.success);
@@ -152,7 +247,6 @@ const SignUp = () => {
       }
     }
   };
-
 
   // Form field renderer to reduce repetition
   const renderField = (
@@ -217,18 +311,50 @@ const SignUp = () => {
   // Domain options
   const domainOptions = [
     { value: "Startups", label: "Startups" },
-    { value: "Aspirant (or) Individual", label: "Aspirant (or) Individual" },
-    { value: "Mentors", label: "Mentors" },
+    { value: "Students", label: "Students" },
+  ];
+
+  // Education level options
+  const educationLevelOptions = [
+    { value: "college", label: "College" },
+    { value: "school", label: "School" },
+  ];
+
+  // College options
+  const collegeOptions = [
     {
-      value: "Startup Ecosystem Enablers",
-      label: "Startup Ecosystem Enablers",
+      value: "Puducherry Technological University",
+      label: "Puducherry Technological University",
     },
-    { value: "Investors", label: "Investors" },
-    { value: "Innovators", label: "Innovators" },
-    {
-      value: "Startups Service Providers",
-      label: "Startups Service Providers",
-    },
+    { value: "Other", label: "Other College" },
+  ];
+
+  // Blood group options
+  const bloodGroupOptions = [
+    { value: "A+", label: "A+" },
+    { value: "A-", label: "A-" },
+    { value: "B+", label: "B+" },
+    { value: "B-", label: "B-" },
+    { value: "AB+", label: "AB+" },
+    { value: "AB-", label: "AB-" },
+    { value: "O+", label: "O+" },
+    { value: "O-", label: "O-" },
+  ];
+
+  // Standard options for school
+  const standardOptions = [
+    { value: "1st", label: "1st Standard" },
+    { value: "2nd", label: "2nd Standard" },
+    { value: "3rd", label: "3rd Standard" },
+    { value: "4th", label: "4th Standard" },
+    { value: "5th", label: "5th Standard" },
+    { value: "6th", label: "6th Standard" },
+    { value: "7th", label: "7th Standard" },
+    { value: "8th", label: "8th Standard" },
+    { value: "9th", label: "9th Standard" },
+    { value: "10th", label: "10th Standard" },
+    { value: "11th", label: "11th Standard" },
+    { value: "12th", label: "12th Standard" },
   ];
 
   // Entity nature options
@@ -271,6 +397,230 @@ const SignUp = () => {
     { value: "Product", label: "Product" },
     { value: "Service Based", label: "Service Based" },
   ];
+
+  // Render student form
+  const renderStudentForm = () => {
+    return (
+      <div className="w-full space-y-4">
+        <h2 className="text-2xl font-bold text-[#3f6197] mb-2">
+          Student Information
+        </h2>
+        <p className="text-sm text-gray-500 mb-4">
+          Fields marked with <span className="text-red-500">*</span> are
+          required
+        </p>
+
+        {renderField("dateOfBirth", "Date of Birth", "date", null, null, true)}
+        {renderField("fatherName", "Father's Name", "text")}
+        {renderField("motherName", "Mother's Name", "text")}
+        {renderField("guardianName", "Guardian's Name", "text")}
+        <p className="text-xs text-gray-500 -mt-2">
+          * Please provide at least one: Father's Name, Mother's Name, or
+          Guardian's Name
+        </p>
+
+        {renderField(
+          "bloodGroup",
+          "Blood Group",
+          "select",
+          "",
+          bloodGroupOptions,
+          true
+        )}
+        {renderField("address", "Address", "text", null, null, true)}
+        {renderField(
+          "educationLevel",
+          "Education Level",
+          "select",
+          "",
+          educationLevelOptions,
+          true
+        )}
+
+        {/* College fields */}
+        {formData.educationLevel === "college" && (
+          <>
+            {renderField(
+              "collegeName",
+              "College Name",
+              "select",
+              "",
+              collegeOptions,
+              true
+            )}
+            {formData.collegeName === "Puducherry Technological University" &&
+              renderField(
+                "registrationNumber",
+                "Registration Number",
+                "text",
+                null,
+                null,
+                true
+              )}
+            {formData.collegeName === "Other" &&
+              renderField(
+                "collegeNameOther",
+                "College Name",
+                "text",
+                "Enter college name",
+                null,
+                true
+              )}
+            {renderField("department", "Department", "text", null, null, true)}
+            {renderField(
+              "yearOfGraduation",
+              "Year of Graduation",
+              "number",
+              "e.g., 2025",
+              null,
+              true
+            )}
+          </>
+        )}
+
+        {/* School fields */}
+        {formData.educationLevel === "school" && (
+          <>
+            {renderField(
+              "standard",
+              "Standard",
+              "select",
+              "",
+              standardOptions,
+              true
+            )}
+            {renderField("schoolName", "School Name", "text", null, null, true)}
+          </>
+        )}
+
+        <div className="flex items-center gap-2 mt-4">
+          <input
+            type="checkbox"
+            id="terms"
+            className="accent-[#3f6197] w-4 h-4"
+            required
+          />
+          <label htmlFor="terms" className="text-gray-600 text-sm">
+            I agree to the{" "}
+            <a
+              href="#"
+              className="text-[#3f6197] font-semibold hover:underline"
+            >
+              Terms and Conditions
+            </a>
+          </label>
+        </div>
+
+        <div className="flex gap-4 mt-4">
+          <button
+            onClick={handlePrevStep}
+            className="flex-1 bg-white border border-[#3f6197] text-[#3f6197] font-semibold py-3 rounded-lg hover:bg-gray-50 transition-all duration-300"
+          >
+            Back
+          </button>
+          <button
+            onClick={handleSubmit}
+            className="flex-1 bg-[#3f6197] text-white font-semibold py-3 rounded-lg shadow-md hover:bg-[#2e4b78] transition-all duration-300"
+          >
+            Create Account
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  // Render startup form
+  const renderStartupForm = () => {
+    return (
+      <div className="w-full space-y-4">
+        <h2 className="text-2xl font-bold text-[#3f6197] mb-2">
+          Organization Details
+        </h2>
+        <p className="text-sm text-gray-500 mb-4">
+          Fields marked with <span className="text-red-500">*</span> are
+          required
+        </p>
+
+        {renderField(
+          "organizationName",
+          "Name of the Startup",
+          "text",
+          null,
+          null,
+          true
+        )}
+        {renderField(
+          "organizationSize",
+          "Nature of Entity",
+          "select",
+          "",
+          entityOptions
+        )}
+        {renderField("founderName", "Founder Name", "text")}
+        {renderField("founderWhatsApp", "Founder WhatsApp No.", "text")}
+        {renderField("dpiitNumber", "DPIIT Recognition Number", "text")}
+        {renderField("sector", "Sector", "select", "", sectorOptions, true)}
+        {renderField(
+          "womenLed",
+          "Women Led Startup",
+          "select",
+          "",
+          yesNoOptions
+        )}
+        {renderField("panNumber", "PAN Number", "text")}
+        {renderField("gstNumber", "GST Number", "text")}
+        {renderField("address", "Address", "text")}
+        {renderField("cityStatePostal", "City, State, Postal Code", "text")}
+        {renderField(
+          "productDescription",
+          "Describe Your Product/Service",
+          "text"
+        )}
+        {renderField(
+          "businessType",
+          "Are you a Product based startup or a Service based startup",
+          "select",
+          "",
+          businessTypeOptions,
+          true
+        )}
+        {renderField("websiteUrl", "Website URL", "text")}
+
+        <div className="flex items-center gap-2 mt-4">
+          <input
+            type="checkbox"
+            id="terms"
+            className="accent-[#3f6197] w-4 h-4"
+            required
+          />
+          <label htmlFor="terms" className="text-gray-600 text-sm">
+            I agree to the{" "}
+            <a
+              href="#"
+              className="text-[#3f6197] font-semibold hover:underline"
+            >
+              Terms and Conditions
+            </a>
+          </label>
+        </div>
+
+        <div className="flex gap-4 mt-4">
+          <button
+            onClick={handlePrevStep}
+            className="flex-1 bg-white border border-[#3f6197] text-[#3f6197] font-semibold py-3 rounded-lg hover:bg-gray-50 transition-all duration-300"
+          >
+            Back
+          </button>
+          <button
+            onClick={handleSubmit}
+            className="flex-1 bg-[#3f6197] text-white font-semibold py-3 rounded-lg shadow-md hover:bg-[#2e4b78] transition-all duration-300"
+          >
+            Create Account
+          </button>
+        </div>
+      </div>
+    );
+  };
 
   // Render current step content
   const renderStepContent = () => {
@@ -367,95 +717,9 @@ const SignUp = () => {
         );
 
       case 3:
-        return (
-          <div className="w-full space-y-4">
-            <h2 className="text-2xl font-bold text-[#3f6197] mb-2">
-              Organization Details
-            </h2>
-            <p className="text-sm text-gray-500 mb-4">
-              Fields marked with <span className="text-red-500">*</span> are
-              required
-            </p>
-
-            {renderField(
-              "organizationName",
-              "Name of the Startup",
-              "text",
-              null,
-              null,
-              true
-            )}
-            {renderField(
-              "organizationSize",
-              "Nature of Entity",
-              "select",
-              "",
-              entityOptions
-            )}
-            {renderField("founderName", "Founder Name", "text")}
-            {renderField("founderWhatsApp", "Founder WhatsApp No.", "text")}
-            {renderField("dpiitNumber", "DPIIT Recognition Number", "text")}
-            {renderField("sector", "Sector", "select", "", sectorOptions, true)}
-            {renderField(
-              "womenLed",
-              "Women Led Startup",
-              "select",
-              "",
-              yesNoOptions
-            )}
-            {renderField("panNumber", "PAN Number", "text")}
-            {renderField("gstNumber", "GST Number", "text")}
-            {renderField("address", "Address", "text")}
-            {renderField("cityStatePostal", "City, State, Postal Code", "text")}
-            {renderField(
-              "productDescription",
-              "Describe Your Product/Service",
-              "text"
-            )}
-            {renderField(
-              "businessType",
-              "Are you a Product based startup or a Service based startup",
-              "select",
-              "",
-              businessTypeOptions,
-              true
-            )}
-            {renderField("websiteUrl", "Website URL", "text")}
-
-            <div className="flex items-center gap-2 mt-4">
-              <input
-                type="checkbox"
-                id="terms"
-                className="accent-[#3f6197] w-4 h-4"
-                required
-              />
-              <label htmlFor="terms" className="text-gray-600 text-sm">
-                I agree to the{" "}
-                <a
-                  href="#"
-                  className="text-[#3f6197] font-semibold hover:underline"
-                >
-                  Terms and Conditions
-                </a>
-              </label>
-            </div>
-
-            <div className="flex gap-4 mt-4">
-              <button
-                onClick={handlePrevStep}
-                className="flex-1 bg-white border border-[#3f6197] text-[#3f6197] font-semibold py-3 rounded-lg hover:bg-gray-50 transition-all duration-300"
-              >
-                Back
-              </button>
-              <button
-                onClick={handleSubmit}
-                className="flex-1 bg-[#3f6197] text-white font-semibold py-3 rounded-lg shadow-md hover:bg-[#2e4b78] transition-all duration-300"
-              >
-                Create Account
-              </button>
-            </div>
-          </div>
-        );
+        return formData.domain === "Students"
+          ? renderStudentForm()
+          : renderStartupForm();
 
       default:
         return null;
@@ -509,7 +773,13 @@ const SignUp = () => {
             }`}
           />
 
-          <ProgressStep number={3} label="Organization" active={step >= 3} />
+          <ProgressStep
+            number={3}
+            label={
+              formData.domain === "Students" ? "Student Info" : "Organization"
+            }
+            active={step >= 3}
+          />
         </div>
 
         {/* Error message */}

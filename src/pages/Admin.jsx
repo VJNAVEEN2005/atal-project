@@ -1,14 +1,25 @@
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 const Admin = () => {
   const [isAdmin, setIsAdmin] = useState(0);
+    const state = useSelector((state) => state);
   useEffect(() => {
-    setIsAdmin(localStorage.getItem("isAuthenticated") || 0);
+    if (state.authenticate) {
+      setIsAdmin(state.authenticate.admin);
+      console.log("Admin Status :", state.authenticate.admin);
+      console.log("Is Authenticated:", state.authenticate.isAuthenticated);
+    }
   }, []);
   const navigate = useNavigate();
 
   const adminControls = [
+    {
+      name: "Teams SignUp Control",
+      link: "/admin/teamsSignUpControl",
+      icon: "👥", // Changed to people icon
+    },
     {
       name: "Events Control",
       link: "/admin/eventscontrol",
@@ -54,7 +65,25 @@ const Admin = () => {
       link: "/admin/messagescontrol",
       icon: "💬", // Changed to chat icon
     },
+    {
+      name: "Ecosystem Control",
+      link: "/admin/ecosystemcontrol",
+      icon: "🌐",
+    }
   ];
+
+  const RecordsControls = [
+    {
+      name: "Internship Records",
+      link: "/admin/internshipRecordsData",
+      icon: "📄"
+    },
+    {
+      name: "Stocks Data",
+      link: "/admin/stocksData",
+      icon: "📊"
+    }
+  ]
 
   const mainAdminControls = [
     {
@@ -92,7 +121,7 @@ const Admin = () => {
         {/* Main Content */}
         <div className="p-6 md:p-8">
           {/* Main Admin Access */}
-          {isAdmin === "1" && (
+          {isAdmin === 1 && (
             <div className="mb-12">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="font-semibold text-2xl text-gray-800">
@@ -187,6 +216,48 @@ const Admin = () => {
           )}
 
           {/* All Admin Controls */}
+          <div className="mb-12">
+            <h2 className="font-semibold text-2xl text-gray-800 mb-6 flex items-center gap-2">
+              <span className="w-2 h-8 bg-[#3f6197] rounded-full block"></span>
+              Records Panels
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {RecordsControls.map((item, index) => (
+                <div
+                  key={index}
+                  onClick={() => navigate(item.link)}
+                  className="bg-white border border-gray-200 hover:border-[#3f6197] hover:bg-[#eef2f8] transition-all duration-300 rounded-xl p-6 cursor-pointer shadow-md hover:shadow-lg"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="text-3xl bg-[#eef2f8] h-14 w-14 flex items-center justify-center rounded-lg text-[#3f6197] shadow-sm">
+                      {item.icon}
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-lg text-gray-800">
+                        {item.name}
+                      </h3>
+                      <div className="flex items-center gap-1 text-sm text-[#3f6197] mt-2 font-medium">
+                        <span>Manage</span>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <div>
             <h2 className="font-semibold text-2xl text-gray-800 mb-6 flex items-center gap-2">
               <span className="w-2 h-8 bg-[#3f6197] rounded-full block"></span>

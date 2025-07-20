@@ -10,6 +10,9 @@ import authenticateUser from './slice/authenticateSlice.js';
 import imageCarouselReducer from './slice/imageCarouselSlice.js';
 import messageReducer from './slice/messageSlice.js'; 
 import partnersReducer from './slice/partnerSlice.js';
+import tendersReducer from './slice/tendersSlice.js';
+import startupPortfolioReducer from './slice/startupPortfolioSlice.js';
+import ecosystemReducer from './slice/ecosystemSlice.js';
 
 export const store = configureStore({
   reducer: {
@@ -23,7 +26,9 @@ export const store = configureStore({
     imageCarousel: imageCarouselReducer,
     message: messageReducer,
     partners: partnersReducer,
-
+    tenders: tendersReducer,
+    startupPortfolio: startupPortfolioReducer,
+    ecosystem: ecosystemReducer,
   }
 });
 

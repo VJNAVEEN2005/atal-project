@@ -48,6 +48,7 @@ const Landing = () => {
     }
   }, [dispatch]);
 
+
   useEffect(() => {
     if (state.images) {
       const imageList = state.images.images;

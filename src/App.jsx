@@ -62,6 +62,18 @@ import ForgotPassword from "./pages/ForgotPassword.jsx";
 import ResetPassword from "./pages/ResetPassword.jsx";
 import LoadingPage from "./pages/LoadingPage.jsx";
 import { fetchImageCarousel } from "./Redux/slice/imageCarouselSlice.js";
+import EcosystemControl from "./Admin/EcosystemControl.jsx";
+import { fetchStartups } from "./Redux/slice/startupPortfolioSlice.js";
+import InternshipRecords from "./Admin/Records/InternshipRecords.jsx";
+import InternshipRecordsData from "./Admin/Records/InternshipRecordsData.jsx";
+import TeamsSignUp from "./Admin/TeamsSignUp.jsx";
+import TeamsSignUpControl from "./Admin/TeamsSignUpControl.jsx";
+import TeamProfile from "./components/Profile/TeamProfile.jsx";
+import CreateStocks from "./Admin/Records/CreateStocks.jsx";
+import StocksData from "./Admin/Records/StocksData.jsx";
+import UpdateStocks from "./Admin/Records/UpdateStocks.jsx";
+import { fetchUser } from "./Redux/slice/userSlice.js";
+import ViewStocksUpdateRecords from "./Admin/Records/ViewStocksUpdateRecords.jsx";
 
 function App() {
   const [isAdmin, setIsAdmin] = useState(0);
@@ -75,10 +87,20 @@ function App() {
   }, [dispatch]);
 
   useEffect(() => {
+    if (!state.startupPortfolio.startups.length) {
+      dispatch(fetchStartups());
+    }
+  }, [dispatch]);
+
+  useEffect(()=>{
+    if (!state.user.user) {
+      dispatch(fetchUser());
+    }
+  },[dispatch])
+
+  useEffect(() => {
     if (state.authenticate) {
       setIsAdmin(state.authenticate.admin);
-      console.log("Admin Status:", state.authenticate.admin);
-      console.log("Is Authenticated:", state.authenticate.isAuthenticated);
     }
   }, [state.authenticate]);
 
@@ -157,24 +179,69 @@ function App() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
+
         <Route path="/profile" element={<Profile />} />
+        <Route path="/teamProfile" element={<TeamProfile />} />
         <Route path="/profile/:id" element={<ProfileShare />} />
         {isAdmin > 0 && (
           <>
             <Route path="/admin" element={<Admin />} />
-            <Route path="/admin/tenderscontrol" element={<TendersControl />} />
+            <Route path="/admin/teamscontrol" element={<TeamsControl />} />
             <Route path="/admin/eventscontrol" element={<EventsControl />} />
             <Route path="/events/edit/:id" element={<EditEvent />} />
             <Route path="/admin/presscontrol" element={<PressMediaControl />} />
             <Route path="/admin/roadmapcontrol" element={<RoadMapControl />} />
-            <Route path="/admin/newslettercontrol" element={<NewsLetterControl />} />
-            <Route path="/admin/startupdetailscontrol" element={<StartupDetailsControl />} />
-            <Route path="/admin/partnerscontrol" element={<PartnersControl />} />
-            <Route path="/admin/imagecarouselcontrol" element={<ImageCarouselControl />} />
-            <Route path="/admin/messagescontrol" element={<MessagesControl />} />
+
+            <Route
+              path="/admin/newslettercontrol"
+              element={<NewsLetterControl />}
+            />
+            <Route
+              path="/admin/startupdetailscontrol"
+              element={<StartupDetailsControl />}
+            />
+            <Route
+              path="/admin/partnerscontrol"
+              element={<PartnersControl />}
+            />
+            <Route
+              path="/admin/imagecarouselcontrol"
+              element={<ImageCarouselControl />}
+            />
+            <Route
+              path="/admin/messagescontrol"
+              element={<MessagesControl />}
+            />
+            <Route
+              path="/admin/ecosystemcontrol"
+              element={<EcosystemControl />}
+            />
+            <Route path="/admin/teamsSignUp" element={<TeamsSignUp />} />
+            <Route
+              path="/admin/teamsSignUpControl"
+              element={<TeamsSignUpControl />}
+            />
+
+            {/* Records */}
+            <Route path="/admin/internshipRecords" element={<InternshipRecords />} />
+
+            <Route path="/admin/internshipRecordsData" element={<InternshipRecordsData />} />
+
+            {/* Stocks */}
+            <Route path="/admin/createStocks" element={<CreateStocks />} />
+
+            <Route path="/admin/stocksData" element={<StocksData />} />
+
+            <Route path="/admin/updateStocks" element={<UpdateStocks />} />
+
+            <Route path="/admin/viewStocksUpdateRecords" element={<ViewStocksUpdateRecords />} />
+
             {isAdmin == 1 && (
               <>
-                <Route path="/admin/teamscontrol" element={<TeamsControl />} />
+                <Route
+                  path="/admin/tenderscontrol"
+                  element={<TendersControl />}
+                />
                 <Route path="/admin/admincontrol" element={<AdminControl />} />
               </>
             )}

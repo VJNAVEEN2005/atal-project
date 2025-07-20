@@ -1,11 +1,14 @@
 import axios from "axios";
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../Api/api";
 import { Link } from "lucide-react";
 import { Button } from "bootstrap";
+import { notifications } from "@mantine/notifications";
+import { Eye, EyeOff } from "lucide-react";
 
 const Login = () => {
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -15,6 +18,33 @@ const Login = () => {
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
+
+  // Load remembered user data on component mount
+  useEffect(() => {
+    const loadRememberedUser = () => {
+      try {
+        const rememberedEmail = localStorage.getItem("rememberUser");
+        const rememberedUserData = localStorage.getItem("rememberedUserData");
+        
+        if (rememberedEmail && rememberedUserData) {
+          const userData = JSON.parse(rememberedUserData);
+          setFormData(prev => ({
+            ...prev,
+            email: rememberedEmail,
+            rememberMe: true,
+            password: userData.password || "", // Pre-fill password from stored data
+          }));
+        }
+      } catch (error) {
+        console.error("Error loading remembered user:", error);
+        // Clear corrupted data
+        localStorage.removeItem("rememberUser");
+        localStorage.removeItem("rememberedUserData");
+      }
+    };
+
+    loadRememberedUser();
+  }, []);
 
   // Handle input changes
   const handleChange = useCallback((e) => {
@@ -27,20 +57,71 @@ const Login = () => {
 
   // Password hashing function using browser's Web Crypto API
   const hashPassword = async (password) => {
-    // Convert the password string to a Uint8Array
     const encoder = new TextEncoder();
     const data = encoder.encode(password);
-
-    // Generate hash using SHA-256
     const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-
-    // Convert the hash to a hex string
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const hashHex = hashArray
       .map((byte) => byte.toString(16).padStart(2, "0"))
       .join("");
-
     return hashHex;
+  };
+
+  // Save user data for remember me functionality
+  const saveRememberedUser = (userData, email, password, rememberMe) => {
+    if (rememberMe) {
+      try {
+        // Store email for auto-fill
+        localStorage.setItem("rememberUser", email);
+        
+        // Store additional user data including password
+        const dataToRemember = {
+          email: email,
+          password: password, // Store the original password (not hashed)
+          userId: userData._id,
+          userName: userData.email,
+          lastLogin: new Date().toISOString(),
+        };
+        
+        localStorage.setItem("rememberedUserData", JSON.stringify(dataToRemember));
+        
+        // Set expiry for remember me (optional - 30 days)
+        const expiryDate = new Date();
+        expiryDate.setDate(expiryDate.getDate() + 30);
+        localStorage.setItem("rememberMeExpiry", expiryDate.toISOString());
+        
+        console.log("User data saved for remember me:", {
+          ...dataToRemember,
+          password: "***hidden***" // Don't log the actual password
+        });
+      } catch (error) {
+        console.error("Error saving remembered user:", error);
+      }
+    } else {
+      // Clear remembered data if remember me is unchecked
+      localStorage.removeItem("rememberUser");
+      localStorage.removeItem("rememberedUserData");
+      localStorage.removeItem("rememberMeExpiry");
+    }
+  };
+
+  // Check if remember me data has expired
+  const checkRememberMeExpiry = () => {
+    const expiryDate = localStorage.getItem("rememberMeExpiry");
+    if (expiryDate) {
+      const expiry = new Date(expiryDate);
+      const now = new Date();
+      
+      if (now > expiry) {
+        // Data has expired, clear it
+        localStorage.removeItem("rememberUser");
+        localStorage.removeItem("rememberedUserData");
+        localStorage.removeItem("rememberMeExpiry");
+        return false;
+      }
+      return true;
+    }
+    return false;
   };
 
   // Handle form submission
@@ -54,6 +135,20 @@ const Login = () => {
         return;
       }
 
+      // Check remember me expiry
+      if (formData.rememberMe) {
+        checkRememberMeExpiry();
+      }
+
+      notifications.show({
+        id: "login-processing",
+        title: "Processing Login",
+        message: "Please wait while we log you in...",
+        color: "blue",
+        loading: true,
+        icon: <Link size={20} />,
+      });
+
       setIsLoading(true);
       setError("");
 
@@ -64,44 +159,72 @@ const Login = () => {
         const response = await axios.post(`${api.web}api/v1/login`, {
           email: formData.email,
           password: hashedPassword,
-          isHashed: true, // Flag to inform backend that password is already hashed
+          isHashed: true,
         });
 
         const { data } = response;
 
         if (data.success) {
+          // Store authentication token
           localStorage.setItem("token", data.token);
 
-          console.log("User data stored in localStorage:", {
+          // Store user data
+          const userDataForStorage = {
             userId: data.user._id,
             userName: data.user.email,
             token: data.token,
             isLogin: true,
+            loginTime: new Date().toISOString(),
+          };
+
+          localStorage.setItem("userData", JSON.stringify(userDataForStorage));
+
+          console.log("User data stored in localStorage:", userDataForStorage);
+
+          // Handle remember me functionality
+          saveRememberedUser(data.user, formData.email, formData.password, formData.rememberMe);
+
+          notifications.update({
+            id: "login-processing",
+            title: "Login Successful",
+            message: "You have successfully logged in.",
+            color: "green",
+            loading: false,
+            icon: <Link size={20} />,
           });
 
-          // Check if user is admin
-          if (data.user.admin === 1) {
-            localStorage.setItem("isAuthenticated", 1);
-          } else if (data.user.admin === 2) {
-            localStorage.setItem("isAuthenticated", 2);
-          }
-
-          // Remember me functionality
-          if (formData.rememberMe) {
-            // You could store a token with longer expiry or set a flag
-            localStorage.setItem("rememberUser", formData.email);
-          } else {
-            localStorage.removeItem("rememberUser");
-          }
+          // Admin check (uncomment if needed)
+          // if (data.user.admin === 1) {
+          //   localStorage.setItem("isAuthenticated", 1);
+          // } else if (data.user.admin === 2) {
+          //   localStorage.setItem("isAuthenticated", 2);
+          // }
 
           // Redirect to homepage
-
           window.location.href = "/";
         } else {
           setError(data.message || "Login failed");
+          notifications.update({
+            id: "login-processing",
+            title: "Login Failed",
+            message: data.message || "Invalid credentials. Please try again.",
+            color: "red",
+            loading: false,
+            icon: <Link size={20} />,
+          });
         }
       } catch (err) {
         console.error("Login error:", err);
+        notifications.update({
+          id: "login-processing",
+          title: "Login Error",
+          message:
+            err.response?.data?.message ||
+            "An error occurred. Please try again.",
+          color: "red",
+          loading: false,
+          icon: <Link size={20} />,
+        });
         setError(err.response?.data?.message || "Invalid credentials");
       } finally {
         setIsLoading(false);
@@ -114,6 +237,13 @@ const Login = () => {
   const navigateToSignup = useCallback(() => {
     navigate("/signup");
   }, [navigate]);
+
+  // Clear remembered data function (optional - for logout)
+  const clearRememberedData = () => {
+    localStorage.removeItem("rememberUser");
+    localStorage.removeItem("rememberedUserData");
+    localStorage.removeItem("rememberMeExpiry");
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -148,7 +278,7 @@ const Login = () => {
             />
           </div>
 
-          <div>
+          <div className="relative">
             <label
               htmlFor="password"
               className="block text-gray-700 font-medium mb-2"
@@ -156,15 +286,22 @@ const Login = () => {
               Password
             </label>
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               id="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3f6197] text-gray-700"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3f6197] text-gray-700 pr-10"
               placeholder="Enter your password"
               required
             />
+          <button
+        type="button"
+        onClick={() => setShowPassword((prev) => !prev)}
+        className="absolute right-3 top-1/2 transform translate-y-1/2 text-gray-600 focus:outline-none"
+      >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
           </div>
 
           <div className="flex items-center">
@@ -180,11 +317,12 @@ const Login = () => {
               Remember me
             </label>
 
-            <button 
+            <p
               onClick={() => navigate("/forgot-password")}
-            className="ml-auto text-[#3f6197] font-medium hover:underline focus:outline-none">
+              className="ml-auto text-[#3f6197] font-medium hover:underline focus:outline-none cursor-pointer"
+            >
               Forgot Password?
-            </button>
+            </p>
           </div>
 
           <button

@@ -41,12 +41,16 @@ const Testimonials = () => {
         setIsLoading(false);
       }
     };
-    fetchMessage();
-  }, []);
+    if (!state.message.messages) {
+      fetchMessage();
+    }
+    console.log("Fetching messages...", state.message.messages);
+  }, [dispatch]);
 
   useEffect(() => {
     if (state.message?.messages?.messages) {
       setMessages(state.message.messages.messages);
+      setIsLoading(false);
     } else {
       console.log("No messages available or loading.");
     }
