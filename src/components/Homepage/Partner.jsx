@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
-import { AIM, PTU, aws, IFET, SMVEC, River, NIT, RJ, Pip, Zoho, Resuegent, START, touch, Ktech, Kris, Lucas,
-  Easy, Idea, Seed, Start, Schn, Eagle, S, Bee, CII, MSME, BCIL, Digi } from '../../assets/Homepage/Partners/Keypartner';
-import { di, digi, idea, kris, ktech, lucas, re, schneider, tele, zoho } from '../../assets/Partnerspage/Corporate/CooperatePartner';
-import { ifetlogo, nitLogo, pip, river, rj, smvec } from '../../assets/Partnerspage/Academic/AcadamicPartner';
+// import { AIM, PTU, aws, IFET, SMVEC, River, NIT, RJ, Pip, Zoho, Resuegent, START, touch, Ktech, Kris, Lucas,
+//   Easy, Idea, Seed, Start, Schn, Eagle, S, Bee, CII, MSME, BCIL, Digi } from '../../assets/Homepage/Partners/Keypartner';
+// import { di, digi, idea, kris, ktech, lucas, re, schneider, tele, zoho } from '../../assets/Partnerspage/Corporate/CooperatePartner';
+// import { ifetlogo, nitLogo, pip, river, rj, smvec } from '../../assets/Partnerspage/Academic/AcadamicPartner';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchPartners } from '../../Redux/slice/partnerSlice';
 
 const DirectionalPartnerCarousel = ({ title, logos, direction }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -88,17 +90,37 @@ const DirectionalPartnerCarousel = ({ title, logos, direction }) => {
 };
 
 const Partner = () => {
+  const dispatch = useDispatch();
+  const { partners, loading } = useSelector(state => state.partners);
+
+  useEffect(() => {
+    dispatch(fetchPartners());
+  }, [dispatch]);
+
+  // Debug: log partners
+  useEffect(() => {
+    if (partners) {
+      console.log('Partners:', partners);
+    }
+  }, [partners]);
+
+  // Helper to get full image URL
+  // No longer needed. Use partner.logo directly as the image source.
+
+
   // Process logo data for consistent rendering
   const processLogo = (src, alt, maxWidth = 'auto', height = 50) => (
-    <img 
-      src={src} 
-      alt={alt} 
-      className="max-w-full object-contain" 
-      style={{ maxWidth, height }} 
+    <img
+      src={src}
+      alt={alt}
+      className="max-w-full object-contain"
+      style={{ maxWidth, height }}
+      onError={e => { e.target.style.display = 'none'; }}
     />
   );
 
-  // Corporate partner logos
+  // Corporate partner logos (static data commented out)
+  /*
   const corporateLogos = [
     processLogo(di, "Digital Impact Logo", 80),
     processLogo(digi, "DigiThink Logo", 80),
@@ -113,8 +135,9 @@ const Partner = () => {
     processLogo(touch, "TouchTech Logo", 80),
     processLogo(zoho, "Zoho Logo", 80)
   ];
-
-  // Academic partner logos
+  */
+  // Academic partner logos (static data commented out)
+  /*
   const academicLogos = [
     processLogo(nitLogo, "NIT Logo", 80),
     processLogo(ifetlogo, "IFET Logo", 160),
@@ -123,8 +146,19 @@ const Partner = () => {
     processLogo(rj, "RJ College Logo", 80),
     processLogo(smvec, "SMVEC Logo", 160)
   ];
+  */
+
+  // Filter Redux partners by type
+  const corporateLogos = (partners || [])
+    .filter(p => p.type === 'Corporate')
+    .map((p, idx) => processLogo(p.logo, p.name || `Corporate Partner ${idx+1}`));
+
+  const academicLogos = (partners || [])
+    .filter(p => p.type === 'Academic')
+    .map((p, idx) => processLogo(p.logo, p.name || `Academic Partner ${idx+1}`));
 
   // All partner logos (original size preserved)
+  /*
   const allPartnerLogos = [
     <img src={AIM} alt="AIM Logo" style={{ width: 110, height: 50 }} />,
     <img src={PTU} alt="PTU Logo" style={{ width: 80, height: 80 }} />,
@@ -155,6 +189,7 @@ const Partner = () => {
     <img src={IFET} alt="Digi Logo" style={{ width: 130, height: 50 }} />,
     <img src={aws} alt="Digi Logo" style={{ width: 90, height: 50 }} />,
   ];
+  */
 
   const keyPartnerSettings = {
     dots: false,
@@ -191,18 +226,21 @@ const Partner = () => {
         Our Strategic Partnerships
       </h1>
       
-      <DirectionalPartnerCarousel 
-        title="Corporate Partners" 
-        logos={corporateLogos} 
-        direction="left" 
-      />
-      
-      <DirectionalPartnerCarousel 
-        title="Academic Partners" 
-        logos={academicLogos} 
-        direction="left" 
-      />
-      
+      {loading && <div className="text-center">Loading partners...</div>}
+      {!loading && (
+        <>
+          <DirectionalPartnerCarousel 
+            title="Corporate Partners" 
+            logos={corporateLogos} 
+            direction="left" 
+          />
+          <DirectionalPartnerCarousel 
+            title="Academic Partners" 
+            logos={academicLogos} 
+            direction="left" 
+          />
+        </>
+      )}
     </div>
   );
 };

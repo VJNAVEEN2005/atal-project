@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 // Pages
 import Home from "./pages/Homepage";
+import LoadingPage from "./pages/LoadingPage.jsx";
 import About from "./pages/about.jsx";
 import Contact from "./pages/contact.jsx";
 import Partners from "./pages/Partners.jsx";
@@ -49,6 +50,7 @@ import RoadMapControl from "./Admin/RoadMapControl.jsx";
 import NewsLetterControl from "./Admin/NewsLetterControl.jsx";
 import TeamsControl from "./Admin/TeamsControl.jsx";
 import AdminControl from "./Admin/AdminControl.jsx";
+import Projects from "./pages/Projects.jsx";
 import ProfileShare from "./pages/ProfileShare.jsx";
 
 import StartupDetailsControl from "./Admin/StartupDetailsControl.jsx";
@@ -65,6 +67,58 @@ function App() {
   const [isAdmin, setIsAdmin] = useState(0);
   const dispatch = useDispatch();
   const state = useSelector((state) => state);
+  const [loading, setLoading] = useState(true);
+  const [hasShownLoading, setHasShownLoading] = useState(false); // session-based flag
+  const [carouselLoaded, setCarouselLoaded] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState(0);
+
+  // Handle loading splash only on first visit
+  useEffect(() => {
+    const alreadyShown = sessionStorage.getItem("hasShownLoading");
+    if (!alreadyShown) {
+      sessionStorage.setItem("hasShownLoading", "true");
+    } else {
+      console.log("App: Already shown loading in this session");
+    }
+
+    setLoadingProgress(5);
+    
+    // Fallback timeout to prevent infinite loading
+    const fallbackTimeout = setTimeout(() => {
+      if (!carouselLoaded) {
+        console.log("App: Fallback timeout - stopping loading screen");
+        setLoading(false);
+      }
+    }, 15000);
+    
+    return () => clearTimeout(fallbackTimeout);
+  }, [carouselLoaded]);
+
+  // Stop loading when carousel is ready
+  useEffect(() => {
+    if (carouselLoaded) {
+      console.log("App: Carousel loaded, stopping loading screen");
+      setLoading(false);
+    }
+  }, [carouselLoaded]);
+
+  const handleCarouselLoaded = () => {
+    console.log("App: handleCarouselLoaded called");
+    setCarouselLoaded(true);
+  };
+
+  const handleLoadingProgress = (progress) => {
+    console.log("App: Loading progress updated to", progress, "%");
+    setLoadingProgress(progress);
+  };
+
+  // Debug: Log current loading state
+  // console.log("App: Current state", {
+  //   loading,
+  //   loadingProgress,
+  //   carouselLoaded,
+  //   hasShownLoading
+  // });
 
   useEffect(() => {
     dispatch(authenticateUser());
@@ -78,17 +132,22 @@ function App() {
     }
   }, [state.authenticate]);
 
+
+
   return (
     <Router>
-      {/*
-      <Header />
-    */}
       <NewNav />
       <MoveToTop />
-      {/* <NavbarOG /> */}
-
-      <Routes>
-        <Route path="/" element={<Home />} />
+      {loading && <LoadingPage progress={loadingProgress} />}
+      <div style={{ 
+        position: loading ? 'absolute' : 'relative',
+        top: loading ? '-9999px' : 'auto',
+        left: loading ? '-9999px' : 'auto',
+        visibility: loading ? 'hidden' : 'visible'
+      }}>
+        <Routes>
+          <Route path="/" element={<Home onCarouselLoaded={handleCarouselLoaded} onLoadingProgress={handleLoadingProgress} />} />
+        <Route path="/projects" element={<Projects />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/partners" element={<Partners />} />
@@ -105,24 +164,18 @@ function App() {
         <Route path="/networkingPartners" element={<Network />} />
         <Route path="/team" element={<Team />} />
         <Route path="/team/coreteam" element={<CoreTeam />} />
-        <Route
-          path="/team/executive_committee"
-          element={<Executive_Committee />}
-        />
+        <Route path="/team/executive_committee" element={<Executive_Committee />} />
         <Route path="/upcoming_events" element={<Events_Calendar />} />
         <Route path="/road_map" element={<Road_Map />} />
         <Route path="/news_letter" element={<News_letter />} />
         <Route path="/press_media" element={<Press_Media_Coverage />} />
-
         {/* Login */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/profile" element={<Profile />} />
-
         <Route path="/profile/:id" element={<ProfileShare />} />
-
         {isAdmin > 0 && (
           <>
             <Route path="/admin" element={<Admin />} />
@@ -131,47 +184,31 @@ function App() {
             <Route path="/events/edit/:id" element={<EditEvent />} />
             <Route path="/admin/presscontrol" element={<PressMediaControl />} />
             <Route path="/admin/roadmapcontrol" element={<RoadMapControl />} />
-            <Route
-              path="/admin/newslettercontrol"
-              element={<NewsLetterControl />}
-            />
-            <Route
-              path="/admin/startupdetailscontrol"
-              element={<StartupDetailsControl />}
-            />
-            <Route
-              path="/admin/partnerscontrol"
-              element={<PartnersControl />}
-            />
+            <Route path="/admin/newslettercontrol" element={<NewsLetterControl />} />
+            <Route path="/admin/startupdetailscontrol" element={<StartupDetailsControl />} />
+            <Route path="/admin/partnerscontrol" element={<PartnersControl />} />
             <Route path="/admin/imagecarouselcontrol" element={<ImageCarouselControl />} />
             <Route path="/admin/messagescontrol" element={<MessagesControl />} />
             {isAdmin == 1 && (
               <>
                 <Route path="/admin/teamscontrol" element={<TeamsControl />} />
                 <Route path="/admin/admincontrol" element={<AdminControl />} />
-                
               </>
             )}
           </>
         )}
-        {/* Admin - Works */}
-
-        {/* Skill_Pattara */}
+        {/* Skill Pattara */}
         <Route path="/drone_technology" element={<Drone_Technology />} />
         <Route path="/arduino_programming" element={<Arduino_Programming />} />
-        <Route
-          path="/raspberry_pi_development"
-          element={<Raspberry_Pi_Development />}
-        />
-
-        {/* 404 Page */}
+        <Route path="/raspberry_pi_development" element={<Raspberry_Pi_Development />} />
+        {/* 404 */}
         <Route path="*" element={<Page_Not_Found />} />
-        <Route path="/loader" element={<LoaderAic />} />
       </Routes>
-
-      <Footer />
+    </div>
+    <Footer />
     </Router>
   );
 }
+
 
 export default App;

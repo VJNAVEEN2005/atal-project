@@ -24,34 +24,99 @@ import api from "../../Api/api";
 import { fetchImageCarousel } from "../../Redux/slice/imageCarouselSlice";
 import { useDispatch, useSelector } from "react-redux";
 
-const Landing = () => {
+const Landing = ({ onCarouselLoaded, onLoadingProgress }) => {
   const dispatch = useDispatch();
   const state = useSelector((state) => state.imageCarousel);
+  const [hasCalledOnLoaded, setHasCalledOnLoaded] = useState(false);
+  const [totalImages, setTotalImages] = useState(0);
+  const [loadedImages, setLoadedImages] = useState(0);
   const image = [
-    co_working_space2,
-    home2,
-    home3,
-    home4,
-    home5,
-    home6,
-    home7,
-    home8,
-    home10,
-    home11,
-    home12,
+    { imageUrl: co_working_space2 },
+    { imageUrl: home2 },
+    { imageUrl: home3 },
+    { imageUrl: home4 },
+    { imageUrl: home5 },
+    { imageUrl: home6 },
+    { imageUrl: home7 },
+    { imageUrl: home8 },
+    { imageUrl: home10 },
+    { imageUrl: home11 },
+    { imageUrl: home12 },
   ];
   const [images, setImages] = useState([]);
-  useEffect(() => {
+    useEffect(() => {
+    console.log("Landing: Component mounted, dispatching fetchImageCarousel");
+    
+    // Start with 10% progress to show something is happening
+    if (onLoadingProgress) {
+      console.log("Landing: Setting initial progress to 10%");
+      onLoadingProgress(10);
+    } else {
+      console.log("Landing: onLoadingProgress callback is not available");
+    }
+    
     dispatch(fetchImageCarousel());
-    console.log("Fetching Image Carousel Data...");
-  }, []);
+    
+    // Fallback timeout to prevent infinite loading
+    const timeout = setTimeout(() => {
+      if (onCarouselLoaded && !hasCalledOnLoaded) {
+        console.log("Landing: Fallback timeout - calling onCarouselLoaded");
+        setHasCalledOnLoaded(true);
+        onCarouselLoaded();
+      }
+    }, 8000); // 8 second timeout
+    
+    return () => clearTimeout(timeout);
+  }, [dispatch, onCarouselLoaded, hasCalledOnLoaded, onLoadingProgress]);
 
   useEffect(() => {
+    console.log("Landing: Redux state changed", { 
+      loading: state.loading, 
+      hasImages: !!state.images, 
+      imageCount: state.images?.images?.length || 0,
+      hasCalledOnLoaded 
+    });
+    
     if (state.images) {
       const imageList = state.images.images;
       setImages(imageList);
+      setTotalImages(imageList.length);
+      // Update progress to 30% when images are fetched
+      if (onLoadingProgress) {
+        console.log("Landing: API images fetched, setting progress to 30%");
+        onLoadingProgress(30);
+      }
+    } else if (!state.loading && images.length === 0) {
+      // If API failed and we have no images, use fallback
+      console.log("Landing: Using fallback images");
+      setImages(image);
+      setTotalImages(image.length);
+      // Update progress to 30% when fallback images are set
+      if (onLoadingProgress) {
+        console.log("Landing: Fallback images set, setting progress to 30%");
+        onLoadingProgress(30);
+      }
     }
-  }, [state.images]);
+  }, [state.images, state.loading, images.length, image, onLoadingProgress]);
+
+  // Track loading progress
+  useEffect(() => {
+    if (totalImages > 0 && onLoadingProgress) {
+      // Calculate progress from 30% to 90% based on image loading
+      const imageProgress = Math.round((loadedImages / totalImages) * 60); // 60% of remaining progress
+      const totalProgress = 30 + imageProgress; // Start from 30%
+      console.log("Landing: Progress update", loadedImages, "/", totalImages, "=", totalProgress + "%");
+      onLoadingProgress(totalProgress);
+    }
+  }, [loadedImages, totalImages, onLoadingProgress]);
+
+  // Debug: Log when component renders
+  console.log("Landing: Component rendered with", {
+    totalImages,
+    loadedImages,
+    hasOnLoadingProgress: !!onLoadingProgress,
+    hasOnCarouselLoaded: !!onCarouselLoaded
+  });
 
   return (
     <div className="py-6 sm:py-8 md:py-0 px-4 sm:px-6 md:px-8 lg:px-12">
@@ -74,12 +139,56 @@ const Landing = () => {
 
       {/* Mobile Carousel with improved spacing */}
       <div className="mt-6 sm:mt-8 md:mt-10 md:hidden">
-        <Image_Carousel images={images} />
+        {images.length > 0 ? (
+          <Image_Carousel
+            images={images}
+            onLoaded={() => {
+              console.log("Landing: Carousel onLoaded called");
+              if (onLoadingProgress) {
+                onLoadingProgress(100);
+              }
+              if (onCarouselLoaded && !hasCalledOnLoaded) {
+                setHasCalledOnLoaded(true);
+                onCarouselLoaded();
+              }
+            }}
+            onImageLoaded={(loadedCount) => {
+              console.log("Landing: Mobile carousel image loaded", loadedCount);
+              setLoadedImages(loadedCount);
+            }}
+          />
+        ) : (
+          <div className="flex justify-center items-center h-64 bg-gray-100 rounded-lg">
+            <p className="text-gray-500">Loading carousel...</p>
+          </div>
+        )}
       </div>
 
       {/* Desktop Slider with responsive padding */}
       <div className="hidden md:block mt-10 px-2 sm:px-4 md:px-6 lg:px-8">
-        <MainSlider images={images} />
+        {images.length > 0 ? (
+          <MainSlider 
+            images={images} 
+            onLoaded={() => {
+              console.log("Landing: MainSlider onLoaded called");
+              if (onLoadingProgress) {
+                onLoadingProgress(100);
+              }
+              if (onCarouselLoaded && !hasCalledOnLoaded) {
+                setHasCalledOnLoaded(true);
+                onCarouselLoaded();
+              }
+            }}
+            onImageLoaded={(loadedCount) => {
+              console.log("Landing: Desktop slider image loaded", loadedCount);
+              setLoadedImages(loadedCount);
+            }}
+          />
+        ) : (
+          <div className="flex justify-center items-center h-96 bg-gray-100 rounded-lg">
+            <p className="text-gray-500">Loading carousel...</p>
+          </div>
+        )}
       </div>
 
       {/* Uncomment if you want to include WhoAmI component */}

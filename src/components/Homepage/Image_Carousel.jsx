@@ -1,26 +1,42 @@
-import React, {useState,useEffect} from "react";
-
+import React, { useState, useEffect } from "react";
 
 function Image_Carousel(props) {
-  
-    const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [imagesLoaded, setImagesLoaded] = useState(0);
+  const totalImages = props.images.length;
 
-    // Automatically move to the next slide
-    useEffect(() => {
-      const interval = setInterval(() => {
-        setCurrentIndex((prev) => (prev === props.images.length - 1 ? 0 : prev + 1));
-      }, 3000); // Change slide every 3 seconds
+  useEffect(() => {
+    console.log("Image_Carousel: imagesLoaded", imagesLoaded, "totalImages", totalImages);
+    
+    // Report progress to parent
+    if (props.onImageLoaded) {
+      props.onImageLoaded(imagesLoaded);
+    }
+    
+    if (imagesLoaded === totalImages && totalImages > 0 && props.onLoaded) {
+      console.log("Image_Carousel: All images loaded, calling onLoaded");
+      props.onLoaded();
+    }
+  }, [imagesLoaded, totalImages, props]);
   
-      return () => clearInterval(interval); // Cleanup on unmount
-    }, [currentIndex]);
-  
-    const prevSlide = () => {
-      setCurrentIndex((prev) => (prev === 0 ? props.images.length - 1 : prev - 1));
-    };
-  
-    const nextSlide = () => {
+
+
+  // Automatically move to the next slide
+  useEffect(() => {
+    const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev === props.images.length - 1 ? 0 : prev + 1));
-    };
+    }, 3000); // Change slide every 3 seconds
+    return () => clearInterval(interval); // Cleanup on unmount
+  }, [currentIndex, props.images.length]);
+
+  const prevSlide = () => {
+    setCurrentIndex((prev) => (prev === 0 ? props.images.length - 1 : prev - 1));
+  };
+
+  const nextSlide = () => {
+    setCurrentIndex((prev) => (prev === props.images.length - 1 ? 0 : prev + 1));
+  };
+
   return (
     <>
        <div className="relative w-full max-w-4xl mx-auto mt-2 mb-2 overflow-hidden rounded-lg shadow-lg">
@@ -35,6 +51,14 @@ function Image_Carousel(props) {
               src={image.imageUrl}
               alt={`Slide ${index + 1}`}
               className="w-full h-64 md:h-96 object-contain"
+              onLoad={() => {
+                console.log(`Image_Carousel: Image ${index + 1} loaded`);
+                setImagesLoaded((count) => count + 1);
+              }}
+              onError={(e) => {
+                console.error(`Image_Carousel: Error loading image ${index + 1}`, e.target.src);
+                setImagesLoaded((count) => count + 1); // Count as loaded even if error
+              }}
             />
           </div>
         ))}
