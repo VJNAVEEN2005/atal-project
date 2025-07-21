@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+// Import AllUsers page for navigation (actual usage is in App.jsx routing)
 
 const Admin = () => {
   const [isAdmin, setIsAdmin] = useState(0);
@@ -87,6 +88,11 @@ const Admin = () => {
       name: "Stocks Data",
       link: "/admin/stocksData",
       icon: "📊"
+    },
+    {
+      name: "All Users",
+      link: "/admin/allUsers",
+      icon: "👤"
     }
   ]
 
