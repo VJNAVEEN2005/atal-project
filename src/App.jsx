@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, useLocation } from "react-router-dom";
 
 // Pages
 import Home from "./pages/Homepage";
@@ -78,6 +78,17 @@ import { fetchUser } from "./Redux/slice/userSlice.js";
 import ViewStocksUpdateRecords from "./Admin/Records/ViewStocksUpdateRecords.jsx";
 import StudentRecords from "./pages/StudentRecords.jsx";
 
+// Component to handle scroll to top on route change
+function ScrollToTop() {
+  const location = useLocation();
+  
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+  
+  return null;
+}
+
 function App() {
   const [isAdmin, setIsAdmin] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -151,6 +162,7 @@ function App() {
 
   return (
     <Router>
+      <ScrollToTop />
       <NewNav />
       <MoveToTop />
       {isLoading ? (

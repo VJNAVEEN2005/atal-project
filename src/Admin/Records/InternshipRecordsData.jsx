@@ -14,6 +14,7 @@ import {
   Plus,
   X,
   Check,
+  ArrowLeft,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -366,37 +367,43 @@ useEffect(()=>{
   };
 
   const handleExport = () => {
-    // Simple CSV export without external libraries
+    // Simple CSV export without external libraries - export all available data
     const headers = [
       "Intern No",
       "Name",
-      "UserId",
-      "Designation",
-      "Date of Joining",
+      "User ID",
+      "Date of Birth",
+      "Email",
+      "Phone Number",
       "Father Name",
       "Blood Group",
-      "Mobile No",
-      "Email",
-      "Address",
+      "Permanent Address",
+      "Communication Address",
       "Marital Status",
-      "Status",
+      "Designation",
+      "Date of Joining",
+      "Date of Expiry",
+      "Status"
     ].join(",");
 
     const rows = filteredRecords
       .map((record) =>
         [
-          `"${record.internNo}"`,
-          `"${record.name}"`,
-          `"${record.userId}"`,
-          `"${record.designation}"`,
-          `"${record.dateOfJoining}"`,
-          `"${record.fatherName}"`,
-          `"${record.bloodGroup}"`,
-          `"${record.phoneNumber}"`,
-          `"${record.emailId}"`,
-          `"${record.permanentAddress}"`,
-          `"${record.maritalStatus}"`,
-          `"${record.status}"`,
+          `"${record.internNo || ''}"`,
+          `"${record.name || ''}"`,
+          `"${record.userId || ''}"`,
+          `"${record.dateOfBirth ? new Date(record.dateOfBirth).toLocaleDateString() : ''}"`,
+          `"${record.emailId || ''}"`,
+          `"${record.phoneNumber || ''}"`,
+          `"${record.fatherName || ''}"`,
+          `"${record.bloodGroup || ''}"`,
+          `"${record.permanentAddress || ''}"`,
+          `"${record.communicationAddress || ''}"`,
+          `"${record.maritalStatus || ''}"`,
+          `"${record.designation || ''}"`,
+          `"${record.dateOfJoining ? new Date(record.dateOfJoining).toLocaleDateString() : ''}"`,
+          `"${record.dateOfExpiry ? new Date(record.dateOfExpiry).toLocaleDateString() : ''}"`,
+          `"${record.status || ''}"`,
         ].join(",")
       )
       .join("\n");
@@ -424,11 +431,45 @@ useEffect(()=>{
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-white p-6 rounded-t-lg bg-gradient-to-r from-[#3f6197] to-[#5478b0]">
-          <h1 className="text-3xl font-bold text-center">INTERNSHIP RECORDS</h1>
-          <p className="text-center mt-2 opacity-90">
-            Manage and view all internship records
-          </p>
+        <div className="text-white relative bg-gradient-to-br from-[#3f6197] via-[#4a6fa5] to-[#5478b0] overflow-hidden rounded-t-lg">
+          {/* Background Pattern */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute inset-0" style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+            }}></div>
+          </div>
+
+          {/* Header Content */}
+          <div className="relative z-10 px-6 py-6">
+            {/* Top Row - Navigation */}
+            <div className="flex justify-between items-center mb-4">
+              <button
+                type="button"
+                onClick={() => navigate('/admin')}
+                className="flex items-center gap-2 px-4 py-2 text-white border border-white/30 rounded-lg transition-all duration-300 hover:bg-white/10 hover:border-white hover:shadow-lg hover:scale-105 backdrop-blur-sm"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span className="font-medium">Back</span>
+              </button>
+              
+              <div className="text-right">
+                <p className="text-white/80 text-sm font-light">
+                  Records Management Portal
+                </p>
+              </div>
+            </div>
+
+            {/* Title Section */}
+            <div className="text-center">
+              <h1 className="text-4xl font-bold text-white mb-2 tracking-wide">
+                INTERNSHIP RECORDS
+              </h1>
+              <div className="w-24 h-1 bg-white/60 mx-auto rounded-full"></div>
+              <p className="text-white/80 mt-3 text-lg font-light">
+                Manage and view all internship records
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Search and Filter Section */}
