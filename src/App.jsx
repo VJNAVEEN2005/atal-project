@@ -60,6 +60,8 @@ import ImageCarouselControl from "./Admin/ImageCarouselControl.jsx";
 import MessagesControl from "./Admin/MessagesControl.jsx";
 import ForgotPassword from "./pages/ForgotPassword.jsx";
 import ResetPassword from "./pages/ResetPassword.jsx";
+import LoadingPage from "./pages/LoadingPage.jsx";
+import { fetchImageCarousel } from "./Redux/slice/imageCarouselSlice.js";
 import EcosystemControl from "./Admin/EcosystemControl.jsx";
 import { fetchStartups } from "./Redux/slice/startupPortfolioSlice.js";
 import InternshipRecords from "./Admin/Records/InternshipRecords.jsx";
@@ -76,6 +78,8 @@ import StudentRecords from "./pages/StudentRecords.jsx";
 
 function App() {
   const [isAdmin, setIsAdmin] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadingProgress, setLoadingProgress] = useState(0);
   const dispatch = useDispatch();
   const state = useSelector((state) => state);
 
@@ -101,15 +105,53 @@ function App() {
     }
   }, [state.authenticate]);
 
+  useEffect(()=>{
+    if(!state.imageCarousel.images?.images) {
+      dispatch(fetchImageCarousel());
+      setIsLoading(true);
+      setLoadingProgress(0);
+    }
+    console.log("Fetching Image Carousel Data", state.imageCarousel);
+  },[dispatch])
+
+  // Smooth loading progress animation
+  useEffect(() => {
+    if (isLoading && state.imageCarousel.loading) {
+      // Gradually increase progress from 0 to 80 while loading
+      const interval = setInterval(() => {
+        setLoadingProgress(prev => {
+          if (prev < 80) {
+            return prev + Math.random() * 3 + 1; // Increase by 1-4% each time
+          }
+          return prev;
+        });
+      }, 100); // Update every 100ms
+
+      return () => clearInterval(interval);
+    }
+  }, [isLoading, state.imageCarousel.loading]);
+
+  useEffect(() => {
+    if (state.imageCarousel.images?.images?.length > 0) {
+      // Complete the progress quickly when data is loaded
+      setLoadingProgress(100);
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 300); // Small delay to show 100% before hiding
+    } else if (state.imageCarousel.error) {
+      // Handle error case
+      setLoadingProgress(100);
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 300);
+    }
+  }, [state.imageCarousel]);
+
   return (
     <Router>
-      {/*
-      <Header />
-    */}
       <NewNav />
       <MoveToTop />
-      {/* <NavbarOG /> */}
-
+      {isLoading && (<LoadingPage progress={Math.round(loadingProgress)} />)}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
@@ -128,15 +170,11 @@ function App() {
         <Route path="/networkingPartners" element={<Network />} />
         <Route path="/team" element={<Team />} />
         <Route path="/team/coreteam" element={<CoreTeam />} />
-        <Route
-          path="/team/executive_committee"
-          element={<Executive_Committee />}
-        />
+        <Route path="/team/executive_committee" element={<Executive_Committee />} />
         <Route path="/upcoming_events" element={<Events_Calendar />} />
         <Route path="/road_map" element={<Road_Map />} />
         <Route path="/news_letter" element={<News_letter />} />
         <Route path="/press_media" element={<Press_Media_Coverage />} />
-
         {/* Login */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
@@ -147,7 +185,6 @@ function App() {
         <Route path="/teamProfile" element={<TeamProfile />} />
         <Route path="/profile/:id" element={<ProfileShare />} />
         <Route path="/profile/studentRecords" element={<StudentRecords />} />
-
         {isAdmin > 0 && (
           <>
             <Route path="/admin" element={<Admin />} />
@@ -156,6 +193,7 @@ function App() {
             <Route path="/events/edit/:id" element={<EditEvent />} />
             <Route path="/admin/presscontrol" element={<PressMediaControl />} />
             <Route path="/admin/roadmapcontrol" element={<RoadMapControl />} />
+
             <Route
               path="/admin/newslettercontrol"
               element={<NewsLetterControl />}
@@ -211,24 +249,17 @@ function App() {
             )}
           </>
         )}
-        {/* Admin - Works */}
-
-        {/* Skill_Pattara */}
+        {/* Skill Pattara */}
         <Route path="/drone_technology" element={<Drone_Technology />} />
         <Route path="/arduino_programming" element={<Arduino_Programming />} />
-        <Route
-          path="/raspberry_pi_development"
-          element={<Raspberry_Pi_Development />}
-        />
-
-        {/* 404 Page */}
+        <Route path="/raspberry_pi_development" element={<Raspberry_Pi_Development />} />
+        {/* 404 */}
         <Route path="*" element={<Page_Not_Found />} />
-        <Route path="/loader" element={<LoaderAic />} />
       </Routes>
-
       <Footer />
     </Router>
   );
 }
+
 
 export default App;

@@ -6,6 +6,7 @@ import api from "../../Api/api";
 export const fetchPartners = createAsyncThunk(
   "partners/fetchPartners",
   async (type = null, { rejectWithValue }) => {
+    console.log("Fetching partners with type:", type);
     try {
       const params = type ? { type } : {};
       const response = await axios.get(`${api.web}api/v1/partners`, { params });

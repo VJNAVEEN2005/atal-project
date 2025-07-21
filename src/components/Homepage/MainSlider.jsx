@@ -40,7 +40,9 @@ function MainSlider({ images }) {
               <img
                 src={image.imageUrl}
                 alt={`Image ${index + 1}`}
-                onLoad={() => setLoading(false)}
+                onLoad={() => {
+                  setLoading(false);
+                }}
                 className="h-56 w-full object-cover rounded-xl"
               />
             )}
