@@ -21,6 +21,7 @@ import axios from "axios";
 import api from "../../Api/api";
 import { showNotification, updateNotification } from "@mantine/notifications";
 import { Modal } from "@mantine/core";
+import * as XLSX from "xlsx";
 import { IoReload } from "react-icons/io5";
 
 const ProjectRecordsData = () => {
@@ -68,11 +69,75 @@ const ProjectRecordsData = () => {
       const searchLower = searchTerm.toLowerCase();
       const newSuggestions = [];
       records.forEach((record) => {
+        if (record.userId && record.userId.toLowerCase().includes(searchLower)) {
+          newSuggestions.push({
+            type: "userId",
+            value: record.userId,
+            record,
+            label: `${record.userId} (User ID)`
+          });
+        }
+        if (record.name && record.name.toLowerCase().includes(searchLower)) {
+          newSuggestions.push({
+            type: "name",
+            value: record.name,
+            record,
+            label: `${record.name} (Name)`
+          });
+        }
+        if (record.registerNumber && record.registerNumber.toLowerCase().includes(searchLower)) {
+          newSuggestions.push({
+            type: "registerNumber",
+            value: record.registerNumber,
+            record,
+            label: `${record.registerNumber} (Register No)`
+          });
+        }
+        if (record.department && record.department.toLowerCase().includes(searchLower)) {
+          newSuggestions.push({
+            type: "department",
+            value: record.department,
+            record,
+            label: `${record.department} (Department)`
+          });
+        }
+        if (record.yearOfStudy && record.yearOfStudy.toLowerCase().includes(searchLower)) {
+          newSuggestions.push({
+            type: "yearOfStudy",
+            value: record.yearOfStudy,
+            record,
+            label: `${record.yearOfStudy} (Year)`
+          });
+        }
+        if (record.instituteName && record.instituteName.toLowerCase().includes(searchLower)) {
+          newSuggestions.push({
+            type: "instituteName",
+            value: record.instituteName,
+            record,
+            label: `${record.instituteName} (Institute)`
+          });
+        }
+        if (record.projectTitle && record.projectTitle.toLowerCase().includes(searchLower)) {
+          newSuggestions.push({
+            type: "projectTitle",
+            value: record.projectTitle,
+            record,
+            label: `${record.projectTitle} (Project Title)`
+          });
+        }
+        if (record.projectGuideName && record.projectGuideName.toLowerCase().includes(searchLower)) {
+          newSuggestions.push({
+            type: "projectGuideName",
+            value: record.projectGuideName,
+            record,
+            label: `${record.projectGuideName} (Guide)`
+          });
+        }
         if (record.projectName && record.projectName.toLowerCase().includes(searchLower)) {
           newSuggestions.push({
             type: "projectName",
             value: record.projectName,
-            record: record,
+            record,
             label: `${record.projectName} (Project Name)`
           });
         }
@@ -80,7 +145,7 @@ const ProjectRecordsData = () => {
           newSuggestions.push({
             type: "projectId",
             value: record.projectId,
-            record: record,
+            record,
             label: `${record.projectId} (Project ID)`
           });
         }
@@ -88,7 +153,7 @@ const ProjectRecordsData = () => {
           newSuggestions.push({
             type: "status",
             value: record.status,
-            record: record,
+            record,
             label: `${record.status} (Status)`
           });
         }
@@ -96,7 +161,7 @@ const ProjectRecordsData = () => {
           newSuggestions.push({
             type: "description",
             value: record.description,
-            record: record,
+            record,
             label: `${record.description} (Description)`
           });
         }
@@ -107,11 +172,12 @@ const ProjectRecordsData = () => {
         )
         .slice(0, 8);
       setSuggestions(uniqueSuggestions);
-      setShowSuggestions(true);
+      setShowSuggestions(uniqueSuggestions.length > 0);
     } else {
-      setShowSuggestions(false);
       setSuggestions([]);
+      setShowSuggestions(false);
     }
+    setSelectedSuggestionIndex(-1);
   }, [searchTerm, records]);
 
   // Handle clicking outside to close suggestions
@@ -163,6 +229,8 @@ const ProjectRecordsData = () => {
     setSearchTerm(suggestion.value);
     setShowSuggestions(false);
     setSelectedSuggestionIndex(-1);
+    setSelectedRecord(suggestion.record);
+    setShowDetails(true);
     searchInputRef.current?.focus();
   };
 
@@ -178,14 +246,22 @@ const ProjectRecordsData = () => {
 
   // Filter records based on search term and status
   const filteredRecords = records.filter((record) => {
+    const search = searchTerm.toLowerCase();
     const matchesSearch =
-      record.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      record.registerNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      record.projectTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      record.projectGuideName.toLowerCase().includes(searchTerm.toLowerCase());
+      (record.userId && record.userId.toLowerCase().includes(search)) ||
+      (record.name && record.name.toLowerCase().includes(search)) ||
+      (record.registerNumber && record.registerNumber.toLowerCase().includes(search)) ||
+      (record.department && record.department.toLowerCase().includes(search)) ||
+      (record.yearOfStudy && record.yearOfStudy.toLowerCase().includes(search)) ||
+      (record.instituteName && record.instituteName.toLowerCase().includes(search)) ||
+      (record.projectTitle && record.projectTitle.toLowerCase().includes(search)) ||
+      (record.projectGuideName && record.projectGuideName.toLowerCase().includes(search)) ||
+      (record.projectName && record.projectName.toLowerCase().includes(search)) ||
+      (record.projectId && record.projectId.toLowerCase().includes(search)) ||
+      (record.status && record.status.toLowerCase().includes(search)) ||
+      (record.description && record.description.toLowerCase().includes(search));
     const matchesStatus =
-      filterStatus === "all" ||
-      record.status.toLowerCase() === filterStatus.toLowerCase();
+      filterStatus === "all" || (record.status && record.status.toLowerCase() === filterStatus.toLowerCase());
     return matchesSearch && matchesStatus;
   });
 
@@ -228,12 +304,41 @@ const ProjectRecordsData = () => {
   };
 
   const handleExport = () => {
-    // Implement export logic if needed
-    showNotification({ title: "Export", message: "Export functionality not implemented." });
+    if (!records || records.length === 0) {
+      showNotification({ title: "Export", message: "No records to export." });
+      return;
+    }
+    // Prepare data for export (remove unnecessary fields if needed)
+    const exportData = records.map(({ __v, ...rest }) => rest);
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Projects");
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `Project_Records_${new Date().toISOString().split("T")[0]}.xlsx`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    showNotification({ title: "Export", message: "Project records exported as Excel." });
   };
+
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
+      {/* Back Button */}
+      <button
+        onClick={() => navigate(-1)}
+        className="flex items-center gap-2 mb-4 px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+        </svg>
+        Back
+      </button>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-white p-6 rounded-t-lg bg-gradient-to-r from-[#3f6197] to-[#5478b0]">
@@ -267,63 +372,87 @@ const ProjectRecordsData = () => {
                     }, 200);
                   }}
                 />
-              </div>
-              {/* Suggestions Dropdown */}
-              {showSuggestions && (
-                <div
-                  ref={suggestionsRef}
-                  className="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto"
-                  style={{ marginTop: "2px" }}
-                >
-                  {suggestions.map((suggestion, index) => (
-                    <div
-                      key={index}
-                      className={`px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors ${
-                        index === selectedSuggestionIndex
-                          ? "bg-blue-50 border-blue-200"
-                          : "hover:bg-gray-50"
-                      }`}
-                      onClick={() => handleViewDetails(suggestion.record)}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          {suggestion.type === "name" && (
-                            <User className="w-4 h-4 text-gray-400" />
-                          )}
-                          {suggestion.type === "registerNumber" && (
-                            <FileText className="w-4 h-4 text-gray-400" />
-                          )}
-                          {suggestion.type === "projectTitle" && (
-                            <FileText className="w-4 h-4 text-gray-400" />
-                          )}
-                          {suggestion.type === "projectGuideName" && (
-                            <User className="w-4 h-4 text-gray-400" />
-                          )}
-                          <div>
-                            <div className="text-sm font-medium text-gray-900">
-                              {suggestion.value}
-                            </div>
-                            <div className="text-xs text-gray-500">
-                              {suggestion.type.charAt(0).toUpperCase() +
-                                suggestion.type.slice(1)}{" "}
-                              • {suggestion.record.name}
+                {/* Suggestions Dropdown */}
+                {showSuggestions && (
+                  <div
+                    ref={suggestionsRef}
+                    className="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto"
+                    style={{ marginTop: "2px" }}
+                  >
+                    {suggestions.map((suggestion, index) => (
+                      <div
+                        key={index}
+                        className={`px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors ${
+                          index === selectedSuggestionIndex
+                            ? "bg-blue-50 border-blue-200"
+                            : "hover:bg-gray-50"
+                        }`}
+                        onClick={() => handleSuggestionClick(suggestion)}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            {suggestion.type === "userId" && (
+                              <User className="w-4 h-4 text-gray-400" />
+                            )}
+                            {suggestion.type === "name" && (
+                              <User className="w-4 h-4 text-gray-400" />
+                            )}
+                            {suggestion.type === "registerNumber" && (
+                              <FileText className="w-4 h-4 text-gray-400" />
+                            )}
+                            {suggestion.type === "department" && (
+                              <Settings className="w-4 h-4 text-gray-400" />
+                            )}
+                            {suggestion.type === "yearOfStudy" && (
+                              <Calendar className="w-4 h-4 text-gray-400" />
+                            )}
+                            {suggestion.type === "instituteName" && (
+                              <Home className="w-4 h-4 text-gray-400" />
+                            )}
+                            {suggestion.type === "projectTitle" && (
+                              <FileText className="w-4 h-4 text-gray-400" />
+                            )}
+                            {suggestion.type === "projectGuideName" && (
+                              <User className="w-4 h-4 text-gray-400" />
+                            )}
+                            {suggestion.type === "projectName" && (
+                              <FileText className="w-4 h-4 text-gray-400" />
+                            )}
+                            {suggestion.type === "projectId" && (
+                              <FileText className="w-4 h-4 text-gray-400" />
+                            )}
+                            {suggestion.type === "status" && (
+                              <Settings className="w-4 h-4 text-gray-400" />
+                            )}
+                            {suggestion.type === "description" && (
+                              <FileText className="w-4 h-4 text-gray-400" />
+                            )}
+                            <div>
+                              <div className="text-sm font-medium text-gray-900">
+                                {suggestion.value}
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                {suggestion.type.charAt(0).toUpperCase() +
+                                  suggestion.type.slice(1)}{" "}
+                                • {suggestion.record.name}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                        <div
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            suggestion.record.status === "Active"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-blue-100 text-blue-800"
-                          }`}
-                        >
-                          {suggestion.record.status}
+                          <div
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              suggestion.record.status === "active"
+                                ? "bg-green-100 text-green-800"
+                                : "bg-blue-100 text-blue-800"
+                            }`}
+                          >
+                            {suggestion.record.status}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
             <div className="flex gap-3">
               <div className="relative">
@@ -358,7 +487,7 @@ const ProjectRecordsData = () => {
               {/* Export Button */}
               <div className="relative inline-block">
                 <button
-                  // onClick={handleExport} // Implement export if needed
+                  onClick={handleExport} // Implement export if needed
                   className="flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-all duration-200 hover:shadow-lg"
                   style={{
                     backgroundColor: "#3f6197",
@@ -536,7 +665,60 @@ const ProjectRecordsData = () => {
                 </div>
               </div>
             </div>
-            <div className="flex justify-end gap-3 p-6 bg-gray-50">
+            <div className="flex flex-col md:flex-row md:justify-between gap-3 p-6 bg-gray-50 items-center">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={async () => {
+                    const newStatus = selectedRecord.status === 'active' ? 'completed' : 'active';
+                    showNotification({
+                      id: 'status-update',
+                      title: 'Updating Status',
+                      message: `Changing status to ${newStatus}...`,
+                      loading: true,
+                      autoClose: false,
+                    });
+                    try {
+                      const id = selectedRecord._id || selectedRecord.projectId;
+                      const response = await axios.put(`${api.web}api/v1/project/${id}`, { status: newStatus }, {
+                        headers: { token: localStorage.getItem('token') }
+                      });
+                      if (response.data.success) {
+                        setSelectedRecord(prev => ({ ...prev, status: newStatus }));
+                        setRecords(records => records.map(r => (r._id === id || r.projectId === id) ? { ...r, status: newStatus } : r));
+                        updateNotification({
+                          id: 'status-update',
+                          title: 'Status Updated',
+                          message: `Status changed to ${newStatus}.`,
+                          color: 'green',
+                          icon: <Check className="w-4 h-4" />,
+                          autoClose: 3000,
+                        });
+                      } else {
+                        updateNotification({
+                          id: 'status-update',
+                          title: 'Update Failed',
+                          message: response.data.message || 'Failed to update status.',
+                          color: 'red',
+                          icon: <X className="w-4 h-4" />,
+                          autoClose: 3000,
+                        });
+                      }
+                    } catch (error) {
+                      updateNotification({
+                        id: 'status-update',
+                        title: 'Update Failed',
+                        message: error?.response?.data?.message || error.message || 'Failed to update status.',
+                        color: 'red',
+                        icon: <X className="w-4 h-4" />,
+                        autoClose: 3000,
+                      });
+                    }
+                  }}
+                  className={`px-4 py-2 rounded-lg text-white transition-all duration-200 ${selectedRecord.status === 'active' ? 'bg-green-400 hover:bg-green-500' : 'bg-blue-400 hover:bg-blue-500'}`}
+                >
+                  {selectedRecord.status}
+                </button>
+              </div>
               <button onClick={handleCloseDetails} className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors">Close</button>
             </div>
           </div>
