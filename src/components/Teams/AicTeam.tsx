@@ -102,7 +102,7 @@ const Team = () => {
   const dispatch: AppDispatch = useDispatch();
 
   const state = useSelector(
-    (state: { teams: { teams: { team: TeamMember[] } } }) => state
+    (state: { teams: { teams: { teams: TeamMember[] } } }) => state
   );
 
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
@@ -118,7 +118,7 @@ const Team = () => {
 
   useEffect(() => {
     if (state.teams.teams) {
-      setTeamMembers(state.teams.teams.team);
+      setTeamMembers(state.teams.teams.teams);
       setLoading(false);
       setError(null);
     } else {
@@ -127,9 +127,9 @@ const Team = () => {
   }, [state.teams.teams]);
 
   // Filter team members based on active tab
-  const filteredMembers = teamMembers.filter(
+  const filteredMembers = teamMembers?.filter(
     (member) => member.team === activeTab
-  );
+  ) || [];
 
   return (
     <div className="bg-gray-50 py-16 px-4 sm:px-6 lg:px-8">
