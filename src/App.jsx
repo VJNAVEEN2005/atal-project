@@ -95,11 +95,11 @@ function App() {
     }
   }, [dispatch]);
 
-  useEffect(()=>{
+  useEffect(() => {
     if (!state.user.user) {
       dispatch(fetchUser());
     }
-  },[dispatch])
+  }, [dispatch]);
 
   useEffect(() => {
     if (state.authenticate) {
@@ -107,21 +107,21 @@ function App() {
     }
   }, [state.authenticate]);
 
-  useEffect(()=>{
-    if(!state.imageCarousel.images?.images) {
+  useEffect(() => {
+    if (!state.imageCarousel.images?.images) {
       dispatch(fetchImageCarousel());
       setIsLoading(true);
       setLoadingProgress(0);
     }
     console.log("Fetching Image Carousel Data", state.imageCarousel);
-  },[dispatch])
+  }, [dispatch]);
 
   // Smooth loading progress animation
   useEffect(() => {
     if (isLoading && state.imageCarousel.loading) {
       // Gradually increase progress from 0 to 80 while loading
       const interval = setInterval(() => {
-        setLoadingProgress(prev => {
+        setLoadingProgress((prev) => {
           if (prev < 80) {
             return prev + Math.random() * 3 + 1; // Increase by 1-4% each time
           }
@@ -153,117 +153,153 @@ function App() {
     <Router>
       <NewNav />
       <MoveToTop />
-      {isLoading && (<LoadingPage progress={Math.round(loadingProgress)} />)}
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/partners" element={<Partners />} />
-        <Route path="/programs" element={<Programs />} />
-        <Route path="/studentProject" element={<Services />} />
-        <Route path="/startupDetail" element={<Portfolio />} />
-        <Route path="/events" element={<Events />} />
-        <Route path="/tenders" element={<Tenders />} />
-        <Route path="/admin/tenders" element={<TendersAdmin />} />
-        <Route path="/academicPartners" element={<Academic />} />
-        <Route path="/cooperativePartners" element={<Cooperative />} />
-        <Route path="/investmentPartner" element={<Investment />} />
-        <Route path="/ipSupporters" element={<IP />} />
-        <Route path="/networkingPartners" element={<Network />} />
-        <Route path="/team" element={<Team />} />
-        <Route path="/team/coreteam" element={<CoreTeam />} />
-        <Route path="/team/executive_committee" element={<Executive_Committee />} />
-        <Route path="/upcoming_events" element={<Events_Calendar />} />
-        <Route path="/road_map" element={<Road_Map />} />
-        <Route path="/news_letter" element={<News_letter />} />
-        <Route path="/press_media" element={<Press_Media_Coverage />} />
-        {/* Login */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password/:token" element={<ResetPassword />} />
+      {isLoading ? (
+        <LoadingPage progress={Math.round(loadingProgress)} />
+      ) : (
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/partners" element={<Partners />} />
+          <Route path="/programs" element={<Programs />} />
+          <Route path="/studentProject" element={<Services />} />
+          <Route path="/startupDetail" element={<Portfolio />} />
+          <Route path="/events" element={<Events />} />
+          <Route path="/tenders" element={<Tenders />} />
+          <Route path="/admin/tenders" element={<TendersAdmin />} />
+          <Route path="/academicPartners" element={<Academic />} />
+          <Route path="/cooperativePartners" element={<Cooperative />} />
+          <Route path="/investmentPartner" element={<Investment />} />
+          <Route path="/ipSupporters" element={<IP />} />
+          <Route path="/networkingPartners" element={<Network />} />
+          <Route path="/team" element={<Team />} />
+          <Route path="/team/coreteam" element={<CoreTeam />} />
+          <Route
+            path="/team/executive_committee"
+            element={<Executive_Committee />}
+          />
+          <Route path="/upcoming_events" element={<Events_Calendar />} />
+          <Route path="/road_map" element={<Road_Map />} />
+          <Route path="/news_letter" element={<News_letter />} />
+          <Route path="/press_media" element={<Press_Media_Coverage />} />
+          {/* Login */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/teamProfile" element={<TeamProfile />} />
-        <Route path="/profile/:id" element={<ProfileShare />} />
-        <Route path="/profile/studentRecords" element={<StudentRecords />} />
-        {isAdmin > 0 && (
-          <>
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/admin/teamscontrol" element={<TeamsControl />} />
-            <Route path="/admin/eventscontrol" element={<EventsControl />} />
-            <Route path="/events/edit/:id" element={<EditEvent />} />
-            <Route path="/admin/presscontrol" element={<PressMediaControl />} />
-            <Route path="/admin/roadmapcontrol" element={<RoadMapControl />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/teamProfile" element={<TeamProfile />} />
+          <Route path="/profile/:id" element={<ProfileShare />} />
+          <Route path="/profile/studentRecords" element={<StudentRecords />} />
+          {isAdmin > 0 && (
+            <>
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/admin/teamscontrol" element={<TeamsControl />} />
+              <Route path="/admin/eventscontrol" element={<EventsControl />} />
+              <Route path="/events/edit/:id" element={<EditEvent />} />
+              <Route
+                path="/admin/presscontrol"
+                element={<PressMediaControl />}
+              />
+              <Route
+                path="/admin/roadmapcontrol"
+                element={<RoadMapControl />}
+              />
 
-            <Route
-              path="/admin/newslettercontrol"
-              element={<NewsLetterControl />}
-            />
-            <Route
-              path="/admin/startupdetailscontrol"
-              element={<StartupDetailsControl />}
-            />
-            <Route
-              path="/admin/partnerscontrol"
-              element={<PartnersControl />}
-            />
-            <Route
-              path="/admin/imagecarouselcontrol"
-              element={<ImageCarouselControl />}
-            />
-            <Route
-              path="/admin/messagescontrol"
-              element={<MessagesControl />}
-            />
-            <Route
-              path="/admin/ecosystemcontrol"
-              element={<EcosystemControl />}
-            />
-            <Route path="/admin/teamsSignUp" element={<TeamsSignUp />} />
-            <Route
-              path="/admin/teamsSignUpControl"
-              element={<TeamsSignUpControl />}
-            />
+              <Route
+                path="/admin/newslettercontrol"
+                element={<NewsLetterControl />}
+              />
+              <Route
+                path="/admin/startupdetailscontrol"
+                element={<StartupDetailsControl />}
+              />
+              <Route
+                path="/admin/partnerscontrol"
+                element={<PartnersControl />}
+              />
+              <Route
+                path="/admin/imagecarouselcontrol"
+                element={<ImageCarouselControl />}
+              />
+              <Route
+                path="/admin/messagescontrol"
+                element={<MessagesControl />}
+              />
+              <Route
+                path="/admin/ecosystemcontrol"
+                element={<EcosystemControl />}
+              />
+              <Route path="/admin/teamsSignUp" element={<TeamsSignUp />} />
+              <Route
+                path="/admin/teamsSignUpControl"
+                element={<TeamsSignUpControl />}
+              />
 
-            {/* Records */}
-            <Route path="/admin/internshipRecords" element={<InternshipRecords />} />
-            <Route path="/admin/projectRecords" element={<ProjectRecords />} />
+              {/* Records */}
+              <Route
+                path="/admin/internshipRecords"
+                element={<InternshipRecords />}
+              />
+              <Route
+                path="/admin/projectRecords"
+                element={<ProjectRecords />}
+              />
 
-            <Route path="/admin/internshipRecordsData" element={<InternshipRecordsData />} />
-            <Route path="/admin/projectRecordsData" element={<ProjectRecordsData />} />
+              <Route
+                path="/admin/internshipRecordsData"
+                element={<InternshipRecordsData />}
+              />
+              <Route
+                path="/admin/projectRecordsData"
+                element={<ProjectRecordsData />}
+              />
 
-            {/* Stocks */}
-            <Route path="/admin/createStocks" element={<CreateStocks />} />
+              {/* Stocks */}
+              <Route path="/admin/createStocks" element={<CreateStocks />} />
 
-            <Route path="/admin/stocksData" element={<StocksData />} />
+              <Route path="/admin/stocksData" element={<StocksData />} />
 
-            <Route path="/admin/updateStocks" element={<UpdateStocks />} />
+              <Route path="/admin/updateStocks" element={<UpdateStocks />} />
 
-            <Route path="/admin/viewStocksUpdateRecords" element={<ViewStocksUpdateRecords />} />
+              <Route
+                path="/admin/viewStocksUpdateRecords"
+                element={<ViewStocksUpdateRecords />}
+              />
 
-            {isAdmin == 1 && (
-              <>
-                <Route
-                  path="/admin/tenderscontrol"
-                  element={<TendersControl />}
-                />
-                <Route path="/admin/admincontrol" element={<AdminControl />} />
-              </>
-            )}
-          </>
-        )}
-        {/* Skill Pattara */}
-        <Route path="/drone_technology" element={<Drone_Technology />} />
-        <Route path="/arduino_programming" element={<Arduino_Programming />} />
-        <Route path="/raspberry_pi_development" element={<Raspberry_Pi_Development />} />
-        {/* 404 */}
-        <Route path="*" element={<Page_Not_Found />} />
-      </Routes>
+              {isAdmin == 1 && (
+                <>
+                  <Route
+                    path="/admin/tenderscontrol"
+                    element={<TendersControl />}
+                  />
+                  <Route
+                    path="/admin/admincontrol"
+                    element={<AdminControl />}
+                  />
+                </>
+              )}
+            </>
+          )}
+          {/* Skill Pattara */}
+          <Route path="/drone_technology" element={<Drone_Technology />} />
+          <Route
+            path="/arduino_programming"
+            element={<Arduino_Programming />}
+          />
+          <Route
+            path="/raspberry_pi_development"
+            element={<Raspberry_Pi_Development />}
+          />
+          {/* 404 */}
+          <Route path="*" element={<Page_Not_Found />} />
+        </Routes>
+      )}
+
       <Footer />
     </Router>
   );
 }
-
 
 export default App;
