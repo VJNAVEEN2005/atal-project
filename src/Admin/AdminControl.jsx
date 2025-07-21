@@ -80,6 +80,23 @@ const AdminControl = () => {
       </div>
 
       <div className="bg-white rounded-xl shadow-lg p-6">
+  {/* Admin Dashboard Quick Links */}
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+    <a href="/admin/internshipRecords" className="block bg-blue-50 hover:bg-blue-100 transition p-6 rounded-lg shadow flex items-center gap-4">
+      <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 14l9-5-9-5-9 5 9 5z"/><path d="M12 14l6.16-3.422A12.083 12.083 0 0121 13.5c0 4.694-3.806 8.5-8.5 8.5S4 18.194 4 13.5a12.083 12.083 0 012.84-2.922L12 14z"/></svg>
+      <div>
+        <div className="font-bold text-blue-900">Internship Records</div>
+        <div className="text-xs text-blue-700">Manage Intern profiles</div>
+      </div>
+    </a>
+    <a href="/admin/projectRecordsData" className="block bg-green-50 hover:bg-green-100 transition p-6 rounded-lg shadow flex items-center gap-4">
+      <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 6v6l4 2" /><circle cx="12" cy="12" r="10" /></svg>
+      <div>
+        <div className="font-bold text-green-900">Project Records</div>
+        <div className="text-xs text-green-700">Manage Project Discovery applications</div>
+      </div>
+    </a>
+  </div>
         {/* Message */}
         {message.text && (
           <div

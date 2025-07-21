@@ -66,6 +66,8 @@ import EcosystemControl from "./Admin/EcosystemControl.jsx";
 import { fetchStartups } from "./Redux/slice/startupPortfolioSlice.js";
 import InternshipRecords from "./Admin/Records/InternshipRecords.jsx";
 import InternshipRecordsData from "./Admin/Records/InternshipRecordsData.jsx";
+import ProjectRecords from "./Admin/Records/ProjectRecords.jsx";
+import ProjectRecordsData from "./Admin/Records/ProjectRecordsData.jsx";
 import TeamsSignUp from "./Admin/TeamsSignUp.jsx";
 import TeamsSignUpControl from "./Admin/TeamsSignUpControl.jsx";
 import TeamProfile from "./components/Profile/TeamProfile.jsx";
@@ -226,8 +228,10 @@ function App() {
 
             {/* Records */}
             <Route path="/admin/internshipRecords" element={<InternshipRecords />} />
+            <Route path="/admin/projectRecords" element={<ProjectRecords />} />
 
             <Route path="/admin/internshipRecordsData" element={<InternshipRecordsData />} />
+            <Route path="/admin/projectRecordsData" element={<ProjectRecordsData />} />
 
             {/* Stocks */}
             <Route path="/admin/createStocks" element={<CreateStocks />} />
