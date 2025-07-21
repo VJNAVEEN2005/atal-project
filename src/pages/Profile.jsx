@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { showNotification, updateNotification } from "@mantine/notifications";
 import TeamProfile from "../components/Profile/TeamProfile";
+import { jwtDecode } from "jwt-decode";
 
 // Component for displaying information in view mode with improved styling
 const Field = ({ label, value }) => (
@@ -909,6 +910,8 @@ const Profile = () => {
     );
   };
 
+  const [domain, setDomain] = useState(jwtDecode(localStorage.getItem("token")).domain);
+
   const shareProfile = () => {
     const shareUrl = `${window.location.origin}/profile/${userId}`;
     const shareData = {
@@ -966,6 +969,18 @@ const Profile = () => {
               </>
             ) : (
               <>
+                {state?.user?.user?.user?.domain === "Students" && (
+                  <button
+                    onClick={() => {
+                      navigate('/profile/studentRecords',{
+                        state: { userId: state?.user?.user?.user?.userId },
+                      })
+                    }}
+                    className="bg-[#3f6197] text-white px-5 py-2 rounded-lg hover:bg-[#2e4b78] transition-all duration-300 shadow-md hover:shadow-lg flex items-center"
+                  >
+                    Records
+                  </button>
+                )}
                 {(isAdmin == 1 || isAdmin == 2) && (
                   <button
                     onClick={handleAdminAccess}
