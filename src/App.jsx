@@ -68,6 +68,7 @@ import InternshipRecords from "./Admin/Records/InternshipRecords.jsx";
 import InternshipRecordsData from "./Admin/Records/InternshipRecordsData.jsx";
 import ProjectRecords from "./Admin/Records/ProjectRecords.jsx";
 import ProjectRecordsData from "./Admin/Records/ProjectRecordsData.jsx";
+import AllUsers from "./Admin/Records/AllUsers.jsx";
 import TeamsSignUp from "./Admin/TeamsSignUp.jsx";
 import TeamsSignUpControl from "./Admin/TeamsSignUpControl.jsx";
 import TeamProfile from "./components/Profile/TeamProfile.jsx";
@@ -258,6 +259,12 @@ function App() {
 
               {/* Stocks */}
               <Route path="/admin/createStocks" element={<CreateStocks />} />
+
+            {/* All Users */}
+            <Route path="/admin/allUsers" element={<AllUsers />} />
+
+            {/* Stocks */}
+            <Route path="/admin/createStocks" element={<CreateStocks />} />
 
               <Route path="/admin/stocksData" element={<StocksData />} />
 
