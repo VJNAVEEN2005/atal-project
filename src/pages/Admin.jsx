@@ -16,6 +16,11 @@ const Admin = () => {
 
   const adminControls = [
     {
+      name: "Teams SignUp Control",
+      link: "/admin/teamsSignUpControl",
+      icon: "👥", // Changed to people icon
+    },
+    {
       name: "Events Control",
       link: "/admin/eventscontrol",
       icon: "📅", // Keep calendar icon
@@ -77,6 +82,11 @@ const Admin = () => {
       name: "Project Records",
       link: "/admin/projectRecordsData",
       icon: "🗂️"
+    },
+    {
+      name: "Stocks Data",
+      link: "/admin/stocksData",
+      icon: "📊"
     }
   ]
 

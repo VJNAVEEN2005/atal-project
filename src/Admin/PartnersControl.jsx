@@ -55,6 +55,7 @@ const Api = {
 const PartnerCard = ({ partner, index, onEdit, onDelete, isCompany }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
+  
 
   const imageUrl = isCompany 
     ? Api.getLogoUrl(partner._id)
@@ -264,19 +265,25 @@ const PartnerForm = ({ partner, onSubmit, onCancel, partnerType }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const data = new FormData();
-    
-    Object.keys(formData).forEach(key => {
-      if (formData[key]) {
-        data.append(key, formData[key]);
-      }
-    });
-    
+  
+    // Always include all form fields, even if empty
+    data.append('name', formData.name || '');
+    data.append('type', formData.type || '');
+    data.append('website', formData.website || '');
+    data.append('email', formData.email || '');
+    data.append('linkedin', formData.linkedin || '');
+    data.append('details', formData.details || '');
+    data.append('role', formData.role || '');
+    data.append('companyName', formData.companyName || '');
+    data.append('expertise', formData.expertise.join(',') || '');
+  
     if (image) {
       data.append('image', image);
     }
-    
+  
     onSubmit(data, partner?._id);
   };
+  
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg max-w-md mx-auto max-h-[90vh] overflow-y-auto">
@@ -387,7 +394,13 @@ const PartnerForm = ({ partner, onSubmit, onCancel, partnerType }) => {
               <textarea
                 name="details"
                 value={formData.details}
-                onChange={handleChange}
+                onChange={(e) => {
+                  const { name, value } = e.target;
+                  if (name === 'role' || name === 'expertise' || name === 'company') {
+                    console.log(`${name} added to the database: ${value}`);
+                  }
+                  handleChange(e);
+                }}
                 rows="3"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3f6197]"
                 placeholder="Brief description of experience, role, expertise..."

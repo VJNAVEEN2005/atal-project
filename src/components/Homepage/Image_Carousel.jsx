@@ -1,26 +1,24 @@
-import React, {useState,useEffect} from "react";
-
+import React, { useState, useEffect } from "react";
 
 function Image_Carousel(props) {
-  
-    const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-    // Automatically move to the next slide
-    useEffect(() => {
-      const interval = setInterval(() => {
-        setCurrentIndex((prev) => (prev === props.images.length - 1 ? 0 : prev + 1));
-      }, 3000); // Change slide every 3 seconds
-  
-      return () => clearInterval(interval); // Cleanup on unmount
-    }, [currentIndex]);
-  
-    const prevSlide = () => {
-      setCurrentIndex((prev) => (prev === 0 ? props.images.length - 1 : prev - 1));
-    };
-  
-    const nextSlide = () => {
+  // Automatically move to the next slide
+  useEffect(() => {
+    const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev === props.images.length - 1 ? 0 : prev + 1));
-    };
+    }, 3000); // Change slide every 3 seconds
+    return () => clearInterval(interval); // Cleanup on unmount
+  }, [currentIndex, props.images.length]);
+
+  const prevSlide = () => {
+    setCurrentIndex((prev) => (prev === 0 ? props.images.length - 1 : prev - 1));
+  };
+
+  const nextSlide = () => {
+    setCurrentIndex((prev) => (prev === props.images.length - 1 ? 0 : prev + 1));
+  };
+
   return (
     <>
        <div className="relative w-full max-w-4xl mx-auto mt-2 mb-2 overflow-hidden rounded-lg shadow-lg">
