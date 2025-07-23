@@ -1,7 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Stats from "../components/Homepage/Stat";
-
 import styled, { keyframes, css } from "styled-components";
 import SocialMedia from "../components/Homepage/SocialMedia";
 import Partner from "../components/Homepage/Partner";
@@ -13,12 +12,51 @@ import Testimonials from "../components/Homepage/Testimonials";
 import Choose_Us from "../components/Homepage/Choose_Us";
 import Infrastructure_services from "../components/Homepage/Infrastructure_services";
 import ScrollToTop from '../components/ScrollToTop'
+import Popup from './Popup';
 
-const Home = () => {
+// For demo, mock events here or import from a shared data file
+const eventsData = [
+  {
+    title: 'Startup Pitch Day',
+    date: '2024-07-25',
+    location: 'AIC-PECF Auditorium',
+    description: 'A day for startups to pitch their ideas to investors and mentors.'
+  },
+  {
+    title: 'Innovation Bootcamp',
+    date: '2024-07-28',
+    location: 'Main Hall',
+    description: 'A bootcamp for students and entrepreneurs to learn about innovation.'
+  },
+  {
+    title: 'Tech Networking Night',
+    date: '2024-08-02',
+    location: 'Cafeteria',
+    description: 'An evening to network with tech professionals and founders.'
+  },
+];
+
+const Home = ({ showPopup, onClosePopup }) => {
   const navigate = useNavigate();
 
   return (
     <Container>
+      {showPopup && (
+        <Popup
+          events={eventsData}
+          onClose={onClosePopup}
+          autoClose={true}
+          closeAfter={6000}
+          renderEventButton={(event) => (
+            <button
+              className="mt-2 px-4 py-1 bg-[#3f6197] text-white rounded-lg hover:bg-[#5478b0] transition-colors text-sm font-semibold"
+              onClick={() => navigate(`/events?eventId=${event._id}&tab=Events`)}
+            >
+              View Event
+            </button>
+          )}
+        />
+      )}
       <ScrollToTop/>
       <Landing />
       <AboutNew /> 

@@ -68,6 +68,8 @@ import InternshipRecords from "./Admin/Records/InternshipRecords.jsx";
 import InternshipRecordsData from "./Admin/Records/InternshipRecordsData.jsx";
 import ProjectRecords from "./Admin/Records/ProjectRecords.jsx";
 import ProjectRecordsData from "./Admin/Records/ProjectRecordsData.jsx";
+import EventRecords from "./Admin/Records/EventRecords.jsx";
+import EventRecordsData from "./Admin/Records/EventRecordsdata.jsx";
 import AllUsers from "./Admin/Records/AllUsers.jsx";
 import TeamsSignUp from "./Admin/TeamsSignUp.jsx";
 import TeamsSignUpControl from "./Admin/TeamsSignUpControl.jsx";
@@ -78,11 +80,13 @@ import UpdateStocks from "./Admin/Records/UpdateStocks.jsx";
 import { fetchUser } from "./Redux/slice/userSlice.js";
 import ViewStocksUpdateRecords from "./Admin/Records/ViewStocksUpdateRecords.jsx";
 import StudentRecords from "./pages/StudentRecords.jsx";
+import Popup from "./pages/Popup.jsx";
 
 function App() {
   const [isAdmin, setIsAdmin] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [loadingProgress, setLoadingProgress] = useState(0);
+  const [showPopup, setShowPopup] = useState(true);
   const dispatch = useDispatch();
   const state = useSelector((state) => state);
 
@@ -158,7 +162,7 @@ function App() {
         <LoadingPage progress={Math.round(loadingProgress)} />
       ) : (
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Home showPopup={showPopup} onClosePopup={() => setShowPopup(false)}/>} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/partners" element={<Partners />} />
@@ -183,6 +187,7 @@ function App() {
           <Route path="/road_map" element={<Road_Map />} />
           <Route path="/news_letter" element={<News_letter />} />
           <Route path="/press_media" element={<Press_Media_Coverage />} />
+          <Route path="/popup" element={<Popup />} />
           {/* Login */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
@@ -247,6 +252,10 @@ function App() {
                 path="/admin/projectRecords"
                 element={<ProjectRecords />}
               />
+              <Route
+                path="/admin/event-records"
+                element={<EventRecords />}
+              />
 
               <Route
                 path="/admin/internshipRecordsData"
@@ -255,6 +264,10 @@ function App() {
               <Route
                 path="/admin/projectRecordsData"
                 element={<ProjectRecordsData />}
+              />
+              <Route
+                path="/admin/eventRecordsData"
+                element={<EventRecordsData />}
               />
 
               {/* Stocks */}

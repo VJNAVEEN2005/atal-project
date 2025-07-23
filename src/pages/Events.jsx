@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Calendar from "react-calendar";
+import { useSearchParams } from "react-router-dom";
 import "react-calendar/dist/Calendar.css"; // Import calendar styles
 import "./Events.css"; // Add your custom styles here
 import { color } from "framer-motion";
@@ -9,10 +9,19 @@ import NewsLetter from "../components/Events/News_letter";
 import Press_Media_Coverage from "../components/Events/Press_Media_Coverage";
 
 const Events = () => {
+  const [searchParams] = useSearchParams();
+  const eventId = searchParams.get('eventId');
+  const initialTab = searchParams.get('tab') || "Road Map";
 
-  const [activeTab, setActiveTab] = useState("Road Map"); // Track active tab
+  const [activeTab, setActiveTab] = useState(initialTab); // Track active tab
   const [observed, setObserved] = useState(false); // To trigger the observer only once
 
+  useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
+  
   // IntersectionObserver to trigger animation when tiles are in view
   const observeTiles = () => {
     const tiles = document.querySelectorAll('.pedagogy-tile');
@@ -59,7 +68,7 @@ const Events = () => {
       {/* Tab Content */}
   
       {activeTab === "Events" && (
-        <Events_Calander/>
+        <Events_Calander eventId={eventId} />
       )}
 
       {activeTab === "Road Map" && (
