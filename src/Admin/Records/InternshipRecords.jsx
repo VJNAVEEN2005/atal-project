@@ -29,7 +29,6 @@ const InternshipRecords = () => {
     dateOfJoining: "",
     designation: "",
     name: "",
-    userId: "",
     dateOfBirth: "",
     fatherName: "",
     bloodGroup: "",
@@ -43,7 +42,6 @@ const InternshipRecords = () => {
   const [isEdit, setIsEdit] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const [isValidUserId, setIsValidUserId] = useState(null);
   const [showImportModal, setShowImportModal] = useState(false);
   const [importedData, setImportedData] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
@@ -53,34 +51,6 @@ const InternshipRecords = () => {
       setIsEdit(true);
     }
   }, []);
-
-  let debounceTimeout;
-
-  useEffect(() => {
-    // Clear previous timer if user types quickly
-    clearTimeout(debounceTimeout);
-
-    // Set null when input is empty
-    if (formData.userId === "") {
-      setIsValidUserId(null);
-      return;
-    }
-
-    // Debounce API call
-    debounceTimeout = setTimeout(() => {
-      console.log("Checking user ID:", formData.userId);
-      axios
-        .get(`${api.web}api/v1/validUserId/${formData.userId}`)
-        .then((response) => {
-          setIsValidUserId(response.data.success);
-        })
-        .catch(() => {
-          setIsValidUserId(false);
-        });
-    }, 500); // adjust delay as needed (500ms is common)
-
-    return () => clearTimeout(debounceTimeout);
-  }, [formData.userId]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -109,7 +79,6 @@ const InternshipRecords = () => {
           dateOfJoining: row['Date of Joining'] || row['dateOfJoining'] || "",
           designation: row['Designation'] || row['designation'] || "",
           name: row['Name'] || row['name'] || "",
-          userId: row['User ID'] || row['userId'] || "",
           dateOfBirth: row['Date of Birth'] || row['dateOfBirth'] || "",
           fatherName: row["Father's Name"] || row['fatherName'] || "",
           bloodGroup: row['Blood Group'] || row['bloodGroup'] || "",
@@ -230,17 +199,40 @@ const InternshipRecords = () => {
     });
 
     try {
-      const promises = selectedData.map(record => 
-        axios.post(`${api.web}api/v1/internship`, record, {
+      const promises = selectedData.map(record => {
+        // Clean the record data by removing validation fields
+        const cleanRecord = {
+          internNo: record.internNo,
+          dateOfJoining: record.dateOfJoining,
+          designation: record.designation,
+          name: record.name,
+          dateOfBirth: record.dateOfBirth,
+          fatherName: record.fatherName,
+          bloodGroup: record.bloodGroup,
+          permanentAddress: record.permanentAddress,
+          phoneNumber: record.phoneNumber,
+          communicationAddress: record.communicationAddress,
+          emailId: record.emailId,
+          dateOfExpiry: record.dateOfExpiry,
+          maritalStatus: record.maritalStatus || "single",
+        };
+        
+        return axios.post(`${api.web}api/v1/internship`, cleanRecord, {
           headers: {
             token: localStorage.getItem("token"),
           },
-        })
-      );
+        });
+      });
 
       const results = await Promise.allSettled(promises);
       const successful = results.filter(result => result.status === 'fulfilled').length;
       const failed = results.filter(result => result.status === 'rejected').length;
+      
+      // Log failed requests for debugging
+      const failedResults = results.filter(result => result.status === 'rejected');
+      if (failedResults.length > 0) {
+        console.error('Failed import requests:', failedResults.map(result => result.reason));
+      }
 
       updateNotification({
         id: "bulk-import",
@@ -257,10 +249,11 @@ const InternshipRecords = () => {
       setSelectedRows([]);
       
     } catch (error) {
+      console.error('Import error:', error);
       updateNotification({
         id: "bulk-import",
         title: "Import Failed",
-        message: "Failed to import records. Please try again.",
+        message: `Failed to import records: ${error.response?.data?.message || error.message || 'Please try again.'}`,
         color: "red",
         icon: <X className="w-4 h-4" />,
         loading: false,
@@ -276,7 +269,6 @@ const InternshipRecords = () => {
         "Date of Joining": "2025-01-15",
         "Designation": "Software Intern",
         "Name": "John Doe",
-        "User ID": "JD001",
         "Date of Birth": "2000-05-10",
         "Father's Name": "Robert Doe",
         "Blood Group": "O+",
@@ -312,17 +304,6 @@ const InternshipRecords = () => {
 
   const handleSubmit = () => {
     console.log("Form submitted:", formData);
-    if (isValidUserId === false) {
-      showNotification({
-        id: "form-error",
-        title: "Form Error",
-        message: "Please enter a valid User ID or remove it.",
-        color: "red",
-        icon: <X className="w-4 h-4" />,
-        autoClose: 3000,
-      });
-      return;
-    }
     showNotification({
       id: "form-submission",
       title: "Form Submission",
@@ -600,38 +581,6 @@ const InternshipRecords = () => {
                       e.target.style.boxShadow = "none";
                     }}
                   />
-                </div>
-                <div className="relative">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <User className="inline-block w-4 h-4 mr-2" />
-                    USER ID
-                  </label>
-                  <input
-                    type="text"
-                    name="userId"
-                    value={formData.userId}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none transition-all duration-200"
-                    onFocus={(e) =>
-                      Object.assign(e.target.style, inputFocusStyle)
-                    }
-                    onBlur={(e) => {
-                      e.target.style.borderColor = "#d1d5db";
-                      e.target.style.boxShadow = "none";
-                    }}
-                  />
-                  <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
-                    {isValidUserId === false && (
-                      <p className="text-red-500 text-xs mt-1">
-                        Invalid User ID
-                      </p>
-                    )}
-                    {isValidUserId === true && (
-                      <p className="text-green-500 text-xs mt-1">
-                        Valid User ID
-                      </p>
-                    )}
-                  </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -913,7 +862,6 @@ const InternshipRecords = () => {
                         />
                       </th>
                       <th className="p-2 text-left border-b">Name</th>
-                      <th className="p-2 text-left border-b">User ID</th>
                       <th className="p-2 text-left border-b">Designation</th>
                       <th className="p-2 text-left border-b">Email</th>
                       <th className="p-2 text-left border-b">Phone</th>
@@ -935,7 +883,6 @@ const InternshipRecords = () => {
                           />
                         </td>
                         <td className="p-2 font-medium">{record.name || '-'}</td>
-                        <td className="p-2">{record.userId || '-'}</td>
                         <td className="p-2">{record.designation || '-'}</td>
                         <td className="p-2">{record.emailId || '-'}</td>
                         <td className="p-2">{record.phoneNumber || '-'}</td>
@@ -1009,7 +956,6 @@ const InternshipRecords = () => {
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
                   <div><strong>Intern No:</strong> "Intern No" or "internNo"</div>
                   <div><strong>Name:</strong> "Name" or "name"</div>
-                  <div><strong>User ID:</strong> "User ID" or "userId"</div>
                   <div><strong>Designation:</strong> "Designation" or "designation"</div>
                   <div><strong>Email:</strong> "Email ID" or "emailId"</div>
                   <div><strong>Phone:</strong> "Phone Number", "phoneNumber", or "Mobile No"</div>
