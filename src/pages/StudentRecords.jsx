@@ -26,6 +26,7 @@ import {
 import axios from 'axios';
 import api from '../Api/api';
 import { useLocation } from 'react-router-dom';
+import CertificateModal from '../components/CertificateModal';
 
 const StudentRecords = () => {
     const location = useLocation();
@@ -34,6 +35,11 @@ const StudentRecords = () => {
     const [internshipRecords, setInternshipRecords] = useState([]);
     const [projectRecords, setProjectRecords] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [certificateModal, setCertificateModal] = useState({
+        isOpen: false,
+        record: null,
+        type: 'internship'
+    });
    
     useEffect(() => {
         // Sample internship data matching your API response
@@ -161,6 +167,22 @@ const StudentRecords = () => {
 
     const getInitials = (name) => {
         return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    };
+
+    const openCertificateModal = (record, type) => {
+        setCertificateModal({
+            isOpen: true,
+            record: record,
+            type: type
+        });
+    };
+
+    const closeCertificateModal = () => {
+        setCertificateModal({
+            isOpen: false,
+            record: null,
+            type: 'internship'
+        });
     };
 
     const getDuration = (startDate, endDate) => {
@@ -317,7 +339,7 @@ const StudentRecords = () => {
                                         <div className="flex items-center space-x-4">
                                             <div className="bg-white rounded-full px-4 py-2 shadow-lg">
                                                 <span className="text-sm font-medium" style={{ color: '#3f6197' }}>
-                                                    {internshipRecords.length} Programs Completed
+                                                    {internshipRecords.length} Programs
                                                 </span>
                                             </div>
                                         </div>
@@ -328,7 +350,9 @@ const StudentRecords = () => {
                                 <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3 mb-16">
                                     {internshipRecords.map((record, index) => (
                                         <div key={record._id} className="group relative">
-                                            <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl blur opacity-25 group-hover:opacity-40 transition duration-500"></div>
+                                            {record.status === 'completed' && (
+                                                <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl blur opacity-25 group-hover:opacity-40 transition duration-500"></div>
+                                            )}
                                             <div className="relative bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden transform group-hover:scale-[1.02]">
                                                 {/* Card Header with Gradient */}
                                                 <div className="relative p-6" style={{ background: `linear-gradient(135deg, #3f6197 0%, ${index % 2 === 0 ? '#2d4a73' : '#4a6ba0'} 100%)` }}>
@@ -380,7 +404,7 @@ const StudentRecords = () => {
                                                     </div>
 
                                                     {/* Status Badge */}
-                                                    <div className="flex justify-center">
+                                                    <div className={`flex justify-center ${record.status !== 'completed' ? 'pb-6' : ''}`}>
                                                         <div className={`inline-flex items-center px-4 py-2 rounded-full font-medium text-sm border-2 ${
                                                             record.status === 'active' 
                                                             ? 'bg-green-50 text-green-700 border-green-200' 
@@ -395,17 +419,19 @@ const StudentRecords = () => {
                                                 </div>
 
                                                 {/* Card Footer */}
-                                                <div className="px-6 pb-6">
-                                                    <button 
-                                                        className="w-full py-3 px-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-2xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
-                                                        onClick={() => alert(`Viewing certificate for ${record.designation} internship (${record.internNo})`)}
-                                                    >
-                                                        <div className="flex items-center justify-center">
-                                                            <FileText className="w-5 h-5 mr-2" />
-                                                            View Certificate
-                                                        </div>
-                                                    </button>
-                                                </div>
+                                                {record.status === 'completed' && (
+                                                    <div className="px-6 pb-6">
+                                                        <button 
+                                                            className="w-full py-3 px-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-2xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
+                                                            onClick={() => openCertificateModal(record, 'internship')}
+                                                        >
+                                                            <div className="flex items-center justify-center">
+                                                                <FileText className="w-5 h-5 mr-2" />
+                                                                View Certificate
+                                                            </div>
+                                                        </button>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     ))}
@@ -424,7 +450,7 @@ const StudentRecords = () => {
                                         <div className="flex items-center space-x-4">
                                             <div className="bg-white rounded-full px-4 py-2 shadow-lg">
                                                 <span className="text-sm font-medium" style={{ color: '#3f6197' }}>
-                                                    {projectRecords.length} Projects Completed
+                                                    {projectRecords.length} Projects
                                                 </span>
                                             </div>
                                         </div>
@@ -534,7 +560,6 @@ const StudentRecords = () => {
                                                         </div>
                                                     </div>
                                                 </div>
-
                                                 
                                             </div>
                                         </div>
@@ -590,6 +615,14 @@ const StudentRecords = () => {
                     </>
                 )}
             </div>
+
+            {/* Certificate Modal */}
+            <CertificateModal
+                isOpen={certificateModal.isOpen}
+                onClose={closeCertificateModal}
+                record={certificateModal.record}
+                type={certificateModal.type}
+            />
         </div>
     );
 };
