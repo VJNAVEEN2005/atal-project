@@ -25,9 +25,12 @@ import {
 } from 'lucide-react'
 import axios from 'axios';
 import api from '../Api/api';
+import { useLocation } from 'react-router-dom';
 
 const StudentRecords = () => {
-    const [userId, setUserId] = useState("AICPECFSTUCD6727B623");
+    const location = useLocation();
+    const { emailId, userId: userId } = location.state || {};
+    //const [userId, setUserId] = useState("AICPECFSTUCD6727B623");
     const [internshipRecords, setInternshipRecords] = useState([]);
     const [projectRecords, setProjectRecords] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -120,14 +123,14 @@ const StudentRecords = () => {
         // Replace the setTimeout above with this for actual API call:
 
 
-        axios.get(`${api.web}api/v1/user/${userId}/projects`).then((res) => {
+        axios.get(`${api.web}api/v1/email/${emailId}/projects`).then((res) => {
             console.log("Project Records:", res.data);
             setProjectRecords(res.data.data);
         }).catch((error) => {
             console.error("Error fetching project records:", error);
         });
 
-        axios.get(`${api.web}api/v1/internships/user/${userId}`).then((res) => {
+        axios.get(`${api.web}api/v1/internships/email/${emailId}`).then((res) => {
             console.log("Student Records:", res.data);
             setInternshipRecords(res.data.data);
             setLoading(false);

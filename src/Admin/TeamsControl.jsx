@@ -309,7 +309,7 @@ const TeamsControl = () => {
     try {
       setLoading(true);
       const response = await axios.get(`${api.web}api/v1/team`);
-      setTeamMembers(response.data.team);
+      setTeamMembers(response.data.teams);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching team members:', error);
@@ -323,7 +323,7 @@ const TeamsControl = () => {
     const { source, destination } = result;
     
     // Filter members for current active tab
-    const filteredMembers = teamMembers.filter(member => member.team === activeTab);
+    const filteredMembers = teamMembers?.filter(member => member.team === activeTab) || [];
     
     // Create a copy of the filtered array
     const items = Array.from(filteredMembers);
@@ -422,7 +422,7 @@ const TeamsControl = () => {
     }
   };
 
-  const filteredMembers = teamMembers.filter(member => member.team === activeTab);
+  const filteredMembers = teamMembers?.filter(member => member.team === activeTab) || [];
 
   return (
     <div className="max-w-6xl mx-auto my-8 px-4">

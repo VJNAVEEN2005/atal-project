@@ -69,12 +69,12 @@ const ProjectRecordsData = () => {
       const searchLower = searchTerm.toLowerCase();
       const newSuggestions = [];
       records.forEach((record) => {
-        if (record.userId && record.userId.toLowerCase().includes(searchLower)) {
+        if (record.emailId && record.emailId.toLowerCase().includes(searchLower)) {
           newSuggestions.push({
-            type: "userId",
-            value: record.userId,
+            type: "emailId",
+            value: record.emailId,
             record,
-            label: `${record.userId} (User ID)`
+            label: `${record.emailId} (Email)`
           });
         }
         if (record.name && record.name.toLowerCase().includes(searchLower)) {
@@ -248,7 +248,7 @@ const ProjectRecordsData = () => {
   const filteredRecords = records.filter((record) => {
     const search = searchTerm.toLowerCase();
     const matchesSearch =
-      (record.userId && record.userId.toLowerCase().includes(search)) ||
+      (record.emailId && record.emailId.toLowerCase().includes(search)) ||
       (record.name && record.name.toLowerCase().includes(search)) ||
       (record.registerNumber && record.registerNumber.toLowerCase().includes(search)) ||
       (record.department && record.department.toLowerCase().includes(search)) ||
@@ -356,7 +356,7 @@ const ProjectRecordsData = () => {
                 <input
                   ref={searchInputRef}
                   type="text"
-                  placeholder="Search by project name, ID, status, or description..."
+                  placeholder="Search by email, name, register no, project title..."
                   value={searchTerm}
                   onChange={handleSearchChange}
                   onFocus={handleSearchFocus}
@@ -391,7 +391,7 @@ const ProjectRecordsData = () => {
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            {suggestion.type === "userId" && (
+                            {suggestion.type === "emailId" && (
                               <User className="w-4 h-4 text-gray-400" />
                             )}
                             {suggestion.type === "name" && (
@@ -531,8 +531,8 @@ const ProjectRecordsData = () => {
             <table className="w-full">
               <thead className="bg-[#5478b0]">
                 <tr className="text-white">
-                <th className="px-6 py-4 text-left text-sm font-semibold">User ID</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold">Name</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold">Email</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold">Register No</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold">Department</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold">Year</th>
@@ -540,14 +540,15 @@ const ProjectRecordsData = () => {
                   {/* <th className="px-6 py-4 text-left text-sm font-semibold">Project Type</th> */}
                   <th className="px-6 py-4 text-left text-sm font-semibold">Project Title</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold">Guide</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold">Status</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredRecords.map((record, idx) => (
                   <tr key={idx} className={`border-b border-gray-200 hover:bg-gray-50 ${idx % 2 === 0 ? "bg-white" : "bg-gray-50"}`}>
-                    <td className="px-6 py-4 text-sm text-gray-900">{record.userId}</td>
                     <td className="px-6 py-4 text-sm text-gray-900">{record.name}</td>
+                    <td className="px-6 py-4 text-sm text-gray-900">{record.emailId}</td>
                     <td className="px-6 py-4 text-sm text-gray-900">{record.registerNumber}</td>
                     <td className="px-6 py-4 text-sm text-gray-700">{record.department}</td>
                     <td className="px-6 py-4 text-sm text-gray-700">{record.yearOfStudy}</td>
@@ -555,6 +556,15 @@ const ProjectRecordsData = () => {
                     {/* <td className="px-6 py-4 text-sm text-gray-700">{record.projectType}</td> */}
                     <td className="px-6 py-4 text-sm text-gray-700">{record.projectTitle}</td>
                     <td className="px-6 py-4 text-sm text-gray-700">{record.projectGuideName}</td>
+                    <td className="px-6 py-4 text-sm">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        record.status === "active"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-blue-100 text-blue-800"
+                      }`}>
+                        {record.status}
+                      </span>
+                    </td>
                     <td className="px-6 py-4 text-sm">
                       <div className="flex gap-2">
                         <button onClick={() => handleViewDetails(record)} className="p-1 text-blue-600 hover:text-blue-800 transition-colors" title="View Details">
@@ -599,7 +609,7 @@ const ProjectRecordsData = () => {
                   </h3>
                   <div className="space-y-2 text-sm">
                     <p><span className="font-medium">Name:</span> {selectedRecord.name}</p>
-                    <p><span className="font-medium">User ID:</span> {selectedRecord.userId}</p>
+                    <p><span className="font-medium">Email:</span> {selectedRecord.emailId}</p>
                     <p><span className="font-medium">Register No:</span> {selectedRecord.registerNumber}</p>
                     <p><span className="font-medium">Department:</span> {selectedRecord.department}</p>
                     <p><span className="font-medium">Year:</span> {selectedRecord.yearOfStudy}</p>

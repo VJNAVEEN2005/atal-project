@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import api from "../Api/api";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
@@ -96,6 +96,7 @@ const EducationIcon = () => (
 
 // Main StudentProfileShare component
 const StudentProfileShare = () => {
+  const navigate = useNavigate();
   const { id } = useParams();
   const [profileData, setProfileData] = useState({});
   const [photoUrl, setPhotoUrl] = useState(null);
@@ -377,25 +378,43 @@ const StudentProfileShare = () => {
             </svg>
             {profileData.domain} Profile
           </h1>
-          <div
-            onClick={shareProfile}
-            className="px-4 py-2 cursor-pointer bg-blue-100 text-[#3f6197] rounded-full inline-flex items-center"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 mr-1"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+          <div className="flex gap-2">
+            {profileData.domain === "Students" && (
+              <button
+                onClick={() => {
+                   navigate("/profile/studentRecords", {
+                     state: {
+                       userId: profileData.userId,
+                       emailId: profileData.email,
+                     },
+                   });
+                  console.log("Navigating to student records", profileData);
+                }}
+                className="bg-[#3f6197] text-white px-5 py-2 rounded-lg hover:bg-[#2e4b78] transition-all duration-300 shadow-md hover:shadow-lg flex items-center"
+              >
+                Records
+              </button>
+            )}
+            <div
+              onClick={shareProfile}
+              className="px-4 py-2 cursor-pointer bg-blue-100 text-[#3f6197] rounded-full inline-flex items-center"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-              />
-            </svg>
-            Share Profile
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 mr-1"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                />
+              </svg>
+              Share Profile
+            </div>
           </div>
         </div>
 
@@ -571,8 +590,8 @@ const StudentProfileShare = () => {
         {/* Footer */}
         <div className="text-center text-gray-500 mt-12 mb-8">
           <p>
-            This is a shared {profileData.domain} profile view. Some information may be
-            limited.
+            This is a shared {profileData.domain} profile view. Some information
+            may be limited.
           </p>
           <p className="text-sm mt-2">
             © {new Date().getFullYear()} AIC-PECF. All rights reserved.
