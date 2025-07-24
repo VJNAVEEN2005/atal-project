@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Calendar, User, TrendingUp, TrendingDown, Package, RefreshCw, AlertCircle, ArrowLeft, BarChart3 } from 'lucide-react';
+import { Search, Calendar, User, TrendingUp, TrendingDown, Package, RefreshCw, AlertCircle, ArrowLeft, BarChart3, Zap, Archive } from 'lucide-react';
 import api from '../../Api/api';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -18,6 +18,19 @@ const ViewStocksUpdateRecords = () => {
   const location = useLocation();
   const { stockId } = location.state || {};
   const navigate = useNavigate();
+  
+  // Get icon for stock type
+  const getStockTypeIcon = (stockType) => {
+    switch (stockType) {
+      case 'Electronic':
+        return Zap;
+      case 'Consumables':
+        return Archive;
+      default:
+        return Package;
+    }
+  };
+
   useEffect(() => {
     if (stockId) {
       fetchStockUpdateRecords(stockId);
@@ -208,11 +221,19 @@ const ViewStocksUpdateRecords = () => {
             </button>
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Stock Update Records</h1>
-              <p className="text-gray-600" onClick={()=>{
+              <div className="flex items-center gap-2 text-gray-600" onClick={()=>{
                 console.log('Stock Name:', stockDetail);
               }}>
-                {stockDetail ? `${stockDetail.stockName} (${stockDetail.stockType})` : 'Loading...'}
-              </p>
+                {stockDetail && (
+                  <>
+                    {React.createElement(getStockTypeIcon(stockDetail.stockType), { 
+                      className: "h-4 w-4" 
+                    })}
+                    <span>{stockDetail.stockName} ({stockDetail.stockType})</span>
+                  </>
+                )}
+                {!stockDetail && <span>Loading...</span>}
+              </div>
             </div>
           </div>
         </div>
@@ -222,21 +243,20 @@ const ViewStocksUpdateRecords = () => {
           <div className="bg-white rounded-lg shadow-md p-6 mb-8 border-l-4" style={{ borderLeftColor: '#3f6197' }}>
             <div className="flex items-center mb-6">
               <div className="flex-shrink-0 mr-4">
-                {stockDetail.stockImage ? (
-                  <img 
-                    src={`${api.web}api/v1/stock/${stockDetail._id}/image`}
-                    alt={stockDetail.stockName}
-                    className="h-16 w-16 rounded-lg object-cover"
-                  />
-                ) : (
-                  <div className="h-16 w-16 bg-gray-200 rounded-lg flex items-center justify-center">
-                    <Package className="h-8 w-8 text-gray-400" />
-                  </div>
-                )}
+                <div className="w-16 h-16 bg-gradient-to-br from-[#3f6197] to-[#5a7fb8] rounded-lg flex items-center justify-center">
+                  {React.createElement(getStockTypeIcon(stockDetail.stockType), { 
+                    className: "h-8 w-8 text-white" 
+                  })}
+                </div>
               </div>
               <div>
                 <h2 className="text-2xl font-bold text-gray-900">{stockDetail.stockName}</h2>
-                <p className="text-gray-600">{stockDetail.stockType}</p>
+                <div className="flex items-center gap-2 text-gray-600">
+                  {React.createElement(getStockTypeIcon(stockDetail.stockType), { 
+                    className: "h-4 w-4" 
+                  })}
+                  <span>{stockDetail.stockType}</span>
+                </div>
                 <p className="text-sm text-gray-500">Stock ID: {stockDetail.stockId}</p>
               </div>
             </div>
@@ -247,9 +267,18 @@ const ViewStocksUpdateRecords = () => {
                 <p className="text-2xl font-bold" style={{ color: '#3f6197' }}>{stockDetail.count}</p>
               </div>
               <div className="text-center">
-                <BarChart3 className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                {React.createElement(getStockTypeIcon(stockDetail.stockType), { 
+                  className: "h-8 w-8 mx-auto mb-2",
+                  style: { color: '#3f6197' }
+                })}
                 <h3 className="text-lg font-semibold text-gray-900">Stock Type</h3>
-                <p className="text-lg font-bold" style={{ color: '#3f6197' }}>{stockDetail.stockType}</p>
+                <div className="flex items-center justify-center gap-2">
+                  {React.createElement(getStockTypeIcon(stockDetail.stockType), { 
+                    className: "h-4 w-4",
+                    style: { color: '#3f6197' }
+                  })}
+                  <p className="text-lg font-bold" style={{ color: '#3f6197' }}>{stockDetail.stockType}</p>
+                </div>
               </div>
               <div className="text-center">
                 <TrendingUp className="h-8 w-8 mx-auto mb-2 text-green-500" />
