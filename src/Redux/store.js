@@ -13,6 +13,7 @@ import partnersReducer from './slice/partnerSlice.js';
 import tendersReducer from './slice/tendersSlice.js';
 import startupPortfolioReducer from './slice/startupPortfolioSlice.js';
 import ecosystemReducer from './slice/ecosystemSlice.js';
+import contactReducer from './slice/contactSlice.js';
 
 export const store = configureStore({
   reducer: {
@@ -29,6 +30,7 @@ export const store = configureStore({
     tenders: tendersReducer,
     startupPortfolio: startupPortfolioReducer,
     ecosystem: ecosystemReducer,
+    contact: contactReducer,
   }
 });
 

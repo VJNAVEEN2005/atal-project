@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import {
   FaPhoneAlt,
@@ -12,51 +12,75 @@ import {
 import { FaXTwitter } from "react-icons/fa6";
 import { Contact } from 'lucide-react';
 import GetInTouch from "../components/Contact/GetInTouch";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { fetchContactData } from "../Redux/slice/contactSlice";
 
 const ContactUs = () => {
+  const dispatch = useDispatch();
+  const { data, loading, error } = useSelector((state) => state.contact);
+
+  useEffect(() => {
+    if (!data?.name) {
+      dispatch(fetchContactData());
+    }
+    console.log("Fetching Contact Data", data);
+  }, [dispatch, data?.name]);
+
+
   return (
     <ContactContainer>
       <SocialIconsContainer className="fixed right-0 top-1/2 -translate-y-1/2 flex flex-col gap-4 bg-white p-3 shadow-lg rounded-l-lg z-50">
-        <a
-          href="https://www.instagram.com/aic_pecf"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-lg md:text-2xl hover:scale-110 transition-transform text-[#E1306C]"
-        >
-          <FaInstagram />
-        </a>
-        <a
-          href="https://twitter.com/aicpecftweet"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-lg md:text-2xl hover:scale-110 transition-transform text-black"
-        >
-          <FaXTwitter />
-        </a>
-        <a
-          href="https://www.linkedin.com/company/aicpecf/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-lg md:text-2xl hover:scale-110 transition-transform text-[#0077B5]"
-        >
-          <FaLinkedinIn />
-        </a>
-        <a
-          href="https://youtube.com/@atalincubationcentre-pecfo946"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-lg md:text-2xl hover:scale-110 transition-transform text-[#FF0000]"
-        >
-          <FaYoutube />
-        </a>
-        <a
-          href="https://whatsapp.com/channel/0029Vas9egE9MF8vKLwXxn0s"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-lg md:text-2xl hover:scale-110 transition-transform text-[#29871c]"
-        >
-          <FaWhatsapp />
-        </a>
+        {data?.instagram && (
+          <a
+            href={data.instagram}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-lg md:text-2xl hover:scale-110 transition-transform text-[#E1306C]"
+          >
+            <FaInstagram />
+          </a>
+        )}
+        {data?.twitter && (
+          <a
+            href={data.twitter}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-lg md:text-2xl hover:scale-110 transition-transform text-black"
+          >
+            <FaXTwitter />
+          </a>
+        )}
+        {data?.linkedin && (
+          <a
+            href={data.linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-lg md:text-2xl hover:scale-110 transition-transform text-[#0077B5]"
+          >
+            <FaLinkedinIn />
+          </a>
+        )}
+        {data?.youtube && (
+          <a
+            href={data.youtube}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-lg md:text-2xl hover:scale-110 transition-transform text-[#FF0000]"
+          >
+            <FaYoutube />
+          </a>
+        )}
+        {data?.whatsapp && (
+          <a
+            href={data.whatsapp}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-lg md:text-2xl hover:scale-110 transition-transform text-[#29871c]"
+          >
+            <FaWhatsapp />
+          </a>
+        )}
       </SocialIconsContainer>
 
       <GrievanceSection>
@@ -66,9 +90,11 @@ const ContactUs = () => {
             <Contact size={32} color="#3f6197" />
           </GrievanceIconWrapper>
           <GrievanceContent>
-            <GrievanceName>Mr. V Vishnu Varadan</GrievanceName>
-            <GrievanceDesignation>Chief Executive Officer, AIC-PECF</GrievanceDesignation>
-            <GrievanceEmail href="mailto:ceo@startuptn.in">ceo@aicpecf.org</GrievanceEmail>
+            <GrievanceName>{data?.name || "Loading..."}</GrievanceName>
+            <GrievanceDesignation>{data?.role || "Loading..."}</GrievanceDesignation>
+            <GrievanceEmail href={`mailto:${data?.email || ''}`}>
+              {data?.email || "Loading..."}
+            </GrievanceEmail>
           </GrievanceContent>
         </GrievanceCard>
       </GrievanceSection>
@@ -79,40 +105,56 @@ const ContactUs = () => {
           <FaPhoneAlt size={40} />
           <TileContent>
             <h3>Phone</h3>
-            <p>Mr. V Vishnu Varadan</p>
-            <p>+91-8903467223</p>
+            <p>{data?.name || "Loading..."}</p>
+            <p>{data?.phone || "Loading..."}</p>
           </TileContent>
         </Tile>
         <Tile>
           <FaMapMarkerAlt size={40} />
           <TileContent>
             <h3>Location</h3>
-            <p>Puducherry Technological University, Puducherry, India</p>
+            <p>{data?.location || "Loading..."}</p>
           </TileContent>
         </Tile>
         <Tile>
           <FaEnvelope size={40} />
           <TileContent>
             <h3>Support</h3>
-            <p>Email: ceo@aicpecf.org</p>
+            <p>Email: {data?.email || "Loading..."}</p>
           </TileContent>
         </Tile>
       </TileContainer>
 
       <ContentWrapper>
         <MapContainer>
-          <iframe
-            src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d3902.4421966329014!2d79.8531070539368!3d12.013048708963673!2m3!1f0!2f0!3f0!2m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2s!4v1441215349055"
-            width="100%"
-            height="400"
-            style={{ border: 0 }}
-            allowFullScreen=""
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-          ></iframe>
+          {data?.map ? (
+            <iframe
+              src={data.map}
+              width="100%"
+              height="400"
+              style={{ border: 0 }}
+              allowFullScreen=""
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title="Our Location"
+            ></iframe>
+          ) : (
+            <div style={{
+              width: "100%",
+              height: "400px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: "#f5f5f5",
+              color: "#666",
+              fontSize: "18px"
+            }}>
+              Loading map...
+            </div>
+          )}
         </MapContainer>
 
-        <GetInTouch />
+        <GetInTouch contactEmail={data?.email} />
       </ContentWrapper>
     </ContactContainer>
   );

@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchContactData } from "../Redux/slice/contactSlice";
 import { Aic } from "../assets/logos/logs";
 import {
   FaInstagram,
@@ -12,6 +14,15 @@ import {
 import { FaXTwitter } from "react-icons/fa6";
 
 const Footer = () => {
+  const dispatch = useDispatch();
+  const { data, loading, error } = useSelector((state) => state.contact);
+
+  useEffect(() => {
+    if (!data?.name) {
+      dispatch(fetchContactData());
+    }
+  }, [dispatch, data?.name]);
+
   return (
     <>
       <div className="block md:hidden">
@@ -61,13 +72,13 @@ const Footer = () => {
               <div>
                 <h3>Contact Us</h3>
                 <p>
-                  <FaRegUserCircle /> Name
+                  <FaRegUserCircle /> {data?.name || "Loading..."}
                 </p>
                 <p>
-                  <FaEnvelope /> ceo@aicpecf.org
+                  <FaEnvelope /> {data?.email || "ceo@aicpecf.org"}
                 </p>
                 <p>
-                  <FaPhoneAlt /> +91 123456789
+                  <FaPhoneAlt /> {data?.phone || "+91 123456789"}
                 </p>
               </div>
             </div>
@@ -76,38 +87,46 @@ const Footer = () => {
 
             <div className="flex justify-center">
               <SocialIcons>
-                <a
-                  className="instagram"
-                  href="https://www.instagram.com/aic_pecf"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FaInstagram />
-                </a>
-                <a
-                  className="x"
-                  href="https://twitter.com/aicpecftweet"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FaXTwitter />
-                </a>
-                <a
-                  className="link"
-                  href="https://www.linkedin.com/company/aicpecf/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FaLinkedinIn />
-                </a>
-                <a
-                  className="youtube"
-                  href="https://youtube.com/@atalincubationcentre-pecfo946"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FaYoutube />
-                </a>
+                {data?.instagram && (
+                  <a
+                    className="instagram"
+                    href={data.instagram}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <FaInstagram />
+                  </a>
+                )}
+                {data?.twitter && (
+                  <a
+                    className="x"
+                    href={data.twitter}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <FaXTwitter />
+                  </a>
+                )}
+                {data?.linkedin && (
+                  <a
+                    className="link"
+                    href={data.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <FaLinkedinIn />
+                  </a>
+                )}
+                {data?.youtube && (
+                  <a
+                    className="youtube"
+                    href={data.youtube}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <FaYoutube />
+                  </a>
+                )}
               </SocialIcons>
             </div>
           </center>
@@ -161,47 +180,55 @@ const Footer = () => {
             <Column>
               <h3>Contact Us</h3>
               <p>
-                <FaRegUserCircle /> Mr. V Vishnu Varadan
+                <FaRegUserCircle /> {data?.name || "Mr. V Vishnu Varadan"}
               </p>
               <p>
-                <FaEnvelope /> ceo@aicpecf.org
+                <FaEnvelope /> {data?.email || "ceo@aicpecf.org"}
               </p>
               <p>
-                <FaPhoneAlt /> +91-8903467223
+                <FaPhoneAlt /> {data?.phone || "+91-8903467223"}
               </p>
               <SocialIcons>
-                <a
-                  className="instagram"
-                  href="https://www.instagram.com/aic_pecf"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FaInstagram />
-                </a>
-                <a
-                  className="x"
-                  href="https://twitter.com/aicpecftweet"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FaXTwitter />
-                </a>
-                <a
-                  className="link"
-                  href="https://www.linkedin.com/company/aicpecf/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FaLinkedinIn />
-                </a>
-                <a
-                  className="youtube"
-                  href="https://youtube.com/@atalincubationcentre-pecfo946"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FaYoutube />
-                </a>
+                {data?.instagram && (
+                  <a
+                    className="instagram"
+                    href={data.instagram}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <FaInstagram />
+                  </a>
+                )}
+                {data?.twitter && (
+                  <a
+                    className="x"
+                    href={data.twitter}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <FaXTwitter />
+                  </a>
+                )}
+                {data?.linkedin && (
+                  <a
+                    className="link"
+                    href={data.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <FaLinkedinIn />
+                  </a>
+                )}
+                {data?.youtube && (
+                  <a
+                    className="youtube"
+                    href={data.youtube}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <FaYoutube />
+                  </a>
+                )}
               </SocialIcons>
             </Column>
           </Container>
