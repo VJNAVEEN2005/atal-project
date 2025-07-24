@@ -2,7 +2,6 @@ import React from 'react';
 import AIC from '../assets/logos/AIC.png';
 
 const LoadingPage = ({ progress = 0 }) => {
-  console.log("LoadingPage: Rendering with progress", progress, "%");
   
   // Ensure progress is between 0 and 100
   const normalizedProgress = Math.min(Math.max(progress, 0), 100);

@@ -145,7 +145,6 @@ function App() {
       setIsLoading(true);
       setLoadingProgress(0);
     }
-    console.log("Fetching Image Carousel Data", state.imageCarousel);
   }, [dispatch]);
 
   // Smooth loading progress animation
