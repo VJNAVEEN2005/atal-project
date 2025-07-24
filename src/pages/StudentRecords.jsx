@@ -123,7 +123,7 @@ const StudentRecords = () => {
         // Replace the setTimeout above with this for actual API call:
 
 
-        axios.get(`${api.web}api/v1/user/${userId}/projects`).then((res) => {
+        axios.get(`${api.web}api/v1/email/${emailId}/projects`).then((res) => {
             console.log("Project Records:", res.data);
             setProjectRecords(res.data.data);
         }).catch((error) => {

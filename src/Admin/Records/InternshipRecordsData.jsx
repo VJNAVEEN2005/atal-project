@@ -97,16 +97,6 @@ useEffect(()=>{
           });
         }
 
-        // check userId
-        if (record.userId.toLowerCase().includes(searchLower)) {
-          newSuggestions.push({
-            type: "userId",
-            value: record.userId,
-            record: record,
-            label: `${record.userId} (User Id)`,
-          });
-        }
-
         // Check designation
         if (record.designation.toLowerCase().includes(searchLower)) {
           newSuggestions.push({
@@ -282,7 +272,6 @@ useEffect(()=>{
     const matchesSearch =
       record.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       record.internNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      record.userId.toLowerCase().includes(searchTerm.toLowerCase()) ||
       record.designation.toLowerCase().includes(searchTerm.toLowerCase()) ||
       record.emailId.toLowerCase().includes(searchTerm.toLowerCase());
 
@@ -371,7 +360,6 @@ useEffect(()=>{
     const headers = [
       "Intern No",
       "Name",
-      "User ID",
       "Date of Birth",
       "Email",
       "Phone Number",
@@ -391,7 +379,6 @@ useEffect(()=>{
         [
           `"${record.internNo || ''}"`,
           `"${record.name || ''}"`,
-          `"${record.userId || ''}"`,
           `"${record.dateOfBirth ? new Date(record.dateOfBirth).toLocaleDateString() : ''}"`,
           `"${record.emailId || ''}"`,
           `"${record.phoneNumber || ''}"`,
@@ -525,9 +512,6 @@ useEffect(()=>{
                           {suggestion.type === "internNo" && (
                             <Search className="w-4 h-4 text-gray-400" />
                           )}
-                          {suggestion.type === "userId" && (
-                            <User className="w-4 h-4 text-gray-400" />
-                          )}
                           {suggestion.type === "designation" && (
                             <Calendar className="w-4 h-4 text-gray-400" />
                           )}
@@ -648,9 +632,6 @@ useEffect(()=>{
                     Name
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-semibold">
-                    UserId
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">
                     Designation
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-semibold">
@@ -680,9 +661,6 @@ useEffect(()=>{
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-900">
                       {record.name}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-700">
-                      {record.userId}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-700">
                       {record.designation}
@@ -781,10 +759,6 @@ useEffect(()=>{
                     <p>
                       <span className="font-medium">Name:</span>{" "}
                       {selectedRecord.name}
-                    </p>
-                    <p>
-                      <span className="font-medium">UserId:</span>{" "}
-                      {selectedRecord.userId}
                     </p>
                     <p>
                       <span className="font-medium">Father's Name:</span>{" "}

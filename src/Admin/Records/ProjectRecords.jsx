@@ -31,7 +31,6 @@ const PTUProjectForm = () => {
   const editMode = location.state && location.state.isEdit;
   const editRecord = location.state && location.state.record;
 
-  const [isValidUserId, setIsValidUserId] = useState(null);
   const [showImportModal, setShowImportModal] = useState(false);
   const [importedData, setImportedData] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
@@ -48,7 +47,7 @@ const PTUProjectForm = () => {
     return {
       name: '',
       registerNumber: '',
-      userId: '',
+      emailId: '',
       department: '',
       yearOfStudy: '',
       instituteName: '',
@@ -73,24 +72,6 @@ const PTUProjectForm = () => {
       ...prev,
       [name]: value
     }));
-    if (name === "userId") {
-      setIsValidUserId(null);
-      clearTimeout(debounceTimeout);
-      if (value === "") {
-        setIsValidUserId(null);
-        return;
-      }
-      debounceTimeout = setTimeout(() => {
-        axios
-          .get(`${api.web}api/v1/validUserId/${value}`)
-          .then((response) => {
-            setIsValidUserId(response.data.success);
-          })
-          .catch(() => {
-            setIsValidUserId(false);
-          });
-      }, 500);
-    }
   };
 
   const addProjectMember = () => {
@@ -154,7 +135,7 @@ const PTUProjectForm = () => {
           id: index,
           name: row['Name'] || row['name'] || "",
           registerNumber: row['Register Number'] || row['registerNumber'] || row['Registration Number'] || "",
-          userId: row['User ID'] || row['userId'] || "",
+          emailId: row['Email ID'] || row['emailId'] || row['Email'] || "",
           department: row['Department'] || row['department'] || "",
           yearOfStudy: row['Year of Study'] || row['yearOfStudy'] || row['Year'] || "",
           instituteName: row['Institute Name'] || row['instituteName'] || row['Institute'] || "",
@@ -192,6 +173,10 @@ const PTUProjectForm = () => {
           
           if (!record.registerNumber || record.registerNumber.trim() === '') {
             errors.push('Register Number is required');
+          }
+          
+          if (record.emailId && !/\S+@\S+\.\S+/.test(record.emailId)) {
+            errors.push('Invalid email format');
           }
           
           if (!record.department || record.department.trim() === '') {
@@ -341,7 +326,7 @@ const PTUProjectForm = () => {
       {
         "Name": "John Doe",
         "Register Number": "REG001",
-        "User ID": "JD001",
+        "Email ID": "john.doe@example.com",
         "Department": "Computer Science",
         "Year of Study": "3rd Year",
         "Institute Name": "Puducherry Technological University",
@@ -379,17 +364,6 @@ const PTUProjectForm = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (isValidUserId === false) {
-      showNotification({
-        id: "form-error",
-        title: "Form Error",
-        message: "Please enter a valid User ID or remove it.",
-        color: "red",
-        icon: <X className="w-4 h-4" />, 
-        autoClose: 3000,
-      });
-      return;
-    }
     showNotification({
       id: "project-form-submission",
       title: "Form Submission",
@@ -581,32 +555,6 @@ const PTUProjectForm = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <User className="inline-block w-4 h-4 mr-2" />
-                    USER ID
-                  </label>
-                  <input
-                    type="text"
-                    name="userId"
-                    value={formData.userId}
-                    onChange={handleInputChange}
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none transition-all duration-200 ${isValidUserId === false ? 'border-red-500' : 'border-gray-300'}`}
-                    onFocus={(e) =>
-                      Object.assign(e.target.style, inputFocusStyle)
-                    }
-                    onBlur={(e) => {
-                      e.target.style.borderColor = isValidUserId === false ? '#ef4444' : '#d1d5db';
-                      e.target.style.boxShadow = 'none';
-                    }}
-                  />
-                  {isValidUserId === false && (
-                    <span className="text-xs text-red-600">Invalid User ID</span>
-                  )}
-                  {isValidUserId === true && (
-                    <span className="text-xs text-green-600">Valid User ID</span>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     <FileText className="inline-block w-4 h-4 mr-2" />
                     REGISTER NUMBER *
                   </label>
@@ -614,6 +562,27 @@ const PTUProjectForm = () => {
                     type="text"
                     name="registerNumber"
                     value={formData.registerNumber}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none transition-all duration-200"
+                    onFocus={(e) =>
+                      Object.assign(e.target.style, inputFocusStyle)
+                    }
+                    onBlur={(e) => {
+                      e.target.style.borderColor = "#d1d5db";
+                      e.target.style.boxShadow = "none";
+                    }}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <Mail className="inline-block w-4 h-4 mr-2" />
+                    EMAIL ID *
+                  </label>
+                  <input
+                    type="email"
+                    name="emailId"
+                    value={formData.emailId}
                     onChange={handleInputChange}
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none transition-all duration-200"
@@ -1110,6 +1079,7 @@ const PTUProjectForm = () => {
                       </th>
                       <th className="p-2 text-left border-b">Name</th>
                       <th className="p-2 text-left border-b">Reg No</th>
+                      <th className="p-2 text-left border-b">Email</th>
                       <th className="p-2 text-left border-b">Department</th>
                       <th className="p-2 text-left border-b">Year</th>
                       <th className="p-2 text-left border-b">Project Title</th>
@@ -1132,6 +1102,7 @@ const PTUProjectForm = () => {
                         </td>
                         <td className="p-2 font-medium">{record.name || '-'}</td>
                         <td className="p-2">{record.registerNumber || '-'}</td>
+                        <td className="p-2">{record.emailId || '-'}</td>
                         <td className="p-2">{record.department || '-'}</td>
                         <td className="p-2">{record.yearOfStudy || '-'}</td>
                         <td className="p-2 max-w-xs truncate" title={record.projectTitle}>{record.projectTitle || '-'}</td>
@@ -1205,7 +1176,7 @@ const PTUProjectForm = () => {
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
                   <div><strong>Name:</strong> "Name" or "name"</div>
                   <div><strong>Register Number:</strong> "Register Number" or "registerNumber"</div>
-                  <div><strong>User ID:</strong> "User ID" or "userId"</div>
+                  <div><strong>Email ID:</strong> "Email ID" or "emailId"</div>
                   <div><strong>Department:</strong> "Department" or "department"</div>
                   <div><strong>Year of Study:</strong> "Year of Study" or "yearOfStudy"</div>
                   <div><strong>Project Title:</strong> "Project Title" or "projectTitle"</div>
