@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { BrowserRouter as Router, Route, Routes, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  useLocation,
+} from "react-router-dom";
 
 // Pages
 import Home from "./pages/Homepage";
@@ -78,15 +83,18 @@ import UpdateStocks from "./Admin/Records/UpdateStocks.jsx";
 import { fetchUser } from "./Redux/slice/userSlice.js";
 import ViewStocksUpdateRecords from "./Admin/Records/ViewStocksUpdateRecords.jsx";
 import StudentRecords from "./pages/StudentRecords.jsx";
+import ContactControl from "./Admin/ContactControl.jsx";
+import { fetchContactData } from "./Redux/slice/contactSlice.js";
+import { fetchNewsletters } from "./Redux/slice/newslettersSlice.js";
 
 // Component to handle scroll to top on route change
 function ScrollToTop() {
   const location = useLocation();
-  
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location.pathname]);
-  
+
   return null;
 }
 
@@ -118,6 +126,18 @@ function App() {
       setIsAdmin(state.authenticate.admin);
     }
   }, [state.authenticate]);
+
+  useEffect(()=>{
+     if (!state.contact?.data){
+      dispatch(fetchContactData());
+     }
+  },[dispatch])
+
+  useEffect(()=>{
+    if (!state.newsletters?.newsletters){
+      dispatch(fetchNewsletters());
+    }
+  },[dispatch])
 
   useEffect(() => {
     if (!state.imageCarousel.images?.images) {
@@ -160,6 +180,8 @@ function App() {
       }, 300);
     }
   }, [state.imageCarousel]);
+
+  
 
   return (
     <Router>
@@ -272,11 +294,11 @@ function App() {
               {/* Stocks */}
               <Route path="/admin/createStocks" element={<CreateStocks />} />
 
-            {/* All Users */}
-            <Route path="/admin/allUsers" element={<AllUsers />} />
+              {/* All Users */}
+              <Route path="/admin/allUsers" element={<AllUsers />} />
 
-            {/* Stocks */}
-            <Route path="/admin/createStocks" element={<CreateStocks />} />
+              {/* Stocks */}
+              <Route path="/admin/createStocks" element={<CreateStocks />} />
 
               <Route path="/admin/stocksData" element={<StocksData />} />
 
@@ -285,6 +307,11 @@ function App() {
               <Route
                 path="/admin/viewStocksUpdateRecords"
                 element={<ViewStocksUpdateRecords />}
+              />
+
+              <Route
+                path="/admin/contactControl"
+                element={<ContactControl />}
               />
 
               {isAdmin == 1 && (

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 
-const GetInTouch = () => {
+const GetInTouch = ({ contactEmail = "ceo@aicpecf.org" }) => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -25,7 +25,7 @@ Message:
 ${formData.message}
     `;
 
-    window.location.href = `mailto: ceo@aicpecf.org?subject=${encodeURIComponent(
+    window.location.href = `mailto:${contactEmail}?subject=${encodeURIComponent(
       subject
     )}&body=${encodeURIComponent(body)}`;
   };

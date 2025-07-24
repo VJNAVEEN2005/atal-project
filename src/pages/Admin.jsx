@@ -37,6 +37,11 @@ const Admin = () => {
       icon: "📰", // Keep newspaper icon
     },
     {
+      name: "Contact Control",
+      link: "/admin/contactcontrol",
+      icon: "📞", // Changed to phone icon
+    },
+    {
       name: "Road Map Control",
       link: "/admin/roadmapcontrol",
       icon: "🗺️", // Changed to map icon
