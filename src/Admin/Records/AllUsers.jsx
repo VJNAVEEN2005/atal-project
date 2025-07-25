@@ -4,6 +4,7 @@ import api from '../../Api/api';
 import { X, Trash2 } from 'lucide-react';
 import { Share2 } from 'lucide-react';
 import { showNotification } from '@mantine/notifications';
+import { useNavigate } from 'react-router-dom';
 
 
 const DOMAIN_TABS = [
@@ -11,6 +12,9 @@ const DOMAIN_TABS = [
   { label: 'Startups', value: 'Startups', icon: '🚀' },
   { label: 'Team Member', value: 'Team Member', icon: '👥' },
 ];
+
+const MIN_USERS_TO_DISPLAY = 1; // Minimum number of users required to show the table
+const USERS_PER_PAGE = 10; // Number of users per page
 
 const DOMAIN_FIELDS = {
   Students: [
@@ -39,9 +43,8 @@ const DOMAIN_FIELDS = {
     { label: 'Email', key: 'email', type: 'email' },
     { label: 'User ID', key: 'userId', type: 'text' },
     { label: 'Phone', key: 'phoneNumber', type: 'phone' },
-    { label: 'Organization Name', key: 'organizationName', type: 'text' },
-    { label: 'Designation/Business Type', key: (u) => u.designation || u.businessType || '-', type: 'text' },
-    { label: 'Website', key: 'websiteUrl', type: 'url' },
+    { label: 'Role', key: 'role', type: 'text' },
+    { label: 'LinkedIn', key: 'linkedin', type: 'url' },
   ],
 };
 
@@ -142,6 +145,7 @@ const EmptyState = ({ domain }) => (
 );
 
 const AllUsers = () => {
+  const navigate = useNavigate();
   const [selectedDomain, setSelectedDomain] = useState(DOMAIN_TABS[0].value);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -153,6 +157,22 @@ const AllUsers = () => {
   const searchInputRef = useRef(null);
   const suggestionsRef = useRef(null);
 
+  // Search mode state
+  const [isSearchMode, setIsSearchMode] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalUsers: 0,
+    usersPerPage: USERS_PER_PAGE,
+    hasNextPage: false,
+    hasPreviousPage: false,
+    domain: ''
+  });
+
   // Delete modal state
   const [deleteUserId, setDeleteUserId] = useState(null);
   const [deleteUserName, setDeleteUserName] = useState('');
@@ -161,38 +181,35 @@ const AllUsers = () => {
   const [deleteSuccess, setDeleteSuccess] = useState('');
 
   useEffect(() => {
-    setLoading(true);
-    setError('');
-    setUsers([]);
-    setSearchTerm('');
-    
-    axios
-      .get(`${api.web}api/v1/users/domain/${selectedDomain}`, {
-        headers: { token: localStorage.getItem('token') },
-      })
-      .then((res) => {
-        if (res.data.success) {
-          setUsers(res.data.users);
-        } else {
-          setError(res.data.message || 'No users found');
-        }
-      })
-      .catch((err) => {
-        setError(
-          err.response?.data?.message || 'Failed to fetch users for this domain.'
-        );
-      })
-      .finally(() => setLoading(false));
-    
-  }, [selectedDomain]);
+    handleDomainChange(selectedDomain);
+  }, []);
 
   const fields = DOMAIN_FIELDS[selectedDomain];
 
-  const filteredUsers = users.filter(user =>
+  // Get current users to display (search results or domain users)
+  const currentUsers = isSearchMode ? searchResults : users;
+  const filteredUsers = currentUsers.filter(user =>
     Object.values(user).some(value =>
       String(value).toLowerCase().includes(searchTerm.toLowerCase())
     )
   );
+
+  // Dynamic fields based on search mode
+  const getDisplayFields = () => {
+    if (isSearchMode) {
+      // For search mode, show common fields that work across all domains
+      return [
+        { label: 'Name', key: 'name', type: 'name' },
+        { label: 'Email', key: 'email', type: 'email' },
+        { label: 'Domain', key: 'domain', type: 'text' },
+        { label: 'User ID', key: 'userId', type: 'text' },
+        { label: 'Phone', key: 'phoneNumber', type: 'phone' },
+      ];
+    }
+    return fields;
+  };
+
+  const displayFields = getDisplayFields();
 
   // Helper: get all string fields for suggestions
   const getAllStringFields = (user) => {
@@ -225,7 +242,7 @@ const AllUsers = () => {
     if (searchTerm.length > 0) {
       const searchLower = searchTerm.toLowerCase();
       let newSuggestions = [];
-      filteredUsers.forEach((user) => {
+      currentUsers.forEach((user) => {
         getAllStringFields(user).forEach((field) => {
           if (field.value.toLowerCase().includes(searchLower)) {
             newSuggestions.push(field);
@@ -245,7 +262,7 @@ const AllUsers = () => {
       setShowSuggestions(false);
     }
     setSelectedSuggestionIndex(-1);
-  }, [searchTerm, filteredUsers]);
+  }, [searchTerm, currentUsers]);
 
   // Handle clicking outside to close suggestions
   useEffect(() => {
@@ -267,7 +284,17 @@ const AllUsers = () => {
 
   // Keyboard navigation
   const handleKeyDown = (e) => {
-    if (!showSuggestions) return;
+    if (!showSuggestions) {
+      // Handle Enter key for search
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleSearch(searchTerm);
+        setShowSuggestions(false);
+        return;
+      }
+      return;
+    }
+    
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
@@ -283,6 +310,9 @@ const AllUsers = () => {
         e.preventDefault();
         if (selectedSuggestionIndex >= 0) {
           handleSuggestionClick(suggestions[selectedSuggestionIndex]);
+        } else {
+          handleSearch(searchTerm);
+          setShowSuggestions(false);
         }
         break;
       case 'Escape':
@@ -331,6 +361,119 @@ const AllUsers = () => {
       .finally(() => setDeleting(false));
   };
 
+  // Handle page change
+  const handlePageChange = (newPage) => {
+    if (newPage < 1 || newPage > pagination.totalPages) return;
+    
+    setLoading(true);
+    setCurrentPage(newPage);
+    
+    const apiUrl = isSearchMode && searchTerm.trim()
+      ? `${api.web}api/v1/searchUsers?search=${encodeURIComponent(searchTerm.trim())}&page=${newPage}&limit=${USERS_PER_PAGE}`
+      : `${api.web}api/v1/users/domain/${selectedDomain}/paginated?page=${newPage}&limit=${USERS_PER_PAGE}`;
+    
+    axios
+      .get(apiUrl, {
+        headers: { token: localStorage.getItem('token') },
+      })
+      .then((res) => {
+        if (res.data.success) {
+          if (isSearchMode) {
+            setSearchResults(res.data.users);
+          } else {
+            setUsers(res.data.users);
+          }
+          setPagination(res.data.pagination);
+        } else {
+          setError(res.data.message || 'No users found');
+        }
+      })
+      .catch((err) => {
+        setError(
+          err.response?.data?.message || 'Failed to fetch users.'
+        );
+      })
+      .finally(() => setLoading(false));
+  };
+
+  // Handle search functionality
+  const handleSearch = (searchQuery) => {
+    if (!searchQuery.trim()) {
+      // If search is empty, exit search mode and return to domain view
+      setIsSearchMode(false);
+      setSearchResults([]);
+      setCurrentPage(1);
+      // Reload domain data
+      handleDomainChange(selectedDomain);
+      return;
+    }
+
+    setIsSearchMode(true);
+    setLoading(true);
+    setCurrentPage(1);
+    setError('');
+
+    axios
+      .get(`${api.web}api/v1/searchUsers?search=${encodeURIComponent(searchQuery.trim())}&page=1&limit=${USERS_PER_PAGE}`, {
+        headers: { token: localStorage.getItem('token') },
+      })
+      .then((res) => {
+        if (res.data.success) {
+          setSearchResults(res.data.users);
+          setPagination(res.data.pagination);
+        } else {
+          setError(res.data.message || 'No users found');
+          setSearchResults([]);
+          setPagination({
+            currentPage: 1,
+            totalPages: 1,
+            totalUsers: 0,
+            usersPerPage: USERS_PER_PAGE,
+            hasNextPage: false,
+            hasPreviousPage: false,
+            domain: ''
+          });
+        }
+      })
+      .catch((err) => {
+        setError(
+          err.response?.data?.message || 'Failed to search users.'
+        );
+        setSearchResults([]);
+      })
+      .finally(() => setLoading(false));
+  };
+
+  // Handle domain change
+  const handleDomainChange = (domain) => {
+    setSelectedDomain(domain);
+    setIsSearchMode(false);
+    setSearchResults([]);
+    setSearchTerm('');
+    setCurrentPage(1);
+    setLoading(true);
+    setError('');
+    
+    axios
+      .get(`${api.web}api/v1/users/domain/${domain}/paginated?page=1&limit=${USERS_PER_PAGE}`, {
+        headers: { token: localStorage.getItem('token') },
+      })
+      .then((res) => {
+        if (res.data.success) {
+          setUsers(res.data.users);
+          setPagination(res.data.pagination);
+        } else {
+          setError(res.data.message || 'No users found');
+        }
+      })
+      .catch((err) => {
+        setError(
+          err.response?.data?.message || 'Failed to fetch users for this domain.'
+        );
+      })
+      .finally(() => setLoading(false));
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#e9f0fa] via-[#f0f7ff] to-[#f7fafc] py-8 px-4">
       <div className="max-w-7xl mx-auto">
@@ -361,7 +504,7 @@ const AllUsers = () => {
                       ? 'bg-gradient-to-r from-[#3f6197] to-[#5478b0] text-white border-transparent shadow-[#3f6197]/25'
                       : 'bg-white text-[#3f6197] border-[#3f6197]/30 hover:bg-[#3f6197]/5 hover:border-[#3f6197]'
                   }`}
-                  onClick={() => setSelectedDomain(tab.value)}
+                  onClick={() => handleDomainChange(tab.value)}
                 >
                   <span className="flex items-center gap-2">
                     <span className="text-xl">{tab.icon}</span>
@@ -372,62 +515,98 @@ const AllUsers = () => {
             </div>
 
             {/* Search Bar */}
-            {!loading && !error && users.length > 0 && (
-              <div className="mb-8 max-w-md mx-auto">
-                <div className="relative">
-                  <input
-                    ref={searchInputRef}
-                    type="text"
-                    placeholder={`Search ${selectedDomain.toLowerCase()}...`}
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    className="w-full px-4 py-3 pl-12 rounded-2xl border-2 border-[#e3eaf5] focus:border-[#3f6197] focus:ring-4 focus:ring-[#3f6197]/20 focus:outline-none transition-all duration-200 text-gray-700 bg-white/80"
-                  />
-                  <svg className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                  {/* Suggestions Dropdown */}
-                  {showSuggestions && suggestions.length > 0 && (
-                    <div
-                      ref={suggestionsRef}
-                      className="absolute left-0 right-0 top-full z-30 bg-white border border-[#e3eaf5] rounded-xl shadow-lg mt-2 max-h-72 overflow-y-auto animate-fadeIn"
-                    >
-                      {suggestions.map((suggestion, idx) => (
-                        <div
-                          key={idx}
-                          className={`px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors flex items-center gap-3 ${
-                            idx === selectedSuggestionIndex
-                              ? 'bg-blue-50 border-blue-200'
-                              : 'hover:bg-gray-50'
-                          }`}
-                          onClick={() => handleSuggestionClick(suggestion)}
-                        >
-                          <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gradient-to-br from-[#3f6197] to-[#5478b0] text-white font-bold text-base">
-                            {getInitial(suggestion.user.name)}
-                          </span>
-                          <div>
-                            <div className="text-sm font-medium text-gray-900">{suggestion.value}</div>
-                            <div className="text-xs text-gray-500">{suggestion.label}</div>
-                          </div>
+            <div className="mb-8 max-w-2xl mx-auto">
+              <div className="relative">
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  placeholder={isSearchMode ? "Search across all users..." : `Search ${selectedDomain.toLowerCase()}...`}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  className="w-full px-4 py-3 pl-12 pr-20 rounded-2xl border-2 border-[#e3eaf5] focus:border-[#3f6197] focus:ring-4 focus:ring-[#3f6197]/20 focus:outline-none transition-all duration-200 text-gray-700 bg-white/80"
+                />
+                <svg className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                
+                {/* Search Button */}
+                <button
+                  onClick={() => handleSearch(searchTerm)}
+                  disabled={loading}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 px-4 py-1.5 bg-gradient-to-r from-[#3f6197] to-[#5478b0] text-white rounded-lg hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+                >
+                  {loading ? 'Searching...' : 'Search'}
+                </button>
+
+                {/* Suggestions Dropdown */}
+                {showSuggestions && suggestions.length > 0 && (
+                  <div
+                    ref={suggestionsRef}
+                    className="absolute left-0 right-0 top-full z-30 bg-white border border-[#e3eaf5] rounded-xl shadow-lg mt-2 max-h-72 overflow-y-auto animate-fadeIn"
+                  >
+                    {suggestions.map((suggestion, idx) => (
+                      <div
+                        key={idx}
+                        className={`px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors flex items-center gap-3 ${
+                          idx === selectedSuggestionIndex
+                            ? 'bg-blue-50 border-blue-200'
+                            : 'hover:bg-gray-50'
+                        }`}
+                        onClick={() => handleSuggestionClick(suggestion)}
+                      >
+                        <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gradient-to-br from-[#3f6197] to-[#5478b0] text-white font-bold text-base">
+                          {getInitial(suggestion.user.name)}
+                        </span>
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">{suggestion.value}</div>
+                          <div className="text-xs text-gray-500">{suggestion.label}</div>
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                {searchTerm && (
-                  <div className="mt-2 text-sm text-blue-700 bg-blue-50 rounded-lg px-3 py-2 border border-blue-100 shadow-sm animate-fadeIn">
-                    <span className="font-medium">Tip:</span> You can search by name, email, user ID, or any visible field in the table.
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
-            )}
+              
+              {/* Search Mode Indicator */}
+              {isSearchMode && (
+                <div className="mt-3 flex items-center justify-between bg-blue-50 rounded-lg px-4 py-2 border border-blue-100">
+                  <div className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <span className="text-sm font-medium text-blue-700">
+                      Global search active • Results from all domains
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setSearchTerm('');
+                      handleSearch('');
+                    }}
+                    className="text-sm text-blue-600 hover:text-blue-800 font-medium underline"
+                  >
+                    Clear search
+                  </button>
+                </div>
+              )}
+              
+              {searchTerm && !isSearchMode && (
+                <div className="mt-2 text-sm text-blue-700 bg-blue-50 rounded-lg px-3 py-2 border border-blue-100 shadow-sm animate-fadeIn">
+                  <span className="font-medium">Tip:</span> Press Enter or click Search to search across all domains, or use the suggestions below.
+                </div>
+              )}
+            </div>
 
             {/* Content */}
             {loading ? (
               <LoadingSpinner />
             ) : error ? (
               <ErrorState message={error} />
+            ) : (!isSearchMode && pagination.totalUsers < MIN_USERS_TO_DISPLAY) ? (
+              <EmptyState domain={selectedDomain} />
+            ) : (isSearchMode && searchResults.length === 0) ? (
+              <EmptyState domain={`Search results for "${searchTerm}"`} />
             ) : filteredUsers.length === 0 ? (
               searchTerm ? (
                 <EmptyState domain={`Results for "${searchTerm}"`} />
@@ -439,8 +618,17 @@ const AllUsers = () => {
                 {/* Results count */}
                 <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-blue-50 border-b border-[#e3eaf5]">
                   <p className="text-gray-600 font-medium">
-                    Showing {filteredUsers.length} of {users.length} {selectedDomain.toLowerCase()}
-                    {searchTerm && <span className="text-[#3f6197]"> for "{searchTerm}"</span>}
+                    {isSearchMode ? (
+                      <>
+                        Showing {((pagination.currentPage - 1) * pagination.usersPerPage) + 1} to {Math.min(pagination.currentPage * pagination.usersPerPage, pagination.totalUsers)} of {pagination.totalUsers} search results
+                        <span className="text-[#3f6197]"> for "{searchTerm}"</span>
+                      </>
+                    ) : (
+                      <>
+                        Showing {((pagination.currentPage - 1) * pagination.usersPerPage) + 1} to {Math.min(pagination.currentPage * pagination.usersPerPage, pagination.totalUsers)} of {pagination.totalUsers} {selectedDomain.toLowerCase()}
+                        {searchTerm && <span className="text-[#3f6197]"> (filtered)</span>}
+                      </>
+                    )}
                   </p>
                 </div>
 
@@ -448,7 +636,7 @@ const AllUsers = () => {
                   <table className="w-full min-w-[800px]">
                     <thead className="sticky top-0 z-20 bg-gradient-to-r from-[#3f6197] to-[#5478b0] text-white shadow-lg">
                       <tr>
-                        {fields.map((field) => (
+                        {displayFields.map((field) => (
                           <th key={field.label} className="px-6 py-5 text-left font-bold text-base tracking-wide border-b border-[#2a4373]">
                             {field.label}
                           </th>
@@ -464,11 +652,15 @@ const AllUsers = () => {
                             idx % 2 === 0 ? 'bg-white' : 'bg-[#f7fafd]/30'
                           }`}
                         >
-                          {fields.map((field, i) => (
+                          {displayFields.map((field, i) => (
                             <td key={field.label} className="px-6 py-5 text-gray-700 text-[15px] align-middle">
                               {i === 0 ? (
                                 <div className="flex items-center gap-4">
-                                  <div className={`inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br ${getRandomColor(user.name)} text-white font-extrabold text-lg shadow-lg border-3 border-white group-hover:scale-110 transition-transform duration-200`}>
+                                  <div 
+                                    className={`inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br ${getRandomColor(user.name)} text-white font-extrabold text-lg shadow-lg border-3 border-white group-hover:scale-110 transition-transform duration-200 cursor-pointer hover:shadow-xl`}
+                                    onClick={() => navigate(`/profile/${user._id}`)}
+                                    title="View Profile"
+                                  >
                                     {getInitial(user.name)}
                                   </div>
                                   <div className="flex flex-col">
@@ -543,6 +735,79 @@ const AllUsers = () => {
                     </tbody>
                   </table>
                 </div>
+
+                {/* Pagination Controls */}
+                {pagination.totalPages > 1 && (
+                  <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-blue-50 border-t border-[#e3eaf5]">
+                    <div className="flex items-center justify-between">
+                      {/* Previous button */}
+                      <button
+                        onClick={() => handlePageChange(pagination.currentPage - 1)}
+                        disabled={!pagination.hasPreviousPage || loading}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
+                          pagination.hasPreviousPage && !loading
+                            ? 'bg-white text-[#3f6197] border border-[#3f6197] hover:bg-[#3f6197] hover:text-white shadow-md hover:shadow-lg'
+                            : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        }`}
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                        Previous
+                      </button>
+
+                      {/* Page numbers */}
+                      {/* <div className="flex items-center gap-2">
+                        {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+                          const pageNumber = Math.max(1, Math.min(
+                            pagination.currentPage - 2 + i,
+                            pagination.totalPages - 4 + i
+                          ));
+                          
+                          if (pageNumber > pagination.totalPages) return null;
+                          
+                          return (
+                            <button
+                              key={pageNumber}
+                              onClick={() => handlePageChange(pageNumber)}
+                              disabled={loading}
+                              className={`w-10 h-10 rounded-lg transition-all duration-200 font-semibold ${
+                                pageNumber === pagination.currentPage
+                                  ? 'bg-gradient-to-r from-[#3f6197] to-[#5478b0] text-white shadow-lg'
+                                  : 'bg-white text-[#3f6197] border border-[#3f6197]/30 hover:bg-[#3f6197] hover:text-white shadow-md hover:shadow-lg'
+                              } ${loading ? 'cursor-not-allowed opacity-50' : ''}`}
+                            >
+                              {pageNumber}
+                            </button>
+                          );
+                        })}
+                      </div> */}
+
+                      {/* Next button */}
+                      <button
+                        onClick={() => handlePageChange(pagination.currentPage + 1)}
+                        disabled={!pagination.hasNextPage || loading}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
+                          pagination.hasNextPage && !loading
+                            ? 'bg-white text-[#3f6197] border border-[#3f6197] hover:bg-[#3f6197] hover:text-white shadow-md hover:shadow-lg'
+                            : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        }`}
+                      >
+                        Next
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
+                    </div>
+
+                    {/* Page info */}
+                    <div className="mt-3 text-center">
+                      <p className="text-sm text-gray-600">
+                        Page {pagination.currentPage} of {pagination.totalPages} • {pagination.totalUsers} total {isSearchMode ? 'results' : selectedDomain.toLowerCase()}
+                      </p>
+                    </div>
+                  </div>
+                )}
                {/* Delete Confirmation Modal */}
                {deleteUserId && (
                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
