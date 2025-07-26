@@ -109,11 +109,11 @@ function App() {
     dispatch(authenticateUser());
   }, [dispatch]);
 
-  useEffect(() => {
-    if (!state.startupPortfolio.startups.length) {
-      dispatch(fetchStartups());
-    }
-  }, [dispatch]);
+  // useEffect(() => {
+  //   if (!state.startupPortfolio.startups.length) {
+  //     dispatch(fetchStartups());
+  //   }
+  // }, [dispatch]);
 
   useEffect(() => {
     if (!state.user.user) {

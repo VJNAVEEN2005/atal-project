@@ -1,5 +1,5 @@
 import React, { useEffect, Suspense } from "react";
-import { Search, Filter, RefreshCw } from "lucide-react";
+import { Search, Filter, RefreshCw, ChevronLeft, ChevronRight } from "lucide-react";
 import PortfolioCard from "./PortfolioCards";
 import Modal from "./UI/Modal";
 import StartupDetails from "./StartupDetail";
@@ -8,17 +8,19 @@ import api from "../../Api/api";
 import { useSelector, useDispatch } from "react-redux";
 import {
   fetchStartups,
+  fetchStartupsPaginated,
+  fetchStartupsByCategory,
+  searchStartups,
   setActiveCategory,
   setSelectedStartup,
-  setVisibleCount,
   toggleAdvancedFilter,
   setSearchTerm,
+  setCurrentPage,
+  clearSearch,
 } from "../../Redux/slice/startupPortfolioSlice";
 
 // Lazy loading PortfolioFilters
 const PortfolioFilters = React.lazy(() => import("./PortfolioFilter"));
-
-const ITEMS_PER_PAGE = 9;
 
 const PortfolioSection = () => {
   const dispatch = useDispatch();
@@ -26,55 +28,126 @@ const PortfolioSection = () => {
   // Get state from Redux store
   const {
     startups,
+    searchResults,
     loading,
     error,
     activeCategory,
     selectedStartup,
-    visibleCount,
     isAdvancedFilterOpen,
     searchTerm,
     categories,
+    pagination,
+    isSearchMode,
+    currentPage,
   } = useSelector((state) => state.startupPortfolio);
+
+  // Determine which startups to display
+  const displayStartups = isSearchMode ? searchResults : startups;
 
   // Fetch startups from API on component mount
   useEffect(() => {
     if (!startups.length) {
-      dispatch(fetchStartups());
+      dispatch(fetchStartupsPaginated({ page: 1, limit: 9 }));
     }
   }, [dispatch]);
 
-  // Filter startups by category and search term
-  const filteredStartups = startups.filter((startup) => {
-    const matchesCategory =
-      activeCategory === "All" || startup.category === activeCategory;
-
-    const matchesSearch =
-      searchTerm === "" ||
-      startup.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      startup.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      startup.sector.toLowerCase().includes(searchTerm.toLowerCase());
-
-    return matchesCategory && matchesSearch;
-  });
-
-  const visibleStartups = filteredStartups.slice(0, visibleCount);
-
   const handleLoadMore = () => {
-    dispatch(setVisibleCount(visibleCount + ITEMS_PER_PAGE));
+    const nextPage = currentPage + 1;
+    dispatch(setCurrentPage(nextPage));
+    
+    if (isSearchMode) {
+      dispatch(searchStartups({ 
+        searchQuery: searchTerm, 
+        page: nextPage, 
+        limit: 9 
+      }));
+    } else if (activeCategory === "All") {
+      dispatch(fetchStartupsPaginated({ page: nextPage, limit: 9 }));
+    } else {
+      dispatch(fetchStartupsByCategory({ 
+        category: activeCategory, 
+        page: nextPage, 
+        limit: 9 
+      }));
+    }
   };
 
   const handleSearch = (e) => {
-    dispatch(setSearchTerm(e.target.value));
-    dispatch(setVisibleCount(ITEMS_PER_PAGE)); // Reset visible count when searching
+    const value = e.target.value;
+    dispatch(setSearchTerm(value));
+    
+    if (value.trim()) {
+      dispatch(searchStartups({ 
+        searchQuery: value, 
+        page: 1, 
+        limit: 9 
+      }));
+    } else {
+      dispatch(clearSearch());
+      // Load the current category or all startups
+      if (activeCategory === "All") {
+        dispatch(fetchStartupsPaginated({ page: 1, limit: 9 }));
+      } else {
+        dispatch(fetchStartupsByCategory({ 
+          category: activeCategory, 
+          page: 1, 
+          limit: 9 
+        }));
+      }
+    }
   };
 
   const handleCategoryChange = (category) => {
     dispatch(setActiveCategory(category));
-    dispatch(setVisibleCount(ITEMS_PER_PAGE)); // Reset visible count when changing category
+    dispatch(clearSearch());
+    
+    if (category === "All") {
+      dispatch(fetchStartupsPaginated({ page: 1, limit: 9 }));
+    } else {
+      dispatch(fetchStartupsByCategory({ 
+        category, 
+        page: 1, 
+        limit: 9 
+      }));
+    }
   };
 
   const handleRefresh = () => {
-    dispatch(fetchStartups());
+    if (isSearchMode) {
+      dispatch(searchStartups({ 
+        searchQuery: searchTerm, 
+        page: currentPage, 
+        limit: 9 
+      }));
+    } else if (activeCategory === "All") {
+      dispatch(fetchStartupsPaginated({ page: currentPage, limit: 9 }));
+    } else {
+      dispatch(fetchStartupsByCategory({ 
+        category: activeCategory, 
+        page: currentPage, 
+        limit: 9 
+      }));
+    }
+  };
+
+  const handlePageChange = (newPage) => {
+    dispatch(setCurrentPage(newPage));
+    
+    if (isSearchMode) {
+      dispatch(searchStartups({ 
+        searchQuery: searchTerm, 
+        page: newPage, 
+        limit: 9 
+      }));
+    } else if (activeCategory === "All") {
+      dispatch(fetchStartupsPaginated({ page: newPage, limit: 9 }));
+    } else {
+      dispatch(fetchStartupsByCategory({ 
+        category: activeCategory, 
+        page: newPage, 
+        limit: 9 
+      }));
+    }
   };
 
   const handleStartupSelect = (startup) => {
@@ -185,7 +258,7 @@ const PortfolioSection = () => {
               Try Again
             </button>
           </div>
-        ) : visibleStartups.length === 0 ? (
+        ) : displayStartups.length === 0 ? (
           <div className="bg-gray-50 rounded-lg p-8 text-center w-full max-w-md">
             <div className="w-16 h-16 mx-auto bg-gray-200 rounded-full flex items-center justify-center mb-4">
               <Search size={24} className="text-gray-400" />
@@ -194,14 +267,17 @@ const PortfolioSection = () => {
               No startups found
             </h3>
             <p className="text-gray-500">
-              Try adjusting your filters or search terms
+              {isSearchMode 
+                ? `No results found for "${searchTerm}"`
+                : "Try adjusting your filters or search terms"
+              }
             </p>
           </div>
         ) : (
           // Portfolio Grid
           <div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full ">
-              {visibleStartups.map((startup) => (
+              {displayStartups.map((startup) => (
                 <PortfolioCard
                   key={startup._id}
                   id={startup._id}
@@ -221,21 +297,71 @@ const PortfolioSection = () => {
           </div>
         )}
 
-        {!loading && !error && visibleCount < filteredStartups.length && (
-          <div className="text-center mt-12">
-            <button
-              onClick={handleLoadMore}
-              className="py-3 px-6 bg-[#3f6197] text-white rounded-lg hover:bg-[#2d4974] transition-colors font-medium"
-            >
-              Know More
-            </button>
-          </div>
-        )}
+        {/* Pagination Controls */}
+        {!loading && !error && displayStartups.length > 0 && (
+          <div className="flex flex-col items-center mt-12 space-y-4">
+            {/* Pagination Navigation */}
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={!pagination.hasPreviousPage}
+                className={`p-2 rounded-lg transition-colors ${
+                  pagination.hasPreviousPage
+                    ? "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                    : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                }`}
+              >
+                <ChevronLeft size={20} />
+              </button>
 
-        {!loading && !error && filteredStartups.length > 0 && (
-          <div className="mt-6 text-sm text-gray-500">
-            Showing {Math.min(visibleCount, filteredStartups.length)} of{" "}
-            {filteredStartups.length} startups
+              {/* Page Numbers */}
+              <div className="flex items-center space-x-1">
+                {[...Array(Math.min(pagination.totalPages, 5))].map((_, index) => {
+                  let pageNumber;
+                  if (pagination.totalPages <= 5) {
+                    pageNumber = index + 1;
+                  } else if (currentPage <= 3) {
+                    pageNumber = index + 1;
+                  } else if (currentPage >= pagination.totalPages - 2) {
+                    pageNumber = pagination.totalPages - 4 + index;
+                  } else {
+                    pageNumber = currentPage - 2 + index;
+                  }
+
+                  return (
+                    <button
+                      key={pageNumber}
+                      onClick={() => handlePageChange(pageNumber)}
+                      className={`px-3 py-2 rounded-lg transition-colors ${
+                        currentPage === pageNumber
+                          ? "bg-[#3f6197] text-white"
+                          : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                      }`}
+                    >
+                      {pageNumber}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={!pagination.hasNextPage}
+                className={`p-2 rounded-lg transition-colors ${
+                  pagination.hasNextPage
+                    ? "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                    : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                }`}
+              >
+                <ChevronRight size={20} />
+              </button>
+            </div>
+
+            {/* Pagination Info */}
+            <div className="text-sm text-gray-500">
+              Showing page {pagination.currentPage} of {pagination.totalPages} 
+              ({pagination.totalStartups} total startups)
+            </div>
           </div>
         )}
       </div>
