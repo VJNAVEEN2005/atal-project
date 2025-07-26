@@ -487,8 +487,20 @@ const TeamsSignUpControl = () => {
         {/* Header */}
         <div className="mb-8">
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="bg-gradient-to-r from-[#3f6197] to-[#5478b0] p-8">
+            <div className="bg-gradient-to-r from-[#3f6197] to-[#5478b0] p-8 relative">
+              {/* Back Button */}
+             
               <div className="flex items-center justify-between">
+                 <div className="flex items-center gap-4">
+        <button
+                onClick={() => navigate("/admin")}
+                className=" left-6 top-6 flex items-center gap-2 px-3 py-2 text-white bg-white/20 backdrop-blur-sm rounded-lg hover:bg-white/30 transition-all duration-200 border border-white/30 z-20"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                </svg>
+                Back
+              </button>
                 <div className="flex items-center space-x-4">
                   <div className="w-16 h-16 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center">
                     <Users className="w-8 h-8 text-white" />
@@ -502,6 +514,7 @@ const TeamsSignUpControl = () => {
                     </p>
                   </div>
                 </div>
+                 </div>
                 <div className="text-right">
                   <div className="text-3xl font-bold text-white">
                     {teams.length}

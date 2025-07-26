@@ -3,6 +3,7 @@ import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Linkedin, Mail, User, Edit, Trash, Upload } from 'lucide-react';
 import axios from 'axios';
 import api from '../Api/api';
+import { useNavigate } from 'react-router-dom';
 
 const TeamMemberCard = ({ member, index, onEdit, onDelete }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -300,7 +301,7 @@ const TeamsControl = () => {
   const [activeTab, setActiveTab] = useState('Core Team');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "" });
-
+  const navigate = useNavigate();
   useEffect(() => {
     fetchTeamMembers();
   }, []);
@@ -429,10 +430,32 @@ const TeamsControl = () => {
       {/* Header */}
       <div className="bg-gradient-to-r from-[#3f6197] to-[#5478b0] rounded-xl shadow-xl p-6 mb-8">
         <div className="flex justify-between items-center">
+         <div className='flex items-center space-x-4'>
+     <button
+            onClick={() => navigate("/admin")}
+            className=" left-6 top-6 flex items-center gap-2 px-3 py-2 text-white bg-white/20 backdrop-blur-sm rounded-lg hover:bg-white/30 transition-all duration-200 border border-white/30 z-20"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-4 h-4"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15.75 19.5L8.25 12l7.5-7.5"
+              />
+            </svg>
+            Back
+          </button>
           <div>
             <h1 className="text-3xl font-bold text-white mb-2">Team Management</h1>
             <p className="text-blue-100">Create and manage team members</p>
           </div>
+         </div>
           <div className="flex space-x-2">
             {['Core Team', 'Executive Team'].map((tab) => (
               <button

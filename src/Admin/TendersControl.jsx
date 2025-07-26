@@ -382,9 +382,20 @@ const viewTender = async (id) => {
       {/* Header */}
       <div className="bg-gradient-to-r from-[#3f6197] to-[#5478b0] rounded-xl shadow-xl p-6 mb-8">
         <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-white mb-2">Tender Management</h1>
-            <p className="text-blue-100">Create and manage tender notices</p>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => window.history.back()}
+              className="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-all duration-200 backdrop-blur-sm border border-white/20 hover:border-white/40"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Back
+            </button>
+            <div>
+              <h1 className="text-3xl font-bold text-white mb-2">Tender Management</h1>
+              <p className="text-blue-100">Create and manage tender notices</p>
+            </div>
           </div>
           <div className="flex space-x-2">
             <button

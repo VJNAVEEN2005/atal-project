@@ -1,8 +1,19 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import { Linkedin, Mail, User, Edit, Trash, Upload, Building, ExternalLink } from 'lucide-react';
-import axios from 'axios';
-import api from '../Api/api';
+import React, { useState, useEffect, useCallback } from "react";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import {
+  Linkedin,
+  Mail,
+  User,
+  Edit,
+  Trash,
+  Upload,
+  Building,
+  ExternalLink,
+  ArrowLeft,
+} from "lucide-react";
+import axios from "axios";
+import api from "../Api/api";
+import { useNavigate } from "react-router-dom";
 
 // API Configuration
 const API_BASE_URL = `${api.web}api/v1`;
@@ -13,40 +24,40 @@ const Api = {
     const params = type ? { type } : {};
     return axios.get(`${API_BASE_URL}/partners`, { params });
   },
-  
+
   // Get single partner
   getPartner: (id) => {
     return axios.get(`${API_BASE_URL}/partners/${id}`);
   },
-  
+
   // Create partner
   createPartner: (formData) => {
     return axios.post(`${API_BASE_URL}/partners`, formData, {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        "Content-Type": "multipart/form-data",
       },
     });
   },
-  
+
   // Update partner
   updatePartner: (id, formData) => {
     return axios.put(`${API_BASE_URL}/partners/${id}`, formData, {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        "Content-Type": "multipart/form-data",
       },
     });
   },
-  
+
   // Delete partner
   deletePartner: (id) => {
     return axios.delete(`${API_BASE_URL}/partners/${id}`);
   },
-  
+
   // Update partner order
   updatePartnerOrder: (partners) => {
     return axios.put(`${API_BASE_URL}/partners/order/update`, { partners });
   },
-  
+
   // Get partner image URLs
   getLogoUrl: (id) => `${API_BASE_URL}/partners/logo/${id}`,
   getPhotoUrl: (id) => `${API_BASE_URL}/partners/photo/${id}`,
@@ -55,9 +66,8 @@ const Api = {
 const PartnerCard = ({ partner, index, onEdit, onDelete, isCompany }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
-  
 
-  const imageUrl = isCompany 
+  const imageUrl = isCompany
     ? Api.getLogoUrl(partner._id)
     : Api.getPhotoUrl(partner._id);
 
@@ -84,7 +94,7 @@ const PartnerCard = ({ partner, index, onEdit, onDelete, isCompany }) => {
                         src={imageUrl}
                         alt={partner.name}
                         className={`max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-105 ${
-                          imageLoaded ? 'opacity-100' : 'opacity-0'
+                          imageLoaded ? "opacity-100" : "opacity-0"
                         }`}
                         onLoad={() => setImageLoaded(true)}
                         onError={() => setImageError(true)}
@@ -98,11 +108,13 @@ const PartnerCard = ({ partner, index, onEdit, onDelete, isCompany }) => {
                 </div>
               </div>
               <div className="text-center mb-3">
-                <h3 className="text-lg font-semibold text-gray-900 mb-1">{partner.name}</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                  {partner.name}
+                </h3>
                 {partner.website && (
-                  <a 
-                    href={partner.website} 
-                    target="_blank" 
+                  <a
+                    href={partner.website}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-sm text-[#3f6197] hover:text-[#2c4b79] flex items-center justify-center gap-1 transition-colors"
                   >
@@ -126,7 +138,7 @@ const PartnerCard = ({ partner, index, onEdit, onDelete, isCompany }) => {
                         src={imageUrl}
                         alt={partner.name}
                         className={`w-full h-full object-cover rounded-full transition-transform duration-300 group-hover:scale-110 ${
-                          imageLoaded ? 'opacity-100' : 'opacity-0'
+                          imageLoaded ? "opacity-100" : "opacity-0"
                         }`}
                         onLoad={() => setImageLoaded(true)}
                         onError={() => setImageError(true)}
@@ -140,13 +152,27 @@ const PartnerCard = ({ partner, index, onEdit, onDelete, isCompany }) => {
                   <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center rounded-full">
                     <div className="flex space-x-4 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
                       {partner.linkedin && (
-                        <a href={partner.linkedin} target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-200">
-                          <Linkedin size={18} className="text-white hover:text-[#0077b5] transition-colors duration-200" />
+                        <a
+                          href={partner.linkedin}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:scale-110 transition-transform duration-200"
+                        >
+                          <Linkedin
+                            size={18}
+                            className="text-white hover:text-[#0077b5] transition-colors duration-200"
+                          />
                         </a>
                       )}
                       {partner.email && (
-                        <a href={`mailto:${partner.email}`} className="hover:scale-110 transition-transform duration-200">
-                          <Mail size={18} className="text-white hover:text-[#E4405F] transition-colors duration-200" />
+                        <a
+                          href={`mailto:${partner.email}`}
+                          className="hover:scale-110 transition-transform duration-200"
+                        >
+                          <Mail
+                            size={18}
+                            className="text-white hover:text-[#E4405F] transition-colors duration-200"
+                          />
                         </a>
                       )}
                     </div>
@@ -154,22 +180,26 @@ const PartnerCard = ({ partner, index, onEdit, onDelete, isCompany }) => {
                 </div>
               </div>
               <div className="text-center mb-3">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">{partner.name}</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  {partner.name}
+                </h3>
                 {partner.details && (
-                  <p className="text-sm text-gray-600 leading-relaxed max-w-xs">{partner.details}</p>
+                  <p className="text-sm text-gray-600 leading-relaxed max-w-xs">
+                    {partner.details}
+                  </p>
                 )}
               </div>
             </>
           )}
-          
+
           <div className="flex space-x-2">
-            <button 
-              onClick={() => onEdit(partner)} 
+            <button
+              onClick={() => onEdit(partner)}
               className="p-2 bg-blue-100 rounded-full hover:bg-blue-200 transition-colors"
             >
               <Edit size={16} className="text-blue-600" />
             </button>
-            <button 
+            <button
               onClick={() => onDelete(partner._id)}
               className="p-2 bg-red-100 rounded-full hover:bg-red-200 transition-colors"
             >
@@ -183,26 +213,29 @@ const PartnerCard = ({ partner, index, onEdit, onDelete, isCompany }) => {
 };
 
 const PartnerForm = ({ partner, onSubmit, onCancel, partnerType }) => {
-  const isCompany = ['Academic', 'Corporate', 'IP Partners'].includes(partnerType);
-  const isIPorMentor = partnerType === 'IP Partners' || partnerType === 'Mentors';
+  const isCompany = ["Academic", "Corporate", "IP Partners"].includes(
+    partnerType
+  );
+  const isIPorMentor =
+    partnerType === "IP Partners" || partnerType === "Mentors";
 
   const [formData, setFormData] = useState({
-    name: partner?.name || '',
+    name: partner?.name || "",
     type: partner?.type || partnerType,
-    website: partner?.website || '',
-    email: partner?.email || '',
-    linkedin: partner?.linkedin || '',
-    details: partner?.details || '',
+    website: partner?.website || "",
+    email: partner?.email || "",
+    linkedin: partner?.linkedin || "",
+    details: partner?.details || "",
     // New fields
-    role: partner?.role || '',
+    role: partner?.role || "",
     expertise: partner?.expertise || [],
-    companyName: partner?.companyName || '',
+    companyName: partner?.companyName || "",
   });
-  
+
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
-  
+
   useEffect(() => {
     if (partner) {
       if (isCompany && partner.logo) {
@@ -215,9 +248,10 @@ const PartnerForm = ({ partner, onSubmit, onCancel, partnerType }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: name === "expertise" ? value.split(',').map(s => s.trim()) : value,
+      [name]:
+        name === "expertise" ? value.split(",").map((s) => s.trim()) : value,
     }));
   };
 
@@ -225,7 +259,7 @@ const PartnerForm = ({ partner, onSubmit, onCancel, partnerType }) => {
     const file = e.target.files[0];
     processFile(file);
   };
-  
+
   const processFile = (file) => {
     if (file) {
       setImage(file);
@@ -253,10 +287,10 @@ const PartnerForm = ({ partner, onSubmit, onCancel, partnerType }) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const file = e.dataTransfer.files[0];
-      if (file.type.startsWith('image/')) {
+      if (file.type.startsWith("image/")) {
         processFile(file);
       }
     }
@@ -265,25 +299,24 @@ const PartnerForm = ({ partner, onSubmit, onCancel, partnerType }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const data = new FormData();
-  
+
     // Always include all form fields, even if empty
-    data.append('name', formData.name || '');
-    data.append('type', formData.type || '');
-    data.append('website', formData.website || '');
-    data.append('email', formData.email || '');
-    data.append('linkedin', formData.linkedin || '');
-    data.append('details', formData.details || '');
-    data.append('role', formData.role || '');
-    data.append('companyName', formData.companyName || '');
-    data.append('expertise', formData.expertise.join(',') || '');
-  
+    data.append("name", formData.name || "");
+    data.append("type", formData.type || "");
+    data.append("website", formData.website || "");
+    data.append("email", formData.email || "");
+    data.append("linkedin", formData.linkedin || "");
+    data.append("details", formData.details || "");
+    data.append("role", formData.role || "");
+    data.append("companyName", formData.companyName || "");
+    data.append("expertise", formData.expertise.join(",") || "");
+
     if (image) {
-      data.append('image', image);
+      data.append("image", image);
     }
-  
+
     onSubmit(data, partner?._id);
   };
-  
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg max-w-md mx-auto max-h-[90vh] overflow-y-auto">
@@ -292,34 +325,48 @@ const PartnerForm = ({ partner, onSubmit, onCancel, partnerType }) => {
       </h3>
       <form onSubmit={handleSubmit}>
         <div className="flex justify-center mb-4">
-          <div 
-            className={`relative ${isCompany ? 'w-40 h-24' : 'w-32 h-32'}`}
+          <div
+            className={`relative ${isCompany ? "w-40 h-24" : "w-32 h-32"}`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
           >
-            <div 
-              className={`absolute inset-0 ${isCompany ? 'rounded-lg' : 'rounded-full'} overflow-hidden border-2 ${
-                isDragging 
-                  ? 'border-dashed border-[#3f6197] bg-blue-50' 
-                  : 'border-gray-300'
+            <div
+              className={`absolute inset-0 ${
+                isCompany ? "rounded-lg" : "rounded-full"
+              } overflow-hidden border-2 ${
+                isDragging
+                  ? "border-dashed border-[#3f6197] bg-blue-50"
+                  : "border-gray-300"
               } transition-all duration-200`}
             >
               {preview ? (
-                <img 
-                  src={preview} 
-                  alt="Preview" 
-                  className={`w-full h-full ${isCompany ? 'object-contain bg-white' : 'object-cover'}`} 
+                <img
+                  src={preview}
+                  alt="Preview"
+                  className={`w-full h-full ${
+                    isCompany ? "object-contain bg-white" : "object-cover"
+                  }`}
                 />
               ) : (
-                <div className={`w-full h-full flex flex-col items-center justify-center bg-gray-100 ${isCompany ? '' : 'rounded-full'}`}>
-                  {isCompany ? <Building size={32} className="text-gray-400" /> : <User size={32} className="text-gray-400" />}
+                <div
+                  className={`w-full h-full flex flex-col items-center justify-center bg-gray-100 ${
+                    isCompany ? "" : "rounded-full"
+                  }`}
+                >
+                  {isCompany ? (
+                    <Building size={32} className="text-gray-400" />
+                  ) : (
+                    <User size={32} className="text-gray-400" />
+                  )}
                   {isDragging && (
-                    <p className="text-xs text-center text-[#3f6197] mt-2">Drop image here</p>
+                    <p className="text-xs text-center text-[#3f6197] mt-2">
+                      Drop image here
+                    </p>
                   )}
                   {!isDragging && (
                     <p className="text-xs text-center text-gray-500 mt-2">
-                      {isCompany ? 'Drag logo here' : 'Drag photo here'}
+                      {isCompany ? "Drag logo here" : "Drag photo here"}
                     </p>
                   )}
                 </div>
@@ -327,11 +374,11 @@ const PartnerForm = ({ partner, onSubmit, onCancel, partnerType }) => {
             </div>
             <label className="absolute bottom-0 right-0 bg-[#3f6197] p-2 rounded-full cursor-pointer hover:bg-[#2c4b79] transition-colors">
               <Upload size={16} className="text-white" />
-              <input 
-                type="file" 
-                className="hidden" 
-                accept="image/*" 
-                onChange={handleImageChange} 
+              <input
+                type="file"
+                className="hidden"
+                accept="image/*"
+                onChange={handleImageChange}
               />
             </label>
           </div>
@@ -339,7 +386,7 @@ const PartnerForm = ({ partner, onSubmit, onCancel, partnerType }) => {
 
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            {isCompany ? 'Company Name' : 'Full Name'}
+            {isCompany ? "Company Name" : "Full Name"}
           </label>
           <input
             type="text"
@@ -353,7 +400,9 @@ const PartnerForm = ({ partner, onSubmit, onCancel, partnerType }) => {
 
         {isCompany ? (
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Website</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Website
+            </label>
             <input
               type="url"
               name="website"
@@ -366,7 +415,9 @@ const PartnerForm = ({ partner, onSubmit, onCancel, partnerType }) => {
         ) : (
           <>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Email
+              </label>
               <input
                 type="email"
                 name="email"
@@ -378,7 +429,9 @@ const PartnerForm = ({ partner, onSubmit, onCancel, partnerType }) => {
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">LinkedIn</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                LinkedIn
+              </label>
               <input
                 type="url"
                 name="linkedin"
@@ -390,13 +443,19 @@ const PartnerForm = ({ partner, onSubmit, onCancel, partnerType }) => {
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Details</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Details
+              </label>
               <textarea
                 name="details"
                 value={formData.details}
                 onChange={(e) => {
                   const { name, value } = e.target;
-                  if (name === 'role' || name === 'expertise' || name === 'company') {
+                  if (
+                    name === "role" ||
+                    name === "expertise" ||
+                    name === "company"
+                  ) {
                     console.log(`${name} added to the database: ${value}`);
                   }
                   handleChange(e);
@@ -413,7 +472,9 @@ const PartnerForm = ({ partner, onSubmit, onCancel, partnerType }) => {
         {isIPorMentor && (
           <>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Role
+              </label>
               <input
                 type="text"
                 name="role"
@@ -425,19 +486,22 @@ const PartnerForm = ({ partner, onSubmit, onCancel, partnerType }) => {
             </div>
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Expertise <span className="text-xs text-gray-400">(comma separated)</span>
+                Expertise{" "}
+                <span className="text-xs text-gray-400">(comma separated)</span>
               </label>
               <input
                 type="text"
                 name="expertise"
-                value={formData.expertise.join(', ')}
+                value={formData.expertise.join(", ")}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3f6197]"
                 placeholder="e.g. IP Law, Technology, Business"
               />
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Company Name
+              </label>
               <input
                 type="text"
                 name="companyName"
@@ -475,10 +539,10 @@ const PartnersControl = () => {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [currentPartner, setCurrentPartner] = useState(null);
-  const [activeTab, setActiveTab] = useState('Academic');
+  const [activeTab, setActiveTab] = useState("Academic");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "" });
-
+  const navigate = useNavigate();
   useEffect(() => {
     fetchPartners();
   }, []);
@@ -489,10 +553,10 @@ const PartnersControl = () => {
       const response = await Api.getPartners();
       setPartners(response.data.data);
     } catch (error) {
-      console.error('Error fetching partners:', error);
-      setMessage({ 
-        text: error.response?.data?.message || 'Error fetching partners', 
-        type: "error" 
+      console.error("Error fetching partners:", error);
+      setMessage({
+        text: error.response?.data?.message || "Error fetching partners",
+        type: "error",
       });
       setTimeout(() => setMessage({ text: "", type: "" }), 5000);
     } finally {
@@ -502,39 +566,41 @@ const PartnersControl = () => {
 
   const handleDragEnd = async (result) => {
     if (!result.destination) return;
-    
+
     const { source, destination } = result;
-    const filteredPartners = partners.filter(partner => partner.type === activeTab);
+    const filteredPartners = partners.filter(
+      (partner) => partner.type === activeTab
+    );
     const items = Array.from(filteredPartners);
     const [reorderedItem] = items.splice(source.index, 1);
     items.splice(destination.index, 0, reorderedItem);
-    
+
     const updatedItems = items.map((item, index) => ({
       id: item._id,
-      order: index
+      order: index,
     }));
-    
+
     // Update local state immediately for better UX
-    const newPartners = partners.map(partner => {
+    const newPartners = partners.map((partner) => {
       if (partner.type === activeTab) {
-        const updatedPartner = items.find(item => item._id === partner._id);
+        const updatedPartner = items.find((item) => item._id === partner._id);
         return updatedPartner || partner;
       }
       return partner;
     });
-    
+
     setPartners(newPartners);
-    
+
     // Update order on server
     try {
       await Api.updatePartnerOrder(updatedItems);
     } catch (error) {
-      console.error('Error updating partner order:', error);
+      console.error("Error updating partner order:", error);
       // Revert on error
       fetchPartners();
-      setMessage({ 
-        text: error.response?.data?.message || 'Error updating partner order', 
-        type: "error" 
+      setMessage({
+        text: error.response?.data?.message || "Error updating partner order",
+        type: "error",
       });
       setTimeout(() => setMessage({ text: "", type: "" }), 5000);
     }
@@ -551,18 +617,18 @@ const PartnersControl = () => {
   };
 
   const handleDeletePartner = async (id) => {
-    if (window.confirm('Are you sure you want to delete this partner?')) {
+    if (window.confirm("Are you sure you want to delete this partner?")) {
       try {
         setIsSubmitting(true);
         await Api.deletePartner(id);
-        setPartners(prev => prev.filter(p => p._id !== id));
+        setPartners((prev) => prev.filter((p) => p._id !== id));
         setMessage({ text: "Partner deleted successfully!", type: "success" });
         setTimeout(() => setMessage({ text: "", type: "" }), 3000);
       } catch (error) {
-        console.error('Error deleting partner:', error);
-        setMessage({ 
-          text: error.response?.data?.message || 'Failed to delete partner', 
-          type: "error" 
+        console.error("Error deleting partner:", error);
+        setMessage({
+          text: error.response?.data?.message || "Failed to delete partner",
+          type: "error",
         });
         setTimeout(() => setMessage({ text: "", type: "" }), 5000);
       } finally {
@@ -574,25 +640,28 @@ const PartnersControl = () => {
   const handleSubmitForm = async (formData, id) => {
     try {
       setIsSubmitting(true);
-      
+
       let response;
       if (id) {
         response = await Api.updatePartner(id, formData);
-        setPartners(prev => prev.map(p => p._id === id ? response.data.data : p));
+        setPartners((prev) =>
+          prev.map((p) => (p._id === id ? response.data.data : p))
+        );
         setMessage({ text: "Partner updated successfully!", type: "success" });
       } else {
         response = await Api.createPartner(formData);
-        setPartners(prev => [...prev, response.data.data]);
+        setPartners((prev) => [...prev, response.data.data]);
         setMessage({ text: "Partner added successfully!", type: "success" });
       }
-      
+
       setShowForm(false);
       setTimeout(() => setMessage({ text: "", type: "" }), 3000);
     } catch (error) {
-      console.error('Error saving partner:', error);
-      const errorMessage = error.response?.data?.message || 
-                          error.response?.data?.errors?.join(', ') || 
-                          'Failed to save partner';
+      console.error("Error saving partner:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.errors?.join(", ") ||
+        "Failed to save partner";
       setMessage({ text: errorMessage, type: "error" });
       setTimeout(() => setMessage({ text: "", type: "" }), 5000);
     } finally {
@@ -600,26 +669,61 @@ const PartnersControl = () => {
     }
   };
 
-  const filteredPartners = partners.filter(partner => partner.type === activeTab);
-  const isCompanyTab = ['Academic', 'Corporate', 'IP Partners'].includes(activeTab);
+  const filteredPartners = partners.filter(
+    (partner) => partner.type === activeTab
+  );
+  const isCompanyTab = ["Academic", "Corporate", "IP Partners"].includes(
+    activeTab
+  );
 
   return (
     <div className="max-w-6xl mx-auto my-8 px-4">
       {/* Header */}
       <div className="bg-gradient-to-r from-[#3f6197] to-[#5478b0] rounded-xl shadow-xl p-6 mb-8">
         <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-white mb-2">Partners Management</h1>
-            <p className="text-blue-100">Create and Manage Partners</p>
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={() => navigate("/admin")}
+              className=" left-6 top-6 flex items-center gap-2 px-3 py-2 text-white bg-white/20 backdrop-blur-sm rounded-lg hover:bg-white/30 transition-all duration-200 border border-white/30 z-20"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-4 h-4"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 19.5L8.25 12l7.5-7.5"
+                />
+              </svg>
+              Back
+            </button>
+            <div>
+              <h1 className="text-3xl font-bold text-white mb-2">
+                Partners Management
+              </h1>
+              <p className="text-blue-100">Create and Manage Partners</p>
+            </div>
           </div>
           <div className="flex flex-wrap gap-2">
-            {['Academic', 'Corporate', "IP Partners", "Mentors", "External Investors"].map((tab) => (
+            {[
+              "Academic",
+              "Corporate",
+              "IP Partners",
+              "Mentors",
+              "External Investors",
+            ].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-4 py-2 rounded-lg transition-colors ${activeTab === tab 
-                  ? 'bg-white text-[#3f6197] font-medium' 
-                  : 'bg-[#3f6197] text-white border border-white/30 hover:bg-[#2c4b79]'
+                className={`px-4 py-2 rounded-lg transition-colors ${
+                  activeTab === tab
+                    ? "bg-white text-[#3f6197] font-medium"
+                    : "bg-[#3f6197] text-white border border-white/30 hover:bg-[#2c4b79]"
                 }`}
               >
                 {tab}
@@ -640,12 +744,30 @@ const PartnersControl = () => {
           >
             <span className="mr-2">
               {message.type === "success" ? (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               )}
             </span>
@@ -655,15 +777,25 @@ const PartnersControl = () => {
 
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold text-[#3f6197]">
-            {activeTab} {filteredPartners.length > 0 && `(${filteredPartners.length})`}
+            {activeTab}{" "}
+            {filteredPartners.length > 0 && `(${filteredPartners.length})`}
           </h2>
           <button
             onClick={handleAddPartner}
             disabled={isSubmitting}
             className="px-6 py-3 bg-[#3f6197] hover:bg-[#2c4b79] text-white rounded-lg transition-colors flex items-center disabled:opacity-50"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 mr-2"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                clipRule="evenodd"
+              />
             </svg>
             Add {activeTab.slice(0, -1)}
           </button>
@@ -680,18 +812,26 @@ const PartnersControl = () => {
             ) : (
               <User className="h-12 w-12 mx-auto text-blue-400 mb-4" />
             )}
-            <h3 className="text-lg font-medium text-gray-700 mb-2">No {activeTab.toLowerCase()} available</h3>
-            <p className="text-gray-500">There are currently no {activeTab.toLowerCase()} in this category.</p>
+            <h3 className="text-lg font-medium text-gray-700 mb-2">
+              No {activeTab.toLowerCase()} available
+            </h3>
+            <p className="text-gray-500">
+              There are currently no {activeTab.toLowerCase()} in this category.
+            </p>
           </div>
         ) : (
           <DragDropContext onDragEnd={handleDragEnd}>
-            <Droppable droppableId={`partners-${activeTab}`} direction="horizontal" type="partner">
+            <Droppable
+              droppableId={`partners-${activeTab}`}
+              direction="horizontal"
+              type="partner"
+            >
               {(provided) => (
                 <div
                   className={`grid gap-6 ${
-                    isCompanyTab 
-                      ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4' 
-                      : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+                    isCompanyTab
+                      ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4"
+                      : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
                   }`}
                   {...provided.droppableProps}
                   ref={provided.innerRef}
@@ -712,15 +852,24 @@ const PartnersControl = () => {
             </Droppable>
           </DragDropContext>
         )}
-        
+
         <div className="mt-6 flex justify-end">
           <button
             onClick={fetchPartners}
             disabled={loading}
             className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 flex items-center transition-colors disabled:opacity-50"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 mr-1"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+                clipRule="evenodd"
+              />
             </svg>
             Refresh
           </button>
@@ -739,7 +888,7 @@ const PartnersControl = () => {
           </div>
         </div>
       )}
-      
+
       {isSubmitting && (
         <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg flex items-center">

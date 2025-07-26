@@ -481,7 +481,17 @@ const AllUsers = () => {
           {/* Header Section */}
           <div className="bg-gradient-to-r from-[#3f6197] to-[#5478b0] px-8 py-10 text-white relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-r from-[#3f6197]/20 to-[#5478b0]/20"></div>
-            <div className="relative z-10">
+            {/* Back Button */}
+            <button
+              onClick={() => window.history.back()}
+              className="absolute left-6 top-6 flex items-center gap-2 px-3 py-2 text-white bg-white/20 backdrop-blur-sm rounded-lg hover:bg-white/30 transition-all duration-200 border border-white/30 z-20"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+              </svg>
+              Back
+            </button>
+            <div className="relative text-center z-10">
               <h1 className="text-4xl font-extrabold mb-2 tracking-tight">
                 User Management
               </h1>
