@@ -39,57 +39,43 @@ const EventRecordsData = () => {
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [recordToDelete, setRecordToDelete] = useState(null);
-  
+  const [loading, setLoading] = useState(true);
+
   const navigate = useNavigate();
   const searchInputRef = useRef(null);
   const suggestionsRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  // Fetch event summary
-  const fetchEventSummary = async () => {
-    try {
-      const response = await axios.get(`${api.web}api/v1/events/summary`, {
-        headers: {
-          token: localStorage.getItem("token"),
-        },
-      });
-      setEventSummary(response.data.data.eventSummary || []);
-      console.log("Event summary fetched successfully", response.data.data.eventSummary);
-    } catch (error) {
-      console.error('Error fetching event summary:', error);
-      showNotification({
-        color: 'red',
-        title: 'Error',
-        message: 'Failed to load event summary',
-        icon: <X size={16} />,
-      });
-    }
-  };
 
-  // Fetch events overview
-  const fetchEventsOverview = async () => {
+  // Fetch event summary and overview with loading
+  const fetchData = async () => {
+    setLoading(true);
     try {
-      const response = await axios.get(`${api.web}api/v1/events/overview`, {
-        headers: {
-          token: localStorage.getItem("token"),
-        },
-      });
-      setEventsOverview(response.data.data.overview || null);
+      const [summaryRes, overviewRes] = await Promise.all([
+        axios.get(`${api.web}api/v1/events/summary`, {
+          headers: { token: localStorage.getItem("token") },
+        }),
+        axios.get(`${api.web}api/v1/events/overview`, {
+          headers: { token: localStorage.getItem("token") },
+        })
+      ]);
+      setEventSummary(summaryRes.data.data.eventSummary || []);
+      setEventsOverview(overviewRes.data.data.overview || null);
     } catch (error) {
-      console.error('Error fetching events overview:', error);
       showNotification({
         color: 'red',
         title: 'Error',
-        message: 'Failed to load events overview',
+        message: 'Failed to load event data',
         icon: <X size={16} />,
       });
+    } finally {
+      setLoading(false);
     }
   };
 
   // Initial load
   useEffect(() => {
-    fetchEventSummary();
-    fetchEventsOverview();
+    fetchData();
   }, []);
 
   // Generate suggestions based on search term
@@ -508,6 +494,17 @@ const EventRecordsData = () => {
 
   return (
     <div className="min-h-screen bg-[#f6f8fb] p-6">
+      {loading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-70">
+          <div className="flex flex-col items-center">
+            <svg className="animate-spin h-10 w-10 text-[#3f6197] mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+            </svg>
+            <span className="text-[#3f6197] font-semibold">Loading...</span>
+          </div>
+        </div>
+      )}
       <div className="max-w-7xl mx-auto">
         {/* Back Button */}
         <div className="mb-4">
