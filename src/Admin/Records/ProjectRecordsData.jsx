@@ -69,12 +69,12 @@ const ProjectRecordsData = () => {
       const searchLower = searchTerm.toLowerCase();
       const newSuggestions = [];
       records.forEach((record) => {
-        if (record.userId && record.userId.toLowerCase().includes(searchLower)) {
+        if (record.emailId && record.emailId.toLowerCase().includes(searchLower)) {
           newSuggestions.push({
-            type: "userId",
-            value: record.userId,
+            type: "emailId",
+            value: record.emailId,
             record,
-            label: `${record.userId} (User ID)`
+            label: `${record.emailId} (Email)`
           });
         }
         if (record.name && record.name.toLowerCase().includes(searchLower)) {
@@ -248,7 +248,7 @@ const ProjectRecordsData = () => {
   const filteredRecords = records.filter((record) => {
     const search = searchTerm.toLowerCase();
     const matchesSearch =
-      (record.userId && record.userId.toLowerCase().includes(search)) ||
+      (record.emailId && record.emailId.toLowerCase().includes(search)) ||
       (record.name && record.name.toLowerCase().includes(search)) ||
       (record.registerNumber && record.registerNumber.toLowerCase().includes(search)) ||
       (record.department && record.department.toLowerCase().includes(search)) ||
@@ -329,19 +329,19 @@ const ProjectRecordsData = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
-      {/* Back Button */}
-      <button
-        onClick={() => navigate(-1)}
-        className="flex items-center gap-2 mb-4 px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-        </svg>
-        Back
-      </button>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-white p-6 rounded-t-lg bg-gradient-to-r from-[#3f6197] to-[#5478b0]">
+        <div className="text-white p-6 rounded-t-lg bg-gradient-to-r from-[#3f6197] to-[#5478b0] relative">
+          {/* Back Button */}
+          <button
+            onClick={() => window.history.back()}
+            className="absolute left-4 top-4 flex items-center gap-2 px-3 py-2 text-white bg-white/20 backdrop-blur-sm rounded-lg hover:bg-white/30 transition-all duration-200 border border-white/30"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+            </svg>
+            Back
+          </button>
           <h1 className="text-3xl font-bold text-center">PROJECT RECORDS</h1>
           <p className="text-center mt-2 opacity-90">
             Manage and view all project records
@@ -356,7 +356,7 @@ const ProjectRecordsData = () => {
                 <input
                   ref={searchInputRef}
                   type="text"
-                  placeholder="Search by project name, ID, status, or description..."
+                  placeholder="Search by email, name, register no, project title..."
                   value={searchTerm}
                   onChange={handleSearchChange}
                   onFocus={handleSearchFocus}
@@ -391,7 +391,7 @@ const ProjectRecordsData = () => {
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            {suggestion.type === "userId" && (
+                            {suggestion.type === "emailId" && (
                               <User className="w-4 h-4 text-gray-400" />
                             )}
                             {suggestion.type === "name" && (
@@ -531,8 +531,8 @@ const ProjectRecordsData = () => {
             <table className="w-full">
               <thead className="bg-[#5478b0]">
                 <tr className="text-white">
-                <th className="px-6 py-4 text-left text-sm font-semibold">User ID</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold">Name</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold">Email</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold">Register No</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold">Department</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold">Year</th>
@@ -540,14 +540,15 @@ const ProjectRecordsData = () => {
                   {/* <th className="px-6 py-4 text-left text-sm font-semibold">Project Type</th> */}
                   <th className="px-6 py-4 text-left text-sm font-semibold">Project Title</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold">Guide</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold">Status</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredRecords.map((record, idx) => (
                   <tr key={idx} className={`border-b border-gray-200 hover:bg-gray-50 ${idx % 2 === 0 ? "bg-white" : "bg-gray-50"}`}>
-                    <td className="px-6 py-4 text-sm text-gray-900">{record.userId}</td>
                     <td className="px-6 py-4 text-sm text-gray-900">{record.name}</td>
+                    <td className="px-6 py-4 text-sm text-gray-900">{record.emailId}</td>
                     <td className="px-6 py-4 text-sm text-gray-900">{record.registerNumber}</td>
                     <td className="px-6 py-4 text-sm text-gray-700">{record.department}</td>
                     <td className="px-6 py-4 text-sm text-gray-700">{record.yearOfStudy}</td>
@@ -555,6 +556,15 @@ const ProjectRecordsData = () => {
                     {/* <td className="px-6 py-4 text-sm text-gray-700">{record.projectType}</td> */}
                     <td className="px-6 py-4 text-sm text-gray-700">{record.projectTitle}</td>
                     <td className="px-6 py-4 text-sm text-gray-700">{record.projectGuideName}</td>
+                    <td className="px-6 py-4 text-sm">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        record.status === "active"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-blue-100 text-blue-800"
+                      }`}>
+                        {record.status}
+                      </span>
+                    </td>
                     <td className="px-6 py-4 text-sm">
                       <div className="flex gap-2">
                         <button onClick={() => handleViewDetails(record)} className="p-1 text-blue-600 hover:text-blue-800 transition-colors" title="View Details">
@@ -599,7 +609,7 @@ const ProjectRecordsData = () => {
                   </h3>
                   <div className="space-y-2 text-sm">
                     <p><span className="font-medium">Name:</span> {selectedRecord.name}</p>
-                    <p><span className="font-medium">User ID:</span> {selectedRecord.userId}</p>
+                    <p><span className="font-medium">Email:</span> {selectedRecord.emailId}</p>
                     <p><span className="font-medium">Register No:</span> {selectedRecord.registerNumber}</p>
                     <p><span className="font-medium">Department:</span> {selectedRecord.department}</p>
                     <p><span className="font-medium">Year:</span> {selectedRecord.yearOfStudy}</p>

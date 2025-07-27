@@ -1,35 +1,38 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Users, 
-  Rocket, 
-  MessageSquare, 
-  Building, 
-  School, 
-  FileText, 
-  Briefcase, 
-  Globe, 
-  GraduationCap, 
-  DollarSign, 
-  Handshake, 
-  Edit, 
-  Save, 
+import React, { useState, useEffect } from "react";
+import {
+  Users,
+  Rocket,
+  MessageSquare,
+  Building,
+  School,
+  FileText,
+  Briefcase,
+  Globe,
+  GraduationCap,
+  DollarSign,
+  Handshake,
+  Edit,
+  Save,
   RefreshCw,
   TrendingUp,
   Plus,
-  X
-} from 'lucide-react';
-import { motion } from 'framer-motion';
-import axios from 'axios';
-import api from '../Api/api';
+  X,
+} from "lucide-react";
+import { motion } from "framer-motion";
+import axios from "axios";
+import api from "../Api/api";
+import { useNavigate } from "react-router-dom";
 
 const EcosystemCard = ({ field, value, isEditing, onValueChange }) => {
   const IconComponent = field.icon;
-  
+
   return (
     <div className="group flex flex-col bg-white p-4 rounded-lg shadow-md my-4">
       <div className="flex justify-between items-start">
         <div className="flex items-center mb-3">
-          <div className={`h-12 w-12 mr-3 rounded-full overflow-hidden flex items-center justify-center ${field.color}`}>
+          <div
+            className={`h-12 w-12 mr-3 rounded-full overflow-hidden flex items-center justify-center ${field.color}`}
+          >
             <IconComponent size={24} />
           </div>
           <div>
@@ -45,7 +48,7 @@ const EcosystemCard = ({ field, value, isEditing, onValueChange }) => {
           </div>
         )}
       </div>
-      
+
       <div className="bg-gray-50 p-3 rounded-md mt-2">
         {isEditing ? (
           <input
@@ -57,7 +60,9 @@ const EcosystemCard = ({ field, value, isEditing, onValueChange }) => {
             placeholder="Enter value"
           />
         ) : (
-          <p className="text-2xl font-bold text-gray-900">{value.toLocaleString()}</p>
+          <p className="text-2xl font-bold text-gray-900">
+            {value.toLocaleString()}
+          </p>
         )}
       </div>
     </div>
@@ -66,103 +71,108 @@ const EcosystemCard = ({ field, value, isEditing, onValueChange }) => {
 
 const EcosystemForm = ({ formData, setFormData, onSubmit, onCancel }) => {
   const ecosystemFields = [
-    { 
-      key: 'registeredMembers', 
-      label: 'Registered Members', 
-      icon: Users, 
-      description: 'Total number of registered members'
+    {
+      key: "registeredMembers",
+      label: "Registered Members",
+      icon: Users,
+      description: "Total number of registered members",
     },
-    { 
-      key: 'startupsSupported', 
-      label: 'Start-ups Supported', 
-      icon: Rocket, 
-      description: 'Number of startups supported'
+    {
+      key: "startupsSupported",
+      label: "Start-ups Supported",
+      icon: Rocket,
+      description: "Number of startups supported",
     },
-    { 
-      key: 'mentorsOnBoard', 
-      label: 'Mentors On-board', 
-      icon: MessageSquare, 
-      description: 'Number of mentors available'
+    {
+      key: "mentorsOnBoard",
+      label: "Mentors On-board",
+      icon: MessageSquare,
+      description: "Number of mentors available",
     },
-    { 
-      key: 'industrialPartnerships', 
-      label: 'Industrial Partnerships', 
-      icon: Building, 
-      description: 'Number of industrial partnerships'
+    {
+      key: "industrialPartnerships",
+      label: "Industrial Partnerships",
+      icon: Building,
+      description: "Number of industrial partnerships",
     },
-    { 
-      key: 'academicPartnerships', 
-      label: 'Academic Partnerships', 
-      icon: School, 
-      description: 'Number of academic partnerships'
+    {
+      key: "academicPartnerships",
+      label: "Academic Partnerships",
+      icon: School,
+      description: "Number of academic partnerships",
     },
-    { 
-      key: 'industryConsultingProjects', 
-      label: 'Industry Consulting Projects', 
-      icon: FileText, 
-      description: 'Number of consulting projects'
+    {
+      key: "industryConsultingProjects",
+      label: "Industry Consulting Projects",
+      icon: FileText,
+      description: "Number of consulting projects",
     },
-    { 
-      key: 'msmeSupport', 
-      label: 'MSMEs Supported', 
-      icon: Briefcase, 
-      description: 'Number of MSMEs supported'
+    {
+      key: "msmeSupport",
+      label: "MSMEs Supported",
+      icon: Briefcase,
+      description: "Number of MSMEs supported",
     },
-    { 
-      key: 'outreachInitiativesEvents', 
-      label: 'Outreach Initiatives Events', 
-      icon: Globe, 
-      description: 'Number of outreach events'
+    {
+      key: "outreachInitiativesEvents",
+      label: "Outreach Initiatives Events",
+      icon: Globe,
+      description: "Number of outreach events",
     },
-    { 
-      key: 'numberOfStartups', 
-      label: 'No. of Startups', 
-      icon: Rocket, 
-      description: 'Total number of startups'
+    {
+      key: "numberOfStartups",
+      label: "No. of Startups",
+      icon: Rocket,
+      description: "Total number of startups",
     },
-    { 
-      key: 'startupsGraduated', 
-      label: 'Startups Graduated', 
-      icon: GraduationCap, 
-      description: 'Number of graduated startups'
+    {
+      key: "startupsGraduated",
+      label: "Startups Graduated",
+      icon: GraduationCap,
+      description: "Number of graduated startups",
     },
-    { 
-      key: 'employmentGenerated', 
-      label: 'Employment Generated', 
-      icon: Users, 
-      description: 'Number of jobs created'
+    {
+      key: "employmentGenerated",
+      label: "Employment Generated",
+      icon: Users,
+      description: "Number of jobs created",
     },
-    { 
-      key: 'corpsFund', 
-      label: 'Corps Fund', 
-      icon: DollarSign, 
-      description: 'Corps fund amount'
+    {
+      key: "corpsFund",
+      label: "Corps Fund",
+      icon: DollarSign,
+      description: "Corps fund amount",
     },
-    { 
-      key: 'csrSecured', 
-      label: 'CSR Secured', 
-      icon: Handshake, 
-      description: 'CSR secured amount'
-    }
+    {
+      key: "csrSecured",
+      label: "CSR Secured",
+      icon: Handshake,
+      description: "CSR secured amount",
+    },
   ];
 
   const handleInputChange = (key, value) => {
     const numValue = parseInt(value) || 0;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [key]: numValue
+      [key]: numValue,
     }));
   };
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg max-w-4xl mx-auto">
       <h3 className="text-xl font-semibold mb-4">Update Ecosystem Data</h3>
-      <form onSubmit={onSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <form
+        onSubmit={onSubmit}
+        className="grid grid-cols-1 md:grid-cols-2 gap-4"
+      >
         {ecosystemFields.map((field) => {
           const IconComponent = field.icon;
           return (
             <div key={field.key}>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{field.label}</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {field.label}
+              </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <IconComponent size={18} className="text-gray-400" />
@@ -181,7 +191,7 @@ const EcosystemForm = ({ formData, setFormData, onSubmit, onCancel }) => {
             </div>
           );
         })}
-        
+
         <div className="md:col-span-2 flex justify-end space-x-2 mt-4">
           <button
             type="button"
@@ -216,107 +226,108 @@ const EcosystemControl = () => {
     startupsGraduated: 0,
     employmentGenerated: 0,
     corpsFund: 0,
-    csrSecured: 0
+    csrSecured: 0,
   });
-  
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState({ text: "", type: "" });
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({});
-
+  const navigate = useNavigate();
+  
   const ecosystemFields = [
-    { 
-      key: 'registeredMembers', 
-      label: 'Registered Members', 
-      icon: Users, 
-      description: 'Total number of registered members',
-      color: 'bg-blue-100'
+    {
+      key: "registeredMembers",
+      label: "Registered Members",
+      icon: Users,
+      description: "Total number of registered members",
+      color: "bg-blue-100",
     },
-    { 
-      key: 'startupsSupported', 
-      label: 'Start-ups Supported', 
-      icon: Rocket, 
-      description: 'Number of startups supported',
-      color: 'bg-green-100'
+    {
+      key: "startupsSupported",
+      label: "Start-ups Supported",
+      icon: Rocket,
+      description: "Number of startups supported",
+      color: "bg-green-100",
     },
-    { 
-      key: 'mentorsOnBoard', 
-      label: 'Mentors On-board', 
-      icon: MessageSquare, 
-      description: 'Number of mentors available',
-      color: 'bg-purple-100'
+    {
+      key: "mentorsOnBoard",
+      label: "Mentors On-board",
+      icon: MessageSquare,
+      description: "Number of mentors available",
+      color: "bg-purple-100",
     },
-    { 
-      key: 'industrialPartnerships', 
-      label: 'Industrial Partnerships', 
-      icon: Building, 
-      description: 'Number of industrial partnerships',
-      color: 'bg-orange-100'
+    {
+      key: "industrialPartnerships",
+      label: "Industrial Partnerships",
+      icon: Building,
+      description: "Number of industrial partnerships",
+      color: "bg-orange-100",
     },
-    { 
-      key: 'academicPartnerships', 
-      label: 'Academic Partnerships', 
-      icon: School, 
-      description: 'Number of academic partnerships',
-      color: 'bg-indigo-100'
+    {
+      key: "academicPartnerships",
+      label: "Academic Partnerships",
+      icon: School,
+      description: "Number of academic partnerships",
+      color: "bg-indigo-100",
     },
-    { 
-      key: 'industryConsultingProjects', 
-      label: 'Industry Consulting Projects', 
-      icon: FileText, 
-      description: 'Number of consulting projects',
-      color: 'bg-teal-100'
+    {
+      key: "industryConsultingProjects",
+      label: "Industry Consulting Projects",
+      icon: FileText,
+      description: "Number of consulting projects",
+      color: "bg-teal-100",
     },
-    { 
-      key: 'msmeSupport', 
-      label: 'MSMEs Supported', 
-      icon: Briefcase, 
-      description: 'Number of MSMEs supported',
-      color: 'bg-pink-100'
+    {
+      key: "msmeSupport",
+      label: "MSMEs Supported",
+      icon: Briefcase,
+      description: "Number of MSMEs supported",
+      color: "bg-pink-100",
     },
-    { 
-      key: 'outreachInitiativesEvents', 
-      label: 'Outreach Initiatives Events', 
-      icon: Globe, 
-      description: 'Number of outreach events',
-      color: 'bg-cyan-100'
+    {
+      key: "outreachInitiativesEvents",
+      label: "Outreach Initiatives Events",
+      icon: Globe,
+      description: "Number of outreach events",
+      color: "bg-cyan-100",
     },
-    { 
-      key: 'numberOfStartups', 
-      label: 'No. of Startups', 
-      icon: Rocket, 
-      description: 'Total number of startups',
-      color: 'bg-green-100'
+    {
+      key: "numberOfStartups",
+      label: "No. of Startups",
+      icon: Rocket,
+      description: "Total number of startups",
+      color: "bg-green-100",
     },
-    { 
-      key: 'startupsGraduated', 
-      label: 'Startups Graduated', 
-      icon: GraduationCap, 
-      description: 'Number of graduated startups',
-      color: 'bg-yellow-100'
+    {
+      key: "startupsGraduated",
+      label: "Startups Graduated",
+      icon: GraduationCap,
+      description: "Number of graduated startups",
+      color: "bg-yellow-100",
     },
-    { 
-      key: 'employmentGenerated', 
-      label: 'Employment Generated', 
-      icon: Users, 
-      description: 'Number of jobs created',
-      color: 'bg-blue-100'
+    {
+      key: "employmentGenerated",
+      label: "Employment Generated",
+      icon: Users,
+      description: "Number of jobs created",
+      color: "bg-blue-100",
     },
-    { 
-      key: 'corpsFund', 
-      label: 'Corps Fund', 
-      icon: DollarSign, 
-      description: 'Corps fund amount',
-      color: 'bg-green-100'
+    {
+      key: "corpsFund",
+      label: "Corps Fund",
+      icon: DollarSign,
+      description: "Corps fund amount",
+      color: "bg-green-100",
     },
-    { 
-      key: 'csrSecured', 
-      label: 'CSR Secured', 
-      icon: Handshake, 
-      description: 'CSR secured amount',
-      color: 'bg-purple-100'
-    }
+    {
+      key: "csrSecured",
+      label: "CSR Secured",
+      icon: Handshake,
+      description: "CSR secured amount",
+      color: "bg-purple-100",
+    },
   ];
 
   useEffect(() => {
@@ -326,13 +337,15 @@ const EcosystemControl = () => {
   const fetchEcosystemData = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${api.web}api/v1/ecosystems/getEcosystemData`);
+      const response = await axios.get(
+        `${api.web}api/v1/ecosystems/getEcosystemData`
+      );
       if (response.data.success) {
         setEcosystemData(response.data.ecosystem);
       }
       setLoading(false);
     } catch (err) {
-      setError('Failed to fetch ecosystem data');
+      setError("Failed to fetch ecosystem data");
       setLoading(false);
       console.error(err);
     }
@@ -340,19 +353,30 @@ const EcosystemControl = () => {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-    
+
     try {
-      const response = await axios.post(`${api.web}api/v1/ecosystems/updateEcosystemData`, formData);
-      
+      const response = await axios.post(
+        `${api.web}api/v1/ecosystems/updateEcosystemData`,
+        formData
+      );
+
       if (response.data.success) {
-        setMessage({ text: "Ecosystem data updated successfully!", type: "success" });
+        setMessage({
+          text: "Ecosystem data updated successfully!",
+          type: "success",
+        });
         setShowForm(false);
         fetchEcosystemData();
         resetForm();
       }
     } catch (err) {
-      setError('Failed to update ecosystem data');
-      setMessage({ text: err.response?.data?.message || "Failed to update ecosystem data. Please try again.", type: "error" });
+      setError("Failed to update ecosystem data");
+      setMessage({
+        text:
+          err.response?.data?.message ||
+          "Failed to update ecosystem data. Please try again.",
+        type: "error",
+      });
       console.error(err);
     }
   };
@@ -376,9 +400,35 @@ const EcosystemControl = () => {
       {/* Header */}
       <div className="bg-gradient-to-r from-[#3f6197] to-[#5478b0] rounded-xl shadow-xl p-6 mb-8">
         <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-white mb-2">Ecosystem Impact Management</h1>
-            <p className="text-blue-100">Monitor and update your ecosystem statistics</p>
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={() => navigate("/admin")}
+              className=" left-6 top-6 flex items-center gap-2 px-3 py-2 text-white bg-white/20 backdrop-blur-sm rounded-lg hover:bg-white/30 transition-all duration-200 border border-white/30 z-20"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-4 h-4"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 19.5L8.25 12l7.5-7.5"
+                />
+              </svg>
+              Back
+            </button>
+            <div>
+              <h1 className="text-3xl font-bold text-white mb-2">
+                Ecosystem Impact Management
+              </h1>
+              <p className="text-blue-100">
+                Monitor and update your ecosystem statistics
+              </p>
+            </div>
           </div>
           <motion.button
             whileHover={{ scale: 1.03 }}
@@ -406,12 +456,30 @@ const EcosystemControl = () => {
           >
             <span className="mr-2">
               {message.type === "success" ? (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               )}
             </span>
@@ -440,11 +508,11 @@ const EcosystemControl = () => {
             </p>
           </div>
         ) : (
-          <div className=' grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
+          <div className=" grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {ecosystemFields.map((field) => (
-              <EcosystemCard 
-                key={field.key} 
-                field={field} 
+              <EcosystemCard
+                key={field.key}
+                field={field}
                 value={ecosystemData[field.key] || 0}
                 isEditing={false}
                 onValueChange={() => {}}
@@ -458,8 +526,17 @@ const EcosystemControl = () => {
             onClick={fetchEcosystemData}
             className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 flex items-center"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 mr-1"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+                clipRule="evenodd"
+              />
             </svg>
             Refresh
           </button>

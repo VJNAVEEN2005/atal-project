@@ -1,12 +1,10 @@
 import React, { useState } from "react";
 import {
-  Upload,
   Package,
   Save,
   X,
   Zap,
   Archive,
-  Utensils,
   ArrowLeft,
   CheckCircle,
   AlertCircle,
@@ -21,18 +19,15 @@ const CreateStocks = () => {
   const [formData, setFormData] = useState({
     stockId: "AICPECF",
     stockName: "",
-    stockImage: null,
     stockType: "Electronic",
   });
 
   const [errors, setErrors] = useState({});
-  const [previewImage, setPreviewImage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const stockTypes = [
     { value: "Electronic", label: "Electronic", icon: Zap },
-    { value: "Stationry Items", label: "Stationry Items", icon: Archive },
-    { value: "Food Inventory", label: "Food Inventory", icon: Utensils },
+    { value: "Consumables", label: "Consumables", icon: Archive },
   ];
 
   const handleInputChange = (e) => {
@@ -49,58 +44,6 @@ const CreateStocks = () => {
         [name]: "",
       }));
     }
-  };
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      // Validate file type
-      if (!file.type.startsWith("image/")) {
-        setErrors((prev) => ({
-          ...prev,
-          stockImage: "Please select a valid image file",
-        }));
-        return;
-      }
-
-      // Validate file size (2MB limit)
-      if (file.size > 2 * 1024 * 1024) {
-        setErrors((prev) => ({
-          ...prev,
-          stockImage: "Image size should be less than 2MB",
-        }));
-        return;
-      }
-
-      setFormData((prev) => ({
-        ...prev,
-        stockImage: file,
-      }));
-
-      // Create preview
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setPreviewImage(e.target.result);
-      };
-      reader.readAsDataURL(file);
-
-      // Clear image error
-      if (errors.stockImage) {
-        setErrors((prev) => ({
-          ...prev,
-          stockImage: "",
-        }));
-      }
-    }
-  };
-
-  const removeImage = () => {
-    setFormData((prev) => ({
-      ...prev,
-      stockImage: null,
-    }));
-    setPreviewImage(null);
-    document.getElementById("stockImage").value = "";
   };
 
   const validateForm = () => {
@@ -149,9 +92,6 @@ const CreateStocks = () => {
       formDataToSend.append("stockName", formData.stockName);
       formDataToSend.append("stockType", formData.stockType);
       formDataToSend.append("count", "0");
-      if (formData.stockImage) {
-        formDataToSend.append("stockImage", formData.stockImage);
-      }
 
       await axios.post(`${api.web}api/v1/stock`, formDataToSend, {
         headers: {
@@ -164,10 +104,8 @@ const CreateStocks = () => {
       setFormData({
         stockId: "AICPECF",
         stockName: "",
-        stockImage: null,
         stockType: "Electronic",
       });
-      setPreviewImage(null);
       updateNotification({
         id: "create-stock",
         title: "Stock Created",
@@ -372,68 +310,6 @@ const CreateStocks = () => {
 
               {/* Right Column */}
               <div className="space-y-8">
-                {/* Stock Image */}
-                <div>
-                  <label
-                    htmlFor="stockImage"
-                    className="block text-sm font-semibold text-gray-700 mb-3"
-                  >
-                    Stock Image (Optional)
-                  </label>
-
-                  {!previewImage ? (
-                    <div className="group relative">
-                      <div className="border-2 border-dashed border-gray-300 rounded-2xl p-8 text-center hover:border-[#3f6197] transition-all duration-300 bg-gradient-to-br from-gray-50 to-white">
-                        <div className="relative">
-                          <Upload className="w-16 h-16 text-gray-400 mx-auto mb-4 group-hover:text-[#3f6197] transition-colors duration-300" />
-                          <div className="absolute inset-0 bg-gradient-to-r from-[#3f6197]/10 to-[#5a7fb8]/10 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        </div>
-                        <label htmlFor="stockImage" className="cursor-pointer">
-                          <span className="text-[#3f6197] hover:text-[#5a7fb8] font-semibold text-lg transition-colors duration-300">
-                            Click to upload image
-                          </span>
-                          <p className="text-gray-500 text-sm mt-2">
-                            PNG, JPG, GIF up to 2MB
-                          </p>
-                        </label>
-                        <input
-                          type="file"
-                          id="stockImage"
-                          accept="image/*"
-                          onChange={handleImageChange}
-                          className="hidden"
-                          disabled={isSubmitting}
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="relative group">
-                      <div className="relative overflow-hidden rounded-2xl border-2 border-gray-200">
-                        <img
-                          src={previewImage}
-                          alt="Stock preview"
-                          className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={removeImage}
-                        className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-2 shadow-lg transition-all duration-300 hover:scale-110"
-                        disabled={isSubmitting}
-                      >
-                        <X className="w-5 h-5" />
-                      </button>
-                    </div>
-                  )}
-
-                  {errors.stockImage && (
-                    <p className="mt-2 text-sm text-red-600 animate-pulse">
-                      {errors.stockImage}
-                    </p>
-                  )}
-                </div>
-
                 {/* Count Info */}
                 <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-6 relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#3f6197]/10 to-[#5a7fb8]/10 rounded-full blur-2xl"></div>
@@ -467,12 +343,9 @@ const CreateStocks = () => {
                   setFormData({
                     stockId: "",
                     stockName: "",
-                    stockImage: null,
                     stockType: "Electronic",
                   });
-                  setPreviewImage(null);
                   setErrors({});
-                  document.getElementById("stockImage").value = "";
                 }}
                 className="px-8 py-4 border-2 border-gray-300 rounded-xl text-gray-700 font-semibold hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 disabled:opacity-50"
                 disabled={isSubmitting}

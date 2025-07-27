@@ -8,7 +8,6 @@ import {
   Trash2,
   Zap,
   Archive,
-  Utensils,
   AlertCircle,
   RefreshCw,
   Plus,
@@ -39,8 +38,7 @@ const StocksData = () => {
   const stockTypes = [
     { value: "All", label: "All Types", icon: Package },
     { value: "Electronic", label: "Electronic", icon: Zap },
-    { value: "Stationry Items", label: "Stationry Items", icon: Archive },
-    { value: "Food Inventory", label: "Food Inventory", icon: Utensils },
+    { value: "Consumables", label: "Consumables", icon: Archive },
   ];
   const state = useSelector((state) => state);
   
@@ -213,8 +211,14 @@ const StocksData = () => {
 
   // Get icon for stock type
   const getStockTypeIcon = (type) => {
-    const stockType = stockTypes.find((t) => t.value === type);
-    return stockType ? stockType.icon : Package;
+    switch (type) {
+      case 'Electronic':
+        return Zap;
+      case 'Consumables':
+        return Archive;
+      default:
+        return Package;
+    }
   };
 
   // Handle delete stock
@@ -501,38 +505,18 @@ const StocksData = () => {
                   key={stock.stockId}
                   className="bg-gray-50 rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
                 >
-                  {/* Stock Image */}
-                  <div className="relative h-48 bg-gradient-to-br from-gray-100 to-gray-200">
-                    {stock.stockImage ? (
-                      <img
-                        src={`${api.web}api/v1/stock/${stock._id}/image`}
-                        alt={stock.stockName}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <IconComponent className="w-16 h-16 text-gray-400" />
-                      </div>
-                    )}
-
-                    {/* Stock Type Badge */}
-                    <div className="absolute top-4 left-4">
+                  {/* Stock Details */}
+                  <div className="p-6">
+                    {/* Stock Type and Count Info */}
+                    <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2 bg-[#3f6197] text-white px-3 py-1 rounded-full text-sm">
                         <IconComponent className="w-4 h-4" />
                         <span>{stock.stockType}</span>
                       </div>
-                    </div>
-
-                    {/* Count Badge */}
-                    <div className="absolute top-4 right-4">
-                      <div className="bg-white text-[#3f6197] px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
+                      <div className="bg-white text-[#3f6197] px-3 py-1 rounded-full text-sm font-semibold shadow-lg border border-gray-200">
                         Count: {stock.count || 0}
                       </div>
                     </div>
-                  </div>
-
-                  {/* Stock Details */}
-                  <div className="p-6">
                     <div className="mb-4">
                       <h3 className="text-lg font-semibold text-gray-800 mb-1 truncate">
                         {stock.stockName}
@@ -628,15 +612,22 @@ const StocksData = () => {
                 <div className="bg-red-50 border border-red-200 rounded-xl p-4 mt-3">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                      <Package className="w-6 h-6 text-red-600" />
+                      {React.createElement(getStockTypeIcon(stockToDelete.stockType), {
+                        className: "w-6 h-6 text-red-600"
+                      })}
                     </div>
                     <div className="flex-1">
                       <Text fw={600} size="sm" c="red.8">
                         {stockToDelete.stockName}
                       </Text>
-                      <Text size="xs" c="red.6">
-                        ID: {stockToDelete.stockId} • Type: {stockToDelete.stockType}
-                      </Text>
+                      <div className="flex items-center gap-2">
+                        <Text size="xs" c="red.6">
+                          ID: {stockToDelete.stockId} • Type: {stockToDelete.stockType}
+                        </Text>
+                        {React.createElement(getStockTypeIcon(stockToDelete.stockType), {
+                          className: "w-3 h-3 text-red-500"
+                        })}
+                      </div>
                       <Text size="xs" c="red.6">
                         Count: {stockToDelete.count || 0}
                       </Text>

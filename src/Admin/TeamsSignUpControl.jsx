@@ -89,12 +89,12 @@ const TeamsSignUpControl = () => {
   // Generate suggestions based on search term
   useEffect(() => {
     if (searchTerm.length > 0) {
-      const searchLower = searchTerm.toLowerCase();
+      const searchLower = searchTerm?.toLowerCase();
       const newSuggestions = [];
 
       teams.forEach((team) => {
         // Check name
-        if (team.name.toLowerCase().includes(searchLower)) {
+        if (team.name?.toLowerCase().includes(searchLower)) {
           newSuggestions.push({
             type: "name",
             value: team.name,
@@ -104,7 +104,7 @@ const TeamsSignUpControl = () => {
         }
 
         // Check user ID
-        if (team.userId.toLowerCase().includes(searchLower)) {
+        if (team.userId?.toLowerCase().includes(searchLower)) {
           newSuggestions.push({
             type: "userId",
             value: team.userId,
@@ -114,7 +114,7 @@ const TeamsSignUpControl = () => {
         }
 
         // Check role
-        if (team.role.toLowerCase().includes(searchLower)) {
+        if (team.role?.toLowerCase().includes(searchLower)) {
           newSuggestions.push({
             type: "role",
             value: team.role,
@@ -124,7 +124,7 @@ const TeamsSignUpControl = () => {
         }
 
         // Check email
-        if (team.email.toLowerCase().includes(searchLower)) {
+        if (team.email?.toLowerCase().includes(searchLower)) {
           newSuggestions.push({
             type: "email",
             value: team.email,
@@ -136,7 +136,7 @@ const TeamsSignUpControl = () => {
 
       // Remove duplicates and limit to 8 suggestions
       const uniqueSuggestions = newSuggestions
-        .filter(
+        ?.filter(
           (suggestion, index, self) =>
             index ===
             self.findIndex(
@@ -249,16 +249,16 @@ const TeamsSignUpControl = () => {
   });
 
   // Filter teams based on search term and role
-  const filteredTeams = sortedTeams.filter((team) => {
+  const filteredTeams = sortedTeams?.filter((team) => {
     const matchesSearch =
-      team.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      team.userId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      team.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      team.email.toLowerCase().includes(searchTerm.toLowerCase());
+      team.name?.toLowerCase().includes(searchTerm?.toLowerCase()) ||
+      team.userId?.toLowerCase().includes(searchTerm?.toLowerCase()) ||
+      team.role?.toLowerCase().includes(searchTerm?.toLowerCase()) ||
+      team.email?.toLowerCase().includes(searchTerm?.toLowerCase());
 
     const matchesRole =
       filterRole === "all" ||
-      team.role.toLowerCase() === filterRole.toLowerCase();
+      team.role?.toLowerCase() === filterRole?.toLowerCase();
 
     return matchesSearch && matchesRole;
   });
@@ -433,6 +433,29 @@ const TeamsSignUpControl = () => {
               <p className="text-xs text-gray-500">Phone</p>
             </div>
           </div>
+
+          {team.linkedin && (
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
+                <User className="w-4 h-4 text-blue-600" />
+              </div>
+              <div>
+                <a
+                  href={
+                    team.linkedin.startsWith("http")
+                      ? team.linkedin
+                      : `https://${team.linkedin}`
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-[#3f6197] hover:underline font-medium"
+                >
+                  LinkedIn Profile
+                </a>
+                <p className="text-xs text-gray-500">Professional</p>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-100">
@@ -464,8 +487,20 @@ const TeamsSignUpControl = () => {
         {/* Header */}
         <div className="mb-8">
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="bg-gradient-to-r from-[#3f6197] to-[#5478b0] p-8">
+            <div className="bg-gradient-to-r from-[#3f6197] to-[#5478b0] p-8 relative">
+              {/* Back Button */}
+             
               <div className="flex items-center justify-between">
+                 <div className="flex items-center gap-4">
+        <button
+                onClick={() => navigate("/admin")}
+                className=" left-6 top-6 flex items-center gap-2 px-3 py-2 text-white bg-white/20 backdrop-blur-sm rounded-lg hover:bg-white/30 transition-all duration-200 border border-white/30 z-20"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                </svg>
+                Back
+              </button>
                 <div className="flex items-center space-x-4">
                   <div className="w-16 h-16 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center">
                     <Users className="w-8 h-8 text-white" />
@@ -479,6 +514,7 @@ const TeamsSignUpControl = () => {
                     </p>
                   </div>
                 </div>
+                 </div>
                 <div className="text-right">
                   <div className="text-3xl font-bold text-white">
                     {teams.length}
@@ -565,9 +601,9 @@ const TeamsSignUpControl = () => {
                 <select
                   value={filterRole}
                   onChange={(e) => setFilterRole(e.target.value)}
-                  className="pl-10 pr-8 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3f6197] focus:border-transparent transition-all duration-200"
+                  className="pl-10 pr-8 py-3 border max-w-[200px] border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3f6197] focus:border-transparent transition-all duration-200"
                 >
-                  <option value="all">All Roles</option>
+                  <option value="all" >All Roles</option>
                   {Array.from(new Set(teams.map((team) => team.role))).map(
                     (role) => (
                       <option key={role} value={role}>
@@ -855,7 +891,7 @@ const TeamsSignUpControl = () => {
                             rel="noopener noreferrer"
                             className="text-[#3f6197] hover:underline"
                           >
-                            {selectedTeam.linkedin}
+                            {"Link"}
                           </a>
                         ) : (
                           "N/A"

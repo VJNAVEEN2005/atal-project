@@ -13,9 +13,9 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import api from "../Api/api";
+import { useNavigate } from "react-router-dom";
 
 // Update API endpoint to your backend
-
 
 const MessageCard = ({ message, index, onEdit, onDelete, onPreview }) => {
   return (
@@ -366,7 +366,7 @@ const MessagesControl = () => {
   });
   const [messageAlert, setMessageAlert] = useState({ text: "", type: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const navigate = useNavigate();
   useEffect(() => {
     fetchMessages();
   }, []);
@@ -375,21 +375,25 @@ const MessagesControl = () => {
     try {
       setLoading(true);
       const response = await axios.get(`${api.web}api/v1/message/`);
-      
+
       if (response.data.success && response.data.messages) {
-        const sortedMessages = response.data.messages.sort((a, b) => (a.order || 0) - (b.order || 0));
+        const sortedMessages = response.data.messages.sort(
+          (a, b) => (a.order || 0) - (b.order || 0)
+        );
         setMessages(sortedMessages);
       } else {
-        setMessageAlert({ 
-          text: "Failed to load messages. Unexpected response format.", 
-          type: "error" 
+        setMessageAlert({
+          text: "Failed to load messages. Unexpected response format.",
+          type: "error",
         });
       }
       setLoading(false);
     } catch (error) {
       console.error("Error fetching messages:", error);
       setMessageAlert({
-        text: error.response?.data?.message || "Failed to load messages. Please try again.",
+        text:
+          error.response?.data?.message ||
+          "Failed to load messages. Please try again.",
         type: "error",
       });
       setLoading(false);
@@ -429,23 +433,25 @@ const MessagesControl = () => {
       try {
         setIsSubmitting(true);
         const response = await axios.delete(`${api.web}api/v1/message/${id}`);
-        
+
         if (response.data.success) {
           fetchMessages();
-          setMessageAlert({ 
-            text: response.data.message || "Message deleted successfully!", 
-            type: "success" 
+          setMessageAlert({
+            text: response.data.message || "Message deleted successfully!",
+            type: "success",
           });
         } else {
-          setMessageAlert({ 
-            text: response.data.message || "Failed to delete message.", 
-            type: "error" 
+          setMessageAlert({
+            text: response.data.message || "Failed to delete message.",
+            type: "error",
           });
         }
       } catch (error) {
         console.error("Error deleting message:", error);
         setMessageAlert({
-          text: error.response?.data?.message || "Failed to delete message. Please try again.",
+          text:
+            error.response?.data?.message ||
+            "Failed to delete message. Please try again.",
           type: "error",
         });
       } finally {
@@ -463,46 +469,58 @@ const MessagesControl = () => {
     e.preventDefault();
     try {
       setIsSubmitting(true);
-      
+
       const formDataToSend = new FormData();
-      formDataToSend.append('name', formData.name);
-      formDataToSend.append('role', formData.role);
-      formDataToSend.append('occupation', formData.occupation);
-      formDataToSend.append('company', formData.company);
-      formDataToSend.append('message', formData.message);
-      
+      formDataToSend.append("name", formData.name);
+      formDataToSend.append("role", formData.role);
+      formDataToSend.append("occupation", formData.occupation);
+      formDataToSend.append("company", formData.company);
+      formDataToSend.append("message", formData.message);
+
       if (formData.photo) {
-        formDataToSend.append('photo', formData.photo);
+        formDataToSend.append("photo", formData.photo);
       }
-      
+
       let response;
       if (formData._id) {
-        response = await axios.put(`${api.web}api/v1/message/${formData._id}`, formDataToSend, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        response = await axios.put(
+          `${api.web}api/v1/message/${formData._id}`,
+          formDataToSend,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+          }
+        );
       } else {
-        response = await axios.post(`${api.web}api/v1/message/`, formDataToSend, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        response = await axios.post(
+          `${api.web}api/v1/message/`,
+          formDataToSend,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+          }
+        );
       }
-      
+
       if (response.data.success) {
-        setMessageAlert({ 
-          text: response.data.message || `Message ${formData._id ? 'updated' : 'added'} successfully!`, 
-          type: "success" 
+        setMessageAlert({
+          text:
+            response.data.message ||
+            `Message ${formData._id ? "updated" : "added"} successfully!`,
+          type: "success",
         });
         setShowForm(false);
         fetchMessages();
       } else {
-        setMessageAlert({ 
-          text: response.data.message || "Failed to save message.", 
-          type: "error" 
+        setMessageAlert({
+          text: response.data.message || "Failed to save message.",
+          type: "error",
         });
       }
     } catch (error) {
       console.error("Error saving message:", error);
       setMessageAlert({
-        text: error.response?.data?.message || "Failed to save message. Please try again.",
+        text:
+          error.response?.data?.message ||
+          "Failed to save message. Please try again.",
         type: "error",
       });
     } finally {
@@ -526,13 +544,16 @@ const MessagesControl = () => {
 
     try {
       const response = await axios.post(`${api.web}api/v1/message/reorder`, {
-        messages: updatedItems.map(item => ({ _id: item._id, order: item.order }))
+        messages: updatedItems.map((item) => ({
+          _id: item._id,
+          order: item.order,
+        })),
       });
-      
+
       if (response.data.success) {
-        setMessageAlert({ 
-          text: response.data.message || "Message order updated successfully!", 
-          type: "success" 
+        setMessageAlert({
+          text: response.data.message || "Message order updated successfully!",
+          type: "success",
         });
       } else {
         throw new Error(response.data.message || "Failed to update order");
@@ -540,7 +561,9 @@ const MessagesControl = () => {
     } catch (error) {
       console.error("Error updating message order:", error);
       setMessageAlert({
-        text: error.response?.data?.message || "Failed to update message order. Please try again.",
+        text:
+          error.response?.data?.message ||
+          "Failed to update message order. Please try again.",
         type: "error",
       });
       fetchMessages();
@@ -562,13 +585,35 @@ const MessagesControl = () => {
       {/* Header */}
       <div className="bg-gradient-to-r from-[#3f6197] to-[#5478b0] rounded-xl shadow-xl p-6 mb-8">
         <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-white mb-2">
-              Testimonials Management
-            </h1>
-            <p className="text-blue-100">
-              Manage testimonial messages from your team
-            </p>
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={() => navigate("/admin")}
+              className=" left-6 top-6 flex items-center gap-2 px-3 py-2 text-white bg-white/20 backdrop-blur-sm rounded-lg hover:bg-white/30 transition-all duration-200 border border-white/30 z-20"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-4 h-4"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 19.5L8.25 12l7.5-7.5"
+                />
+              </svg>
+              Back
+            </button>
+            <div>
+              <h1 className="text-3xl font-bold text-white mb-2">
+                Testimonials Management
+              </h1>
+              <p className="text-blue-100">
+                Manage testimonial messages from your team
+              </p>
+            </div>
           </div>
           <div className="flex items-center space-x-4">
             <div className="text-white text-sm">
@@ -716,7 +761,7 @@ const MessagesControl = () => {
           </button>
         </div>
       </div>
-      
+
       {/* Modals */}
       {showForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -729,7 +774,7 @@ const MessagesControl = () => {
           />
         </div>
       )}
-      
+
       {showPreview && previewMessage && (
         <MessagePreviewModal
           message={previewMessage}

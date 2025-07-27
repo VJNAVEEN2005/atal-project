@@ -973,7 +973,7 @@ const Profile = () => {
                   <button
                     onClick={() => {
                       navigate('/profile/studentRecords',{
-                        state: { userId: state?.user?.user?.user?.userId },
+                        state: { userId: state?.user?.user?.user?.userId, emailId: state?.user?.user?.user?.email },
                       })
                     }}
                     className="bg-[#3f6197] text-white px-5 py-2 rounded-lg hover:bg-[#2e4b78] transition-all duration-300 shadow-md hover:shadow-lg flex items-center"
