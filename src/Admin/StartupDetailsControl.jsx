@@ -9,9 +9,14 @@ import {
   Upload,
   CheckCircle,
   AlertCircle,
+  Check,
+  X,
+  Download,
 } from "lucide-react";
 import api from "../Api/api";
 import { useNavigate } from "react-router-dom";
+import * as XLSX from "xlsx";
+import { showNotification, updateNotification } from "@mantine/notifications";
 
 const StartupCard = ({ startup, onEdit, onDelete }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -510,7 +515,6 @@ const StartupDetailsControl = () => {
   const [currentStartup, setCurrentStartup] = useState(null);
   const [activeCategory, setActiveCategory] = useState("All");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [notification, setNotification] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   
   // Pagination states
@@ -537,6 +541,10 @@ const StartupDetailsControl = () => {
   
   const navigate = useNavigate();
 
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importedData, setImportedData] = useState([]);
+  const [selectedRows, setSelectedRows] = useState([]);
+
   useEffect(() => {
     if (!isSearchMode) {
       if (activeCategory === "All") {
@@ -559,7 +567,7 @@ const StartupDetailsControl = () => {
       }
     } catch (error) {
       console.error("Error fetching startups:", error);
-      showNotification("Failed to load startups. Please try again.", "error");
+      showNotification({ title: "Error", message: "Failed to load startups. Please try again.", color: "red", icon: <X className="w-4 h-4" />, autoClose: 3000 });
     } finally {
       setLoading(false);
     }
@@ -588,7 +596,7 @@ const StartupDetailsControl = () => {
           hasPreviousPage: false
         });
       } else {
-        showNotification("Failed to load startups. Please try again.", "error");
+        showNotification({ title: "Error", message: "Failed to load startups. Please try again.", color: "red", icon: <X className="w-4 h-4" />, autoClose: 3000 });
       }
     } finally {
       setLoading(false);
@@ -634,7 +642,7 @@ const StartupDetailsControl = () => {
           hasPreviousPage: false
         });
       } else {
-        showNotification("Failed to search startups. Please try again.", "error");
+        showNotification({ title: "Error", message: "Failed to search startups. Please try again.", color: "red", icon: <X className="w-4 h-4" />, autoClose: 3000 });
       }
     } finally {
       setLoading(false);
@@ -688,13 +696,10 @@ const StartupDetailsControl = () => {
         setIsSubmitting(true);
         await axios.delete(`${api.web}api/v1/startup/${id}`);
         fetchStartups();
-        showNotification("Startup deleted successfully!", "success");
+        showNotification({ title: "Success", message: "Startup deleted successfully!", color: "green", icon: <Check className="w-4 h-4" />, autoClose: 3000 });
       } catch (error) {
         console.error("Error deleting startup:", error);
-        showNotification(
-          "Failed to delete startup. Please try again.",
-          "error"
-        );
+        showNotification({ title: "Error", message: "Failed to delete startup. Please try again.", color: "red", icon: <X className="w-4 h-4" />, autoClose: 3000 });
       } finally {
         setIsSubmitting(false);
       }
@@ -712,7 +717,7 @@ const StartupDetailsControl = () => {
             "Content-Type": "multipart/form-data",
           },
         });
-        showNotification("Startup updated successfully!", "success");
+        showNotification({ title: "Success", message: "Startup updated successfully!", color: "green", icon: <Check className="w-4 h-4" />, autoClose: 3000 });
       } else {
         // Add new startup
         await axios.post(`${api.web}api/v1/startup`, formData, {
@@ -720,28 +725,16 @@ const StartupDetailsControl = () => {
             "Content-Type": "multipart/form-data",
           },
         });
-        showNotification("Startup added successfully!", "success");
+        showNotification({ title: "Success", message: "Startup added successfully!", color: "green", icon: <Check className="w-4 h-4" />, autoClose: 3000 });
       }
       setShowForm(false);
       fetchStartups();
     } catch (error) {
       console.error("Error saving startup:", error);
-      showNotification(
-        error.response?.data?.message ||
-          "Failed to save startup. Please try again.",
-        "error"
-      );
+      showNotification({ title: "Error", message: error.response?.data?.message || "Failed to save startup. Please try again.", color: "red", icon: <X className="w-4 h-4" />, autoClose: 3000 });
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const showNotification = (message, type) => {
-    setNotification({ message, type });
-    // Auto-dismiss after 5 seconds
-    setTimeout(() => {
-      setNotification(null);
-    }, 5000);
   };
 
   // Filter by category and search term
@@ -940,6 +933,107 @@ const StartupDetailsControl = () => {
     }
   };
 
+  // Excel Import Handlers
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const workbook = XLSX.read(event.target.result, { type: "binary" });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+        // Map Excel columns to startup fields
+        const mappedData = jsonData.map((row, index) => ({
+          id: index,
+          title: row["Title"] || row["title"] || "",
+          description: row["Description"] || row["description"] || "",
+          category: row["Category"] || row["category"] || "Ongoing",
+          founded: row["Founded"] || row["founded"] || "",
+          revenue: row["Revenue"] || row["revenue"] || "",
+          sector: row["Sector"] || row["sector"] || "",
+          jobs: row["Jobs"] || row["jobs"] || "",
+          achievements: row["Achievements"] ? (Array.isArray(row["Achievements"]) ? row["Achievements"] : String(row["Achievements"]).split(",").map(a => a.trim()).filter(Boolean)) : [],
+          hasErrors: false,
+          errors: []
+        }));
+        // Validate data
+        const validatedData = mappedData.map(record => {
+          const errors = [];
+          if (!record.title || record.title.trim() === "") errors.push("Title is required");
+          if (!record.description || record.description.trim() === "") errors.push("Description is required");
+          if (!record.founded || record.founded.trim() === "") errors.push("Founded year is required");
+          if (!record.revenue || record.revenue.trim() === "") errors.push("Revenue is required");
+          if (!record.sector || record.sector.trim() === "") errors.push("Sector is required");
+          if (!record.jobs || record.jobs.trim() === "") errors.push("Jobs is required");
+          return { ...record, hasErrors: errors.length > 0, errors };
+        });
+        setImportedData(validatedData);
+        setSelectedRows(validatedData.filter(record => !record.hasErrors).map((_, index) => index));
+        setShowImportModal(true);
+        const errorCount = validatedData.filter(record => record.hasErrors).length;
+        showNotification({
+          title: "File Uploaded",
+          message: `Parsed ${validatedData.length} records${errorCount > 0 ? `. ${errorCount} records have errors.` : ''}`,
+          color: errorCount > 0 ? "orange" : "green",
+          icon: <Check className="w-4 h-4" />, autoClose: 3000,
+        });
+      } catch (error) {
+        showNotification({
+          title: "Import Error",
+          message: "Failed to parse Excel file. Please check the format.",
+          color: "red",
+          icon: <X className="w-4 h-4" />, autoClose: 3000,
+        });
+      }
+    };
+    reader.readAsBinaryString(file);
+  };
+  const handleRowSelection = (index) => {
+    setSelectedRows(prev => prev.includes(index) ? prev.filter(i => i !== index) : [...prev, index]);
+  };
+  const handleSelectAll = () => {
+    const validIndices = importedData.map((record, index) => ({ record, index })).filter(({ record }) => !record.hasErrors).map(({ index }) => index);
+    if (selectedRows.length === validIndices.length) {
+      setSelectedRows([]);
+    } else {
+      setSelectedRows(validIndices);
+    }
+  };
+  const handleImportSelected = async () => {
+    const selectedData = importedData.filter((_, index) => selectedRows.includes(index));
+    if (selectedData.length === 0) {
+      showNotification({ title: "No Selection", message: "Select at least one record to import", color: "orange", icon: <X className="w-4 h-4" />, autoClose: 3000 });
+      return;
+    }
+    showNotification({ id: "bulk-import", title: "Importing Startups", message: `Importing ${selectedData.length} records...`, color: "blue", loading: true, autoClose: false });
+    try {
+      const promises = selectedData.map(record => {
+        const cleanRecord = { ...record };
+        delete cleanRecord.hasErrors; delete cleanRecord.errors; delete cleanRecord.id;
+        return axios.post(`${api.web}api/v1/startup`, cleanRecord, { headers: { "Content-Type": "application/json" } });
+      });
+      const results = await Promise.allSettled(promises);
+      const successful = results.filter(r => r.status === 'fulfilled').length;
+      const failed = results.filter(r => r.status === 'rejected').length;
+      updateNotification({ id: "bulk-import", title: "Import Complete", message: `Imported ${successful} records.${failed > 0 ? ` ${failed} failed.` : ''}`, color: failed > 0 ? "orange" : "green", icon: <Check className="w-4 h-4" />, loading: false, autoClose: 3000 });
+      setShowImportModal(false); setImportedData([]); setSelectedRows([]); fetchStartups();
+    } catch (error) {
+      updateNotification({ id: "bulk-import", title: "Import Failed", message: error.message || 'Please try again.', color: "red", icon: <X className="w-4 h-4" />, loading: false, autoClose: 3000 });
+    }
+  };
+  const downloadTemplate = () => {
+    const templateData = [{ Title: "Sample Startup", Description: "Description here", Category: "Ongoing", Founded: "2023", Revenue: "$1M-$5M", Sector: "FinTech", Jobs: "5-10", Achievements: "Award1, Award2" }];
+    const worksheet = XLSX.utils.json_to_sheet(templateData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Startup Template");
+    const colWidths = Object.keys(templateData[0]).map(key => ({ wch: Math.max(key.length, String(templateData[0][key]).length) + 2 }));
+    worksheet['!cols'] = colWidths;
+    XLSX.writeFile(workbook, "Startup_Import_Template.xlsx");
+    showNotification({ title: "Template Downloaded", message: "Excel template downloaded", color: "green", icon: <Download className="w-4 h-4" />, autoClose: 3000 });
+  };
+
   return (
     <div className="max-w-6xl mx-auto my-8 px-4">
       {/* Header */}
@@ -977,6 +1071,17 @@ const StartupDetailsControl = () => {
               </p>
             </div>
           </div>
+          <div className="flex gap-3">
+  <button onClick={downloadTemplate} className="flex items-center gap-2 px-4 py-2 bg-blue-600/80 text-white border border-blue-400/50 rounded-lg transition-all duration-300 hover:bg-blue-600 hover:shadow-lg hover:scale-105 backdrop-blur-sm">
+    <Upload size={18} />
+    <span className="font-medium">Template</span>
+  </button>
+  <label className="flex items-center gap-2 px-4 py-2 bg-green-600/80 text-white border border-green-400/50 rounded-lg transition-all duration-300 hover:bg-green-600 hover:shadow-lg hover:scale-105 backdrop-blur-sm cursor-pointer">
+    <Upload size={18} />
+    <span className="font-medium">Import Excel</span>
+    <input type="file" accept=".xlsx,.xls" onChange={handleFileUpload} className="hidden" />
+  </label>
+</div>
           <button
             onClick={handleAddStartup}
             className="px-6 py-3 bg-white text-[#5478B0] rounded-lg hover:bg-blue-50 transition-colors flex items-center font-medium"
@@ -988,316 +1093,263 @@ const StartupDetailsControl = () => {
         </div>
       </div>
 
-      {notification && (
-        <div
-          className={`mb-6 p-4 rounded-lg flex items-center justify-between ${
-            notification.type === "success"
-              ? "bg-green-100 text-green-800"
-              : "bg-red-100 text-red-800"
-          }`}
-        >
-          <div className="flex items-center">
-            {notification.type === "success" ? (
-              <CheckCircle size={20} className="mr-2" />
-            ) : (
-              <AlertCircle size={20} className="mr-2" />
-            )}
-            {notification.message}
-          </div>
-          <button
-            onClick={() => setNotification(null)}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            &times;
-          </button>
+      {/* Search Input Bar - Improved Design */}
+      <div className="w-full md:w-96 flex gap-2 relative mb-6">
+        <div className="relative flex-1">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+          </span>
+          <input
+            type="text"
+            placeholder="Search startups..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+            onFocus={handleSearchFocus}
+            onKeyDown={handleKeyDown}
+            ref={searchInputRef}
+            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#5478B0] focus:border-[#5478B0] transition-all duration-200 placeholder-gray-400 text-gray-800"
+            style={{ boxShadow: '0 2px 8px 0 rgba(60,90,130,0.06)' }}
+          />
+          {showSuggestions && (
+            <div
+              ref={suggestionsRef}
+              className="absolute left-0 right-0 mt-1 z-20 bg-white border border-gray-200 rounded-lg shadow-xl max-h-60 overflow-y-auto animate-fade-in"
+              style={{ boxShadow: '0 8px 24px 0 rgba(60,90,130,0.10)' }}
+            >
+              {suggestions.map((suggestion, index) => (
+                <div
+                  key={index}
+                  className={`px-4 py-2 cursor-pointer flex items-center gap-2 transition-colors duration-100 text-sm ${
+                    index === selectedSuggestionIndex ? "bg-[#eaf1fb] text-[#3F6197]" : "hover:bg-gray-50"
+                  }`}
+                  onClick={() => handleSuggestionClick(suggestion)}
+                >
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#5478B0] mr-2"></span>
+                  {suggestion.label}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-      )}
+      </div>
 
-      <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-        {/* Filters and search */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-          <div className="flex flex-wrap gap-2">
-            {availableCategories.map((category) => (
-              <button
-                key={category}
-                onClick={() => handleCategoryChange(category)}
-                disabled={loading}
-                className={`px-4 py-2 rounded-lg transition-colors ${
-                  activeCategory === category
-                    ? "bg-[#3F6197] text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-              >
-                {category}
-              </button>
+      {/* Results count */}
+      <div className="mb-4 text-sm text-gray-600">
+        {isSearchMode ? (
+          <>
+            Showing {((pagination.currentPage - 1) * pagination.startupsPerPage) + 1} to {Math.min(pagination.currentPage * pagination.startupsPerPage, pagination.totalStartups)} of {pagination.totalStartups} search results
+          </>
+        ) : (
+          <>
+            Showing {((pagination.currentPage - 1) * pagination.startupsPerPage) + 1} to {Math.min(pagination.currentPage * pagination.startupsPerPage, pagination.totalStartups)} of {pagination.totalStartups} startups
+            {activeCategory !== "All" && <span className="text-[#3F6197]"> in {activeCategory}</span>}
+          </>
+        )}
+      </div>
+
+      {/* Startup listing */}
+      {loading ? (
+        <div className="flex justify-center items-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#3F6197]"></div>
+        </div>
+      ) : currentStartups.length === 0 ? (
+        <div className="bg-gray-50 rounded-lg p-8 text-center">
+          <div className="w-16 h-16 mx-auto bg-gray-200 rounded-full flex items-center justify-center mb-4">
+            <AlertCircle size={24} className="text-gray-400" />
+          </div>
+          <h3 className="text-lg font-medium text-gray-700 mb-2">
+            No startups found
+          </h3>
+          {isSearchMode ? (
+            <p className="text-gray-500">
+              No startups found for "{searchTerm}". Try different search terms.
+            </p>
+          ) : activeCategory !== "All" ? (
+            <p className="text-gray-500">
+              No startups found in {activeCategory} category
+            </p>
+          ) : (
+            <p className="text-gray-500">
+              Get started by adding your first startup
+            </p>
+          )}
+          {!isSearchMode && (
+            <button
+              onClick={handleAddStartup}
+              className="mt-4 px-4 py-2 bg-[#3F6197] text-white rounded-lg hover:bg-[#5478B0] transition-colors inline-flex items-center"
+            >
+              <PlusCircle size={16} className="mr-2" />
+              Add Startup
+            </button>
+          )}
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {currentStartups.map((startup) => (
+              <StartupCard
+                key={startup._id}
+                startup={startup}
+                onEdit={handleEditStartup}
+                onDelete={handleDeleteStartup}
+              />
             ))}
           </div>
 
-          <div className="w-full md:w-80 flex gap-2 relative">
-            <div className="flex-1 relative">
-              <input
-                ref={searchInputRef}
-                type="text"
-                value={searchTerm}
-                onChange={handleSearchChange}
-                onFocus={handleSearchFocus}
-                onKeyDown={handleKeyDown}
-                placeholder={isSearchMode ? "Search across all startups..." : "Search startups..."}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5478B0]"
-                disabled={loading}
-              />
-              
-              {/* Suggestions Dropdown */}
-              {showSuggestions && suggestions.length > 0 && (
-                <div
-                  ref={suggestionsRef}
-                  className="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto mt-2"
-                >
-                  {suggestions.map((suggestion, index) => (
-                    <div
-                      key={`${suggestion.type}-${suggestion.value}-${index}`}
-                      className={`px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors ${
-                        index === selectedSuggestionIndex
-                          ? "bg-blue-50 border-blue-200"
-                          : "hover:bg-gray-50"
-                      }`}
-                      onClick={() => handleSuggestionClick(suggestion)}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          {suggestion.type === "title" && (
-                            <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
-                              <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                              </svg>
-                            </div>
-                          )}
-                          {suggestion.type === "description" && (
-                            <div className="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center">
-                              <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
-                              </svg>
-                            </div>
-                          )}
-                          {suggestion.type === "sector" && (
-                            <div className="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center">
-                              <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                              </svg>
-                            </div>
-                          )}
-                          {suggestion.type === "category" && (
-                            <div className="w-8 h-8 bg-yellow-50 rounded-lg flex items-center justify-center">
-                              <svg className="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                              </svg>
-                            </div>
-                          )}
-                          {(suggestion.type === "founded" || suggestion.type === "revenue") && (
-                            <div className="w-8 h-8 bg-orange-50 rounded-lg flex items-center justify-center">
-                              <svg className="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                              </svg>
-                            </div>
-                          )}
-                          {suggestion.type === "achievement" && (
-                            <div className="w-8 h-8 bg-red-50 rounded-lg flex items-center justify-center">
-                              <svg className="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-                              </svg>
-                            </div>
-                          )}
-                          <div>
-                            <div className="text-sm font-medium text-gray-900">
-                              {suggestion.value}
-                            </div>
-                            <div className="text-xs text-gray-500">
-                              {suggestion.type.charAt(0).toUpperCase() + suggestion.type.slice(1)} • {suggestion.record.title}
-                            </div>
-                          </div>
-                        </div>
-                        <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          suggestion.record.category === "Ongoing"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-blue-100 text-blue-800"
-                        }`}>
-                          {suggestion.record.category}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            <button
-              onClick={() => handleSearch(searchTerm, 1)}
-              disabled={loading}
-              className="px-4 py-2 bg-[#3F6197] text-white rounded-lg hover:bg-[#5478B0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Search
-            </button>
-          </div>
-        </div>
-
-        {/* Search Mode Indicator */}
-        {isSearchMode && (
-          <div className="mb-4 flex items-center justify-between bg-blue-50 rounded-lg px-4 py-2 border border-blue-100">
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <span className="text-sm font-medium text-blue-700">
-                Global search active • Results for "{searchTerm}"
-              </span>
-            </div>
-            <button
-              onClick={() => {
-                setSearchTerm('');
-                handleSearch('');
-              }}
-              className="text-sm text-blue-600 hover:text-blue-800 font-medium underline"
-            >
-              Clear search
-            </button>
-          </div>
-        )}
-
-        {/* Results count */}
-        <div className="mb-4 text-sm text-gray-600">
-          {isSearchMode ? (
-            <>
-              Showing {((pagination.currentPage - 1) * pagination.startupsPerPage) + 1} to {Math.min(pagination.currentPage * pagination.startupsPerPage, pagination.totalStartups)} of {pagination.totalStartups} search results
-            </>
-          ) : (
-            <>
-              Showing {((pagination.currentPage - 1) * pagination.startupsPerPage) + 1} to {Math.min(pagination.currentPage * pagination.startupsPerPage, pagination.totalStartups)} of {pagination.totalStartups} startups
-              {activeCategory !== "All" && <span className="text-[#3F6197]"> in {activeCategory}</span>}
-            </>
-          )}
-        </div>
-
-        {/* Startup listing */}
-        {loading ? (
-          <div className="flex justify-center items-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#3F6197]"></div>
-          </div>
-        ) : currentStartups.length === 0 ? (
-          <div className="bg-gray-50 rounded-lg p-8 text-center">
-            <div className="w-16 h-16 mx-auto bg-gray-200 rounded-full flex items-center justify-center mb-4">
-              <AlertCircle size={24} className="text-gray-400" />
-            </div>
-            <h3 className="text-lg font-medium text-gray-700 mb-2">
-              No startups found
-            </h3>
-            {isSearchMode ? (
-              <p className="text-gray-500">
-                No startups found for "{searchTerm}". Try different search terms.
-              </p>
-            ) : activeCategory !== "All" ? (
-              <p className="text-gray-500">
-                No startups found in {activeCategory} category
-              </p>
-            ) : (
-              <p className="text-gray-500">
-                Get started by adding your first startup
-              </p>
-            )}
-            {!isSearchMode && (
+          {/* Pagination Controls */}
+          {pagination.totalPages > 1 && (
+            <div className="mt-8 flex items-center justify-between">
+              {/* Previous button */}
               <button
-                onClick={handleAddStartup}
-                className="mt-4 px-4 py-2 bg-[#3F6197] text-white rounded-lg hover:bg-[#5478B0] transition-colors inline-flex items-center"
+                onClick={() => handlePageChange(pagination.currentPage - 1)}
+                disabled={!pagination.hasPreviousPage || loading}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
+                  pagination.hasPreviousPage && !loading
+                    ? 'bg-white text-[#3F6197] border border-[#3F6197] hover:bg-[#3F6197] hover:text-white shadow-md hover:shadow-lg'
+                    : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                }`}
               >
-                <PlusCircle size={16} className="mr-2" />
-                Add Startup
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                Previous
               </button>
-            )}
-          </div>
-        ) : (
-          <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {currentStartups.map((startup) => (
-                <StartupCard
-                  key={startup._id}
-                  startup={startup}
-                  onEdit={handleEditStartup}
-                  onDelete={handleDeleteStartup}
-                />
-              ))}
+
+              {/* Page info */}
+              <span className="text-gray-600">
+                Page {pagination.currentPage} of {pagination.totalPages}
+              </span>
+
+              {/* Next button */}
+              <button
+                onClick={() => handlePageChange(pagination.currentPage + 1)}
+                disabled={!pagination.hasNextPage || loading}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
+                  pagination.hasNextPage && !loading
+                    ? 'bg-white text-[#3F6197] border border-[#3F6197] hover:bg-[#3F6197] hover:text-white shadow-md hover:shadow-lg'
+                    : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                }`}
+              >
+                Next
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
             </div>
+          )}
+        </>
+      )}
 
-            {/* Pagination Controls */}
-            {pagination.totalPages > 1 && (
-              <div className="mt-8 flex items-center justify-between">
-                {/* Previous button */}
-                <button
-                  onClick={() => handlePageChange(pagination.currentPage - 1)}
-                  disabled={!pagination.hasPreviousPage || loading}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
-                    pagination.hasPreviousPage && !loading
-                      ? 'bg-white text-[#3F6197] border border-[#3F6197] hover:bg-[#3F6197] hover:text-white shadow-md hover:shadow-lg'
-                      : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  }`}
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                  Previous
-                </button>
-
-                {/* Page info */}
-                <span className="text-gray-600">
-                  Page {pagination.currentPage} of {pagination.totalPages}
-                </span>
-
-                {/* Next button */}
-                <button
-                  onClick={() => handlePageChange(pagination.currentPage + 1)}
-                  disabled={!pagination.hasNextPage || loading}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
-                    pagination.hasNextPage && !loading
-                      ? 'bg-white text-[#3F6197] border border-[#3F6197] hover:bg-[#3F6197] hover:text-white shadow-md hover:shadow-lg'
-                      : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  }`}
-                >
-                  Next
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-              </div>
-            )}
-          </>
-        )}
-
-        <div className="mt-6 flex justify-between items-center">
-          <p className="text-sm text-gray-500">
-            Total: {pagination.totalStartups} startups
-          </p>
-          <button
-            onClick={fetchStartups}
-            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 flex items-center"
-            disabled={loading}
-          >
-            <RefreshCw
-              size={16}
-              className={`mr-2 ${loading ? "animate-spin" : ""}`}
-            />
-            Refresh
-          </button>
-        </div>
+      <div className="mt-6 flex justify-between items-center">
+        <p className="text-sm text-gray-500">
+          Total: {pagination.totalStartups} startups
+        </p>
+        <button
+          onClick={fetchStartups}
+          className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 flex items-center"
+          disabled={loading}
+        >
+          <RefreshCw
+            size={16}
+            className={`mr-2 ${loading ? "animate-spin" : ""}`}
+          />
+          Refresh
+        </button>
       </div>
 
       {showForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="max-w-2xl w-full">
-            <StartupForm
-              startup={currentStartup}
-              onSubmit={handleSubmitForm}
-              onCancel={() => setShowForm(false)}
-            />
+          <div className="w-full max-w-2xl max-h-[90vh] bg-white rounded-lg shadow-lg flex flex-col overflow-y-auto">
+            <div className="overflow-y-auto p-0" style={{ maxHeight: '90vh' }}>
+              <StartupForm
+                startup={currentStartup}
+                onSubmit={handleSubmitForm}
+                onCancel={() => setShowForm(false)}
+              />
+            </div>
           </div>
         </div>
       )}
+
+      {showImportModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden">
+      <div className="bg-gradient-to-r from-[#3F6197] to-[#5478B0] text-white p-4 flex justify-between items-center">
+        <h2 className="text-xl font-bold">Import Startups</h2>
+        <button onClick={() => setShowImportModal(false)} className="text-white hover:text-gray-200 text-2xl">&times;</button>
+      </div>
+      <div className="p-4">
+        <div className="flex justify-between items-center mb-4">
+          <button onClick={handleSelectAll} className="flex items-center gap-2 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">
+            <CheckCircle size={16} />
+            {(() => { const validIndices = importedData.map((record, index) => ({ record, index })).filter(({ record }) => !record.hasErrors).map(({ index }) => index); return selectedRows.length === validIndices.length && validIndices.length > 0 ? 'Deselect All Valid' : 'Select All Valid'; })()}
+          </button>
+          <div className="flex gap-2">
+            <button onClick={() => setShowImportModal(false)} className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50">Cancel</button>
+            <button onClick={handleImportSelected} disabled={selectedRows.length === 0} className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed">Import Selected ({selectedRows.length})</button>
+          </div>
+        </div>
+        <div className="overflow-auto max-h-[60vh] border rounded">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50 sticky top-0">
+              <tr>
+                <th className="p-2 text-left border-b"><input type="checkbox" checked={(() => { const validIndices = importedData.map((record, index) => ({ record, index })).filter(({ record }) => !record.hasErrors).map(({ index }) => index); return selectedRows.length === validIndices.length && validIndices.length > 0; })()} onChange={handleSelectAll} className="rounded" /></th>
+                <th className="p-2 text-left border-b">Title</th>
+                <th className="p-2 text-left border-b">Description</th>
+                <th className="p-2 text-left border-b">Category</th>
+                <th className="p-2 text-left border-b">Founded</th>
+                <th className="p-2 text-left border-b">Revenue</th>
+                <th className="p-2 text-left border-b">Sector</th>
+                <th className="p-2 text-left border-b">Jobs</th>
+                <th className="p-2 text-left border-b">Achievements</th>
+                <th className="p-2 text-left border-b">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {importedData.map((record, index) => (
+                <tr key={index} className={`border-b hover:bg-gray-50 ${selectedRows.includes(index) ? 'bg-blue-50' : ''} ${record.hasErrors ? 'bg-red-50' : ''}`}>
+                  <td className="p-2"><input type="checkbox" checked={selectedRows.includes(index)} onChange={() => handleRowSelection(index)} disabled={record.hasErrors} className="rounded" /></td>
+                  <td className="p-2 font-medium">{record.title || '-'}</td>
+                  <td className="p-2">{record.description || '-'}</td>
+                  <td className="p-2">{record.category || '-'}</td>
+                  <td className="p-2">{record.founded || '-'}</td>
+                  <td className="p-2">{record.revenue || '-'}</td>
+                  <td className="p-2">{record.sector || '-'}</td>
+                  <td className="p-2">{record.jobs || '-'}</td>
+                  <td className="p-2">{Array.isArray(record.achievements) ? record.achievements.join(", ") : '-'}</td>
+                  <td className="p-2">{record.hasErrors ? (<span className="text-red-600 text-xs" title={record.errors.join(', ')}>{record.errors.length} error{record.errors.length > 1 ? 's' : ''}</span>) : (<span className="text-green-600 text-xs">Valid</span>)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {importedData.length === 0 && (<div className="text-center py-8 text-gray-500">No data to display</div>)}
+        </div>
+        <div className="mt-4 p-3 bg-gray-50 rounded text-sm">
+          <div className="flex justify-between items-center mb-2">
+            <h4 className="font-medium">Import Summary:</h4>
+            <div className="flex gap-4 text-xs">
+              <span className="text-green-600">✓ Valid: {importedData.filter(r => !r.hasErrors).length}</span>
+              <span className="text-red-600">✗ Invalid: {importedData.filter(r => r.hasErrors).length}</span>
+              <span className="text-blue-600">📋 Selected: {selectedRows.length}</span>
+            </div>
+          </div>
+          <h4 className="font-medium mb-2">Excel Column Mapping:</h4>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
+            <div><strong>Title:</strong> "Title" or "title"</div>
+            <div><strong>Description:</strong> "Description" or "description"</div>
+            <div><strong>Category:</strong> "Category" or "category"</div>
+            <div><strong>Founded:</strong> "Founded" or "founded"</div>
+            <div><strong>Revenue:</strong> "Revenue" or "revenue"</div>
+            <div><strong>Sector:</strong> "Sector" or "sector"</div>
+            <div><strong>Jobs:</strong> "Jobs" or "jobs"</div>
+            <div><strong>Achievements:</strong> "Achievements" (comma separated)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };
