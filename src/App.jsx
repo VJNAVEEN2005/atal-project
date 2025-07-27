@@ -81,6 +81,7 @@ import { fetchUser } from "./Redux/slice/userSlice.js";
 import ViewStocksUpdateRecords from "./Admin/Records/ViewStocksUpdateRecords.jsx";
 import StudentRecords from "./pages/StudentRecords.jsx";
 import Popup from "./pages/Popup.jsx";
+import EventDetails from "./Admin/Records/EventDetails.jsx";
 
 function App() {
   const [isAdmin, setIsAdmin] = useState(0);
@@ -269,6 +270,8 @@ function App() {
                 path="/admin/eventRecordsData"
                 element={<EventRecordsData />}
               />
+              <Route path="/admin/event-details/:eventName" element={<EventDetails />} />
+
 
               {/* Stocks */}
               <Route path="/admin/createStocks" element={<CreateStocks />} />

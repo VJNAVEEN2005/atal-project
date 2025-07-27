@@ -44,7 +44,14 @@ const EventRecords = () => {
 
   useEffect(() => {
     if (location.state && location.state.isEdit) {
-      setFormData(location.state.record);
+      const record = location.state.record;
+      setFormData(prev => ({
+        ...prev,
+        ...record,
+        dateOfRegistration: record.dateOfRegistration
+          ? new Date(record.dateOfRegistration).toISOString().split('T')[0]
+          : new Date().toISOString().split('T')[0]
+      }));
       setIsEdit(true);
     }
   }, [location]);
@@ -95,7 +102,7 @@ const EventRecords = () => {
             errors.push('Valid email is required');
           }
 
-          if (!record.phone || !/^\d{10}$/.test(record.phone.replace(/\D/g, ''))) {
+          if (!record.phone) {
             errors.push('Valid 10-digit phone number is required');
           }
 
@@ -186,18 +193,19 @@ const EventRecords = () => {
 
     try {
       const promises = selectedData.map(record => {
-        // Clean the record data by removing validation fields
+        // Clean and prepare the record data
         const cleanRecord = {
-          name: record.name,
-          email: record.email,
-          phone: record.phone,
-          eventName: record.eventName,
-          amountPaid: record.amountPaid,
-          dateOfRegistration: record.dateOfRegistration
+          name: record.name.trim(),
+          email: record.email.trim(),
+          phone: record.phone.trim(),
+          eventName: record.eventName.trim(),
+          amountPaid: record.amountPaid || 0,
+          dateOfRegistration: record.dateOfRegistration || new Date().toISOString().split('T')[0]
         };
 
         return axios.post(`${api.web}api/v1/events/registrations`, cleanRecord, {
           headers: {
+            'Content-Type': 'application/json',
             token: localStorage.getItem("token"),
           },
         });
@@ -287,6 +295,18 @@ const EventRecords = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validate required fields
+    if (!formData.name || !formData.email || !formData.phone || !formData.eventName) {
+      showNotification({
+        title: 'Validation Error',
+        message: 'Please fill in all required fields',
+        color: 'red',
+        icon: <X size={16} />,
+        autoClose: 3000,
+      });
+      return;
+    }
+
     showNotification({
       id: 'save-event',
       loading: true,
@@ -297,14 +317,25 @@ const EventRecords = () => {
     });
 
     try {
+      // Prepare the data to send
+      const dataToSend = {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
+        eventName: formData.eventName.trim(),
+        amountPaid: formData.amountPaid || 0,
+        dateOfRegistration: formData.dateOfRegistration || new Date().toISOString().split('T')[0]
+      };
+
       const url = isEdit
         ? `${api.web}api/v1/events/registrations/${formData._id}`
         : `${api.web}api/v1/events/registrations`;
 
       const method = isEdit ? 'put' : 'post';
 
-      const response = await axios[method](url, formData, {
+      const response = await axios[method](url, dataToSend, {
         headers: {
+          'Content-Type': 'application/json',
           token: localStorage.getItem("token"),
         },
       });
@@ -320,14 +351,14 @@ const EventRecords = () => {
         autoClose: 2000,
       });
 
-      navigate('/admin/event-records-data');
+      navigate('/admin/eventRecordsData');
     } catch (error) {
       console.error('Error saving event registration:', error);
       updateNotification({
         id: 'save-event',
         color: 'red',
         title: 'Error',
-        message: error.response?.data?.message || 'Failed to save event registration',
+        message: error.response?.data?.message || error.message || 'Failed to save event registration',
         icon: <X size={16} />,
         autoClose: 3000,
       });
@@ -692,7 +723,7 @@ const EventRecords = () => {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
               <div><strong>Name:</strong> "Name" or "name" (required)</div>
               <div><strong>Email:</strong> "Email" or "email" (required, must be valid)</div>
-              <div><strong>Phone:</strong> "Phone" or "phone" (required, 10 digits)</div>
+              <div><strong>Phone:</strong> "Phone" or "phone" (required)</div>
               <div><strong>Event Name:</strong> "Event Name" or "eventName" (required)</div>
               <div><strong>Amount Paid:</strong> "Amount Paid" or "amountPaid" (optional)</div>
               <div><strong>Date of Registration:</strong> "Date of Registration" or "dateOfRegistration" (optional, defaults to today)</div>
