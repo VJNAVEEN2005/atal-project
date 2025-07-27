@@ -1,0 +1,796 @@
+import React, { useState, useEffect, useRef } from "react";
+import {
+  Search,
+  Eye,
+  Edit,
+  Trash2,
+  Download,
+  Filter,
+  User,
+  Calendar,
+  Phone,
+  Mail,
+  MapPin,
+  Plus,
+  X,
+  Check,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import api from "../../Api/api";
+import { showNotification, updateNotification } from "@mantine/notifications";
+import { Modal, Table, Pagination, Button, Group } from "@mantine/core";
+import * as XLSX from "xlsx";
+
+const EventRecordsData = () => {
+  const [records, setRecords] = useState([]);
+  const [eventSummary, setEventSummary] = useState([]);
+  const [eventsOverview, setEventsOverview] = useState(null);
+  const [isEdit, setIsEdit] = useState({
+    isEdit: false,
+    record: null,
+  });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [selectedRecord, setSelectedRecord] = useState(null);
+  const [showDetails, setShowDetails] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
+  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [recordToDelete, setRecordToDelete] = useState(null);
+  
+  const navigate = useNavigate();
+  const searchInputRef = useRef(null);
+  const suggestionsRef = useRef(null);
+  const fileInputRef = useRef(null);
+
+  // Fetch event summary
+  const fetchEventSummary = async () => {
+    try {
+      const response = await axios.get(`${api.web}api/v1/events/summary`, {
+        headers: {
+          token: localStorage.getItem("token"),
+        },
+      });
+      setEventSummary(response.data.data.eventSummary || []);
+      console.log("Event summary fetched successfully", response.data.data.eventSummary);
+    } catch (error) {
+      console.error('Error fetching event summary:', error);
+      showNotification({
+        color: 'red',
+        title: 'Error',
+        message: 'Failed to load event summary',
+        icon: <X size={16} />,
+      });
+    }
+  };
+
+  // Fetch events overview
+  const fetchEventsOverview = async () => {
+    try {
+      const response = await axios.get(`${api.web}api/v1/events/overview`, {
+        headers: {
+          token: localStorage.getItem("token"),
+        },
+      });
+      setEventsOverview(response.data.data.overview || null);
+    } catch (error) {
+      console.error('Error fetching events overview:', error);
+      showNotification({
+        color: 'red',
+        title: 'Error',
+        message: 'Failed to load events overview',
+        icon: <X size={16} />,
+      });
+    }
+  };
+
+  // Initial load
+  useEffect(() => {
+    fetchEventSummary();
+    fetchEventsOverview();
+  }, []);
+
+  // Generate suggestions based on search term
+  useEffect(() => {
+    if (searchTerm.length > 0) {
+      const searchLower = searchTerm.toLowerCase();
+      const newSuggestions = [];
+
+      // Search through records
+      if (Array.isArray(records)) {
+        records.forEach((record) => {
+          // Check name
+          if (record.name?.toLowerCase().includes(searchLower)) {
+            newSuggestions.push({
+              type: "name",
+              value: record.name,
+              record: record,
+              label: `${record.name} (Name)`,
+              source: "record"
+            });
+          }
+
+          // Check email
+          if (record.email?.toLowerCase().includes(searchLower)) {
+            newSuggestions.push({
+              type: "email",
+              value: record.email,
+              record: record,
+              label: `${record.email} (Email)`,
+              source: "record"
+            });
+          }
+
+          // Check phone
+          if (record.phone?.toLowerCase().includes(searchLower)) {
+            newSuggestions.push({
+              type: "phone",
+              value: record.phone,
+              record: record,
+              label: `${record.phone} (Phone)`,
+              source: "record"
+            });
+          }
+
+          // Check event name
+          if (record.eventName?.toLowerCase().includes(searchLower)) {
+            newSuggestions.push({
+              type: "event",
+              value: record.eventName,
+              record: record,
+              label: `${record.eventName} (Event)`,
+              source: "record"
+            });
+          }
+        });
+      }
+
+      // Search through event summary data
+      if (Array.isArray(eventSummary)) {
+        eventSummary.forEach((event) => {
+          // Check event name
+          if (event.eventName?.toLowerCase().includes(searchLower)) {
+            newSuggestions.push({
+              type: "eventSummary",
+              value: event.eventName,
+              event: event,
+              label: `${event.eventName} (${event.totalMembers} members, ${formatCurrency(event.totalAmountPaid)})`,
+              source: "eventSummary"
+            });
+          }
+
+          // Check by total members count
+          if (event.totalMembers && event.totalMembers.toString().includes(searchTerm)) {
+            newSuggestions.push({
+              type: "memberCount",
+              value: `${event.totalMembers} members`,
+              event: event,
+              label: `${event.eventName} - ${event.totalMembers} members`,
+              source: "eventSummary"
+            });
+          }
+
+          // Check by revenue amount
+          if (event.totalAmountPaid && event.totalAmountPaid.toString().includes(searchTerm)) {
+            newSuggestions.push({
+              type: "revenue",
+              value: formatCurrency(event.totalAmountPaid),
+              event: event,
+              label: `${event.eventName} - Revenue: ${formatCurrency(event.totalAmountPaid)}`,
+              source: "eventSummary"
+            });
+          }
+        });
+      }
+
+      // Remove duplicates and limit to 10 suggestions
+      const uniqueSuggestions = newSuggestions
+        .filter(
+          (suggestion, index, self) =>
+            index ===
+            self.findIndex(
+              (s) => s.value === suggestion.value && s.type === suggestion.type && s.source === suggestion.source
+            )
+        )
+        .slice(0, 10);
+
+      setSuggestions(uniqueSuggestions);
+      setShowSuggestions(uniqueSuggestions.length > 0);
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
+    setSelectedSuggestionIndex(-1);
+  }, [searchTerm, records, eventSummary]);
+
+  // Handle clicking outside to close suggestions
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        searchInputRef.current &&
+        !searchInputRef.current.contains(event.target) &&
+        suggestionsRef.current &&
+        !suggestionsRef.current.contains(event.target)
+      ) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Handle keyboard navigation for suggestions
+  const handleKeyDown = (e) => {
+    if (!showSuggestions) return;
+
+    switch (e.key) {
+      case "ArrowDown":
+        e.preventDefault();
+        setSelectedSuggestionIndex((prev) =>
+          prev < suggestions.length - 1 ? prev + 1 : prev
+        );
+        break;
+      case "ArrowUp":
+        e.preventDefault();
+        setSelectedSuggestionIndex((prev) => (prev > 0 ? prev - 1 : -1));
+        break;
+      case "Enter":
+        e.preventDefault();
+        if (selectedSuggestionIndex >= 0) {
+          handleSuggestionClick(suggestions[selectedSuggestionIndex]);
+        }
+        break;
+      case "Escape":
+        setShowSuggestions(false);
+        setSelectedSuggestionIndex(-1);
+        break;
+    }
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    if (suggestion.source === 'eventSummary') {
+      // For event summary suggestions, set search term to the event name
+      // so users can see all registrations for that event
+      setSearchTerm(suggestion.event.eventName);
+    } else {
+      // For record suggestions, use the suggested value
+      setSearchTerm(suggestion.value);
+    }
+    setShowSuggestions(false);
+    setSelectedSuggestionIndex(-1);
+    
+    // Reset pagination to first page when search changes
+    setCurrentPage(1);
+  };
+
+  // Filter records based on search term and status
+  const filteredRecords = Array.isArray(records) ? records.filter(record => {
+    const searchLower = searchTerm.toLowerCase();
+    
+    // Basic record field search
+    const matchesRecordFields = 
+      record.name?.toLowerCase().includes(searchLower) ||
+      record.email?.toLowerCase().includes(searchLower) ||
+      record.phone?.toLowerCase().includes(searchLower) ||
+      record.eventName?.toLowerCase().includes(searchLower);
+    
+    // Enhanced search: also check if search term matches event summary data
+    let matchesEventSummary = false;
+    if (Array.isArray(eventSummary)) {
+      const eventData = eventSummary.find(event => 
+        event.eventName?.toLowerCase() === record.eventName?.toLowerCase()
+      );
+      
+      if (eventData) {
+        matchesEventSummary = 
+          eventData.totalMembers?.toString().includes(searchTerm) ||
+          eventData.totalAmountPaid?.toString().includes(searchTerm) ||
+          formatCurrency(eventData.totalAmountPaid).toLowerCase().includes(searchLower) ||
+          formatCurrency(eventData.avgAmountPerMember).toLowerCase().includes(searchLower);
+      }
+    }
+    
+    return matchesRecordFields || matchesEventSummary;
+  }) : [];
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [recordsPerPage] = useState(10);
+  const indexOfLastRecord = currentPage * recordsPerPage;
+  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
+  const currentRecords = filteredRecords.slice(indexOfFirstRecord, indexOfLastRecord);
+  const totalPages = Math.ceil(filteredRecords.length / recordsPerPage);
+
+  // Export to Excel
+  const exportToExcel = () => {
+    const dataToExport = filteredRecords.map(record => ({
+      'Name': record.name || '',
+      'Email': record.email || '',
+      'Phone': record.phone || '',
+      'Event Name': record.eventName || '',
+      'Amount Paid': record.amountPaid || '',
+      'Date of Registration': formatDate(record.dateOfRegistration) || '',
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(dataToExport);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Event Registrations');
+    
+    // Auto-size columns
+    const colWidths = [
+      { wch: 25 }, // Name
+      { wch: 30 }, // Email
+      { wch: 15 }, // Phone
+      { wch: 30 }, // Event Name
+      { wch: 15 }, // Amount Paid
+      { wch: 20 }, // Date of Registration
+    ];
+    ws['!cols'] = colWidths;
+    
+    XLSX.writeFile(wb, 'event_registrations.xlsx');
+  };
+
+  // Import from Excel
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    
+    reader.onload = async (e) => {
+      try {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+        // Show loading notification
+        showNotification({
+          id: 'import-excel',
+          loading: true,
+          title: 'Importing Data',
+          message: 'Please wait while we import the data...',
+          autoClose: false,
+          disallowClose: true,
+        });
+
+        // Process and validate the data
+        const recordsToImport = [];
+        const errors = [];
+
+        jsonData.forEach((row, index) => {
+          // Skip empty rows
+          if (!row['Name'] && !row['Email'] && !row['Phone'] && !row['Event Name']) {
+            return;
+          }
+
+          const record = {
+            name: row['Name'] || '',
+            email: row['Email'] || '',
+            phone: row['Phone'] ? String(row['Phone']) : '',
+            eventName: row['Event Name'] || '',
+            amountPaid: row['Amount Paid'] || '',
+            dateOfRegistration: row['Date of Registration'] || new Date().toISOString().split('T')[0],
+          };
+
+          // Basic validation
+          if (!record.name) {
+            errors.push(`Row ${index + 2}: Name is required`);
+            return;
+          }
+          if (!record.email) {
+            errors.push(`Row ${index + 2}: Email is required`);
+            return;
+          }
+          if (!record.phone) {
+            errors.push(`Row ${index + 2}: Phone is required`);
+            return;
+          }
+          if (!record.eventName) {
+            errors.push(`Row ${index + 2}: Event Name is required`);
+            return;
+          }
+
+          recordsToImport.push(record);
+        });
+
+        if (errors.length > 0) {
+          throw new Error(`Validation failed:\n${errors.join('\n')}`);
+        }
+
+        // Import records
+        const response = await axios.post(
+          `${api.web}api/v1/events/registrations/import`,
+          { records: recordsToImport },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              token: localStorage.getItem('token'),
+            },
+          }
+        );
+
+        // Update UI with new data
+        
+        updateNotification({
+          id: 'import-excel',
+          color: 'teal',
+          title: 'Import Successful',
+          message: `Successfully imported ${recordsToImport.length} records`,
+          icon: <Check size={16} />,
+          autoClose: 3000,
+        });
+
+      } catch (error) {
+        console.error('Error importing Excel file:', error);
+        
+        updateNotification({
+          id: 'import-excel',
+          color: 'red',
+          title: 'Import Failed',
+          message: error.response?.data?.message || error.message || 'Failed to import data',
+          icon: <X size={16} />,
+          autoClose: 5000,
+        });
+      } finally {
+        // Reset file input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      }
+    };
+
+    reader.readAsArrayBuffer(file);
+  };
+
+  // Trigger file input click
+  const handleImportClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  // Handle delete
+  const handleDelete = async () => {
+    if (!recordToDelete) return;
+
+    try {
+      await axios.delete(`${api.web}api/v1/events/registrations/${recordToDelete._id}`, {
+        headers: {
+          token: localStorage.getItem("token"),
+        },
+      });
+      setRecords(Array.isArray(records) ? records.filter(record => record._id !== recordToDelete._id) : []);
+      setDeleteModalOpen(false);
+      
+      showNotification({
+        color: 'teal',
+        title: 'Success',
+        message: 'Event registration deleted successfully!',
+        icon: <Check size={16} />,
+      });
+    } catch (error) {
+      console.error('Error deleting event registration:', error);
+      showNotification({
+        color: 'red',
+        title: 'Error',
+        message: 'Failed to delete event registration',
+        icon: <X size={16} />,
+      });
+    }
+  };
+
+  // Format date
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  // Format currency
+  const formatCurrency = (amount) => {
+    if (amount === undefined || amount === null) return 'N/A';
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
+
+  return (
+    <div className="min-h-screen bg-[#f6f8fb] p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Back Button */}
+        <div className="mb-4">
+          <button
+            onClick={() => navigate("/admin")}
+            className="flex items-center px-4 py-2 text-[#3f6197] bg-white border border-[#3f6197]/30 rounded-lg shadow hover:bg-[#3f6197]/10 transition"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 mr-2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+            </svg>
+            <span className="font-semibold">Back</span>
+          </button>
+        </div>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+          <h1 className="text-2xl font-bold text-[#3f6197] mb-4 md:mb-0">
+            Event Registrations
+          </h1>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              onClick={() => navigate('/admin/event-records')}
+              className="flex items-center justify-center px-4 py-2 text-sm text-white bg-[#3f6197] border border-transparent rounded-md shadow-sm hover:bg-[#34517b] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3f6197]"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Add New
+            </button>
+          </div>
+        </div>
+
+        {/* Search and Filter */}
+        <div className="mb-6">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="relative flex-1" ref={searchInputRef}>
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-[#3f6197]" />
+              </div>
+              <input
+                type="text"
+                ref={searchInputRef}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={handleKeyDown}
+                onFocus={() => searchTerm && setShowSuggestions(true)}
+                className="block w-full pl-10 pr-3 py-2 border border-[#3f6197]/30 rounded-md leading-5 bg-white placeholder-[#3f6197]/60 focus:outline-none focus:ring-2 focus:ring-[#3f6197] focus:border-[#3f6197] sm:text-sm"
+                placeholder="Search by name, email, phone, event, revenue, or member count..."
+              />
+              {/* Search Suggestions */}
+              {showSuggestions && suggestions.length > 0 && (
+                <div 
+                  ref={suggestionsRef}
+                  className="absolute z-10 w-full mt-1 bg-white border border-[#3f6197]/20 rounded-md shadow-lg max-h-64 overflow-y-auto"
+                >
+                  {suggestions.map((suggestion, index) => (
+                    <div
+                      key={`${suggestion.type}-${suggestion.value}-${suggestion.source}`}
+                      className={`px-4 py-2 text-sm cursor-pointer hover:bg-[#3f6197]/10 ${
+                        selectedSuggestionIndex === index ? 'bg-[#3f6197]/10' : ''
+                      } ${suggestion.source === 'eventSummary' ? 'border-l-4 border-l-[#3f6197]' : ''}`}
+                      onClick={() => handleSuggestionClick(suggestion)}
+                    >
+                      <div className="font-medium">{suggestion.label}</div>
+                      <div className="text-xs text-[#3f6197]">
+                        {suggestion.source === 'eventSummary' ? (
+                          <>
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-[#3f6197]/10 text-[#3f6197] mr-2">
+                              Event Summary
+                            </span>
+                            {suggestion.event?.eventDate && `Date: ${formatDate(suggestion.event.eventDate)}`}
+                          </>
+                        ) : (
+                          <>
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-[#3f6197]/10 text-[#3f6197] mr-2">
+                              Registration
+                            </span>
+                            {suggestion.record?.email || 'Individual record'}
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="flex items-center">
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="block w-full pl-3 pr-10 py-2 text-base border border-[#3f6197]/30 focus:outline-none focus:ring-2 focus:ring-[#3f6197] focus:border-[#3f6197] sm:text-sm rounded-md bg-white text-[#3f6197]"
+              >
+                <option value="all">All Registrations</option>
+                <option value="recent">Recent (Last 7 days)</option>
+                <option value="paid">Paid</option>
+                <option value="unpaid">Unpaid</option>
+              </select>
+            </div>
+            <button
+              onClick={() => {
+                setSearchTerm('');
+                setFilterStatus('all');
+              }}
+              className="flex items-center justify-center px-4 py-2 text-sm text-[#3f6197] bg-white border border-[#3f6197]/30 rounded-md shadow-sm hover:bg-[#3f6197]/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3f6197]"
+            >
+              <X className="mr-2 h-4 w-4" />
+              Clear Filters
+            </button>
+          </div>
+        </div>
+
+        {/* Events Overview Dashboard */}
+        {eventsOverview && (
+          <div className="mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+              <div className="bg-white p-6 rounded-lg shadow-sm border">
+                <div className="flex items-center">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <Calendar className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-500">Total Events</p>
+                    <p className="text-2xl font-bold text-gray-900">{eventsOverview.totalEvents}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-white p-6 rounded-lg shadow-sm border">
+                <div className="flex items-center">
+                  <div className="p-2 bg-green-100 rounded-lg">
+                    <User className="h-6 w-6 text-green-600" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-500">Total Registrations</p>
+                    <p className="text-2xl font-bold text-gray-900">{eventsOverview.totalRegistrations}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-white p-6 rounded-lg shadow-sm border">
+                <div className="flex items-center">
+                  <div className="p-2 bg-purple-100 rounded-lg">
+                    <Download className="h-6 w-6 text-purple-600" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-500">Total Revenue</p>
+                    <p className="text-2xl font-bold text-gray-900">{formatCurrency(eventsOverview.totalRevenue)}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-white p-6 rounded-lg shadow-sm border">
+                <div className="flex items-center">
+                  <div className="p-2 bg-orange-100 rounded-lg">
+                    <Filter className="h-6 w-6 text-orange-600" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-500">Avg. per Event</p>
+                    <p className="text-2xl font-bold text-gray-900">{formatCurrency(eventsOverview.avgRevenuePerEvent)}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Event Summary Cards */}
+            {eventSummary.length > 0 && (
+              <div className="bg-white rounded-lg shadow-sm border p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Events Summary</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {eventSummary.map((event, index) => (
+                    <div 
+                      key={index} 
+                      className="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                      onClick={() => navigate(`/admin/event-details/${encodeURIComponent(event.eventName)}`)}
+                    >
+                      <h4 className="font-semibold text-gray-900 mb-2">{event.eventName}</h4>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Members:</span>
+                          <span className="font-medium">{event.totalMembers}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Revenue:</span>
+                          <span className="font-medium text-green-600">{formatCurrency(event.totalAmountPaid)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Avg/Member:</span>
+                          <span className="font-medium">{formatCurrency(event.avgAmountPerMember)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Date:</span>
+                          <span className="font-medium">{formatDate(event.eventDate)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* View Details Modal */}
+      <Modal
+        opened={showDetails}
+        onClose={() => setShowDetails(false)}
+        title="Event Registration Details"
+        size="lg"
+      >
+        {selectedRecord && (
+          <div className="space-y-6">
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Personal Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-500">Full Name</p>
+                  <p className="font-medium">{selectedRecord.name}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">User ID</p>
+                  <p>{selectedRecord.userId || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Email</p>
+                  <p>{selectedRecord.email}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Phone</p>
+                  <p>{selectedRecord.phone}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Event Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-500">Event Name</p>
+                  <p>{selectedRecord.eventName}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Amount Paid</p>
+                  <p className="font-medium text-green-600">
+                    {formatCurrency(selectedRecord.amountPaid)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Registration Date</p>
+                  <p>{formatDate(selectedRecord.dateOfRegistration)}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        opened={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        title="Delete Event Registration"
+        size="md"
+      >
+        <div className="space-y-4">
+          <p>
+            Are you sure you want to delete the registration for <span className="font-semibold">{recordToDelete?.name}</span>?
+            This action cannot be undone.
+          </p>
+          <div className="flex justify-end space-x-3 mt-6">
+            <button
+              onClick={() => setDeleteModalOpen(false)}
+              className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleDelete}
+              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </Modal>
+    </div>
+  );
+};
+
+export default EventRecordsData;
