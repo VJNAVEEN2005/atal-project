@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { drone, embedded, iot } from '../../assets/Focus/image/focus';
+import { useNavigate } from 'react-router-dom';
 
 
 const focusAreas = [
@@ -15,7 +16,8 @@ const focusAreas = [
       "PCB testing",
       "PCB conformal coating and potting",
       "Engineering support"
-    ]
+    ],
+    link: "/raspberry_pi_development"
   },
   {
     title: "Internet of Things (IoT)",
@@ -28,7 +30,8 @@ const focusAreas = [
       "Embedded Computing",
       "Artificial Intelligence",
       "System Implementation"
-    ]
+    ],
+    link: "/arduino_programming"
   },
   {
     title: "Unmanned Aerial Vehicle (UAV)",
@@ -40,13 +43,15 @@ const focusAreas = [
       "Vision-based navigation",
       "Flight planning in complex fields and atmospheric sensing",
       "Mapping algorithms"
-    ]
+    ],
+    link: "/drone_technology"
   }
 ];
 
 console.log(drone);
 
 const Focus = () => {
+  const navigate = useNavigate();
   const handleApply = (title) => {
     alert(`Applied for ${title}`);
     // You can add your application logic here
@@ -181,7 +186,7 @@ const Focus = () => {
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => handleApply(area.title)}
+                    onClick={() => navigate(area.link)}
                     className="w-full py-3 px-6 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg shadow-lg transition-colors duration-300 flex items-center justify-center space-x-2"
                   >
                     <span>Explore Now</span>

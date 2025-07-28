@@ -5,6 +5,7 @@ import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { arduino1, arduino2, arduino3, arduino4, arduino5, arduino6, arduino_event } from "../../../assets/Programs/SkillPattara/data";
 import { arduino } from "../../../assets/Programs/Puduvai_Startup_Sprint/data";
+import { useSelector } from "react-redux";
 
 // Assume these are imported from your assets directory
 // Replace with your actual image imports
@@ -30,7 +31,7 @@ const ImageWithSkeleton = ({ src, alt, className }) => {
 
 const Arduino_Programming = () => {
   const [videoLoaded, setVideoLoaded] = useState(false);
-
+  const state = useSelector((state) => state?.programsForm?.data?.data);
   // Animation variants
   const fadeIn = {
     hidden: { opacity: 0, y: 20 },
@@ -483,6 +484,7 @@ const Arduino_Programming = () => {
           whileTap={{ scale: 0.95 }}
           className="px-8 py-3 rounded-lg text-white font-medium shadow-lg"
           style={{ backgroundColor: "#3f6197" }}
+          onClick={() => window.open(state?.arduinoProgramming, "_blank")}
         >
           Register Now
         </motion.button>

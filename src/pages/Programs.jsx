@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRef } from "react";
 import {
   Building2,
@@ -49,10 +49,20 @@ import { GiSprint } from "react-icons/gi";
 import { FaSeedling } from "react-icons/fa";
 import { TbPropeller } from "react-icons/tb";
 import { IoBulbOutline } from "react-icons/io5";
+import { useDispatch } from "react-redux";
+import { fetchProgramsForm } from "../Redux/slice/programsformSlice";
+import { useSelector } from "react-redux";
 
 function Programs() {
   const location = useLocation();
   const [activeSection, setActiveSection] = useState(location.state?.activeTab || "Puduvai Startup Sprint");
+  const dispatch = useDispatch();
+  const state = useSelector((state) => state.programsForm);
+  useEffect(()=>{
+    if (!state?.data){
+      dispatch(fetchProgramsForm());
+    }
+  },[dispatch])
 
   const programsSections = [
     {

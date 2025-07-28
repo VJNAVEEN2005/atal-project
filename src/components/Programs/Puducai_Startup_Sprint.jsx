@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { arduino, drone, puduvai_Startup_Sprint, rasparipi, solidworks } from "../../assets/Programs/Puduvai_Startup_Sprint/data";
 import { bootcamp, demo, hackathon, idea, OP1, OP2, OP3, OP4, outreach1, pitch, preinc, startup } from "../../assets/logos/dataPrograms";
+import { useSelector } from "react-redux";
 
 // Enhanced animation variants
 const fadeInUp = {
@@ -69,6 +70,8 @@ const ImageWithLoader = ({ src, alt, className }) => {
 };
 
 const PuduvaiStartupSprint = () => {
+  const state = useSelector((state) => state?.programsForm?.data?.data);
+
   const programPillars = [
     {
       icon: OP1,
@@ -253,7 +256,7 @@ const PuduvaiStartupSprint = () => {
             </motion.div>
           ))}
         </motion.div> */}
-        <button className=" bg-[#3f6197] rounded-2xl p-4 text-white font-bold">Apply Now In Advance</button>
+        <button onClick={() => window.open(state?.startupSprouting, '__blank')} className=" bg-[#3f6197] rounded-2xl p-4 text-white font-bold">Apply Now In Advance</button>
       </motion.section>
     </div>
   );

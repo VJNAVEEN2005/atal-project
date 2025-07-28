@@ -90,6 +90,8 @@ import EventDetails from "./Admin/Records/EventDetails.jsx";
 import ContactControl from "./Admin/ContactControl.jsx";
 import { fetchContactData } from "./Redux/slice/contactSlice.js";
 import { fetchNewsletters } from "./Redux/slice/newslettersSlice.js";
+import ProgramForms from "./Admin/ProgramForms.jsx";
+import { fetchProgramsForm } from "./Redux/slice/programsformSlice.js";
 
 // Component to handle scroll to top on route change
 function ScrollToTop() {
@@ -113,6 +115,12 @@ function App() {
   useEffect(() => {
     dispatch(authenticateUser());
   }, [dispatch]);
+
+    useEffect(()=>{
+      if (!state?.programsForm?.data){
+        dispatch(fetchProgramsForm());
+      }
+    },[dispatch])
 
   // useEffect(() => {
   //   if (!state.startupPortfolio.startups.length) {
@@ -328,6 +336,8 @@ function App() {
                 path="/admin/contactControl"
                 element={<ContactControl />}
               />
+
+              <Route path="/admin/programForms" element={<ProgramForms />} />
 
               {isAdmin == 1 && (
                 <>

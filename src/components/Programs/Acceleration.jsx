@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import Skeleton from 'react-loading-skeleton';
 import "react-loading-skeleton/dist/skeleton.css";
 import { acceleration } from '../../assets/Programs/Acceleration/data';
+import { useSelector } from 'react-redux';
 
 // Animation variants
 const fadeInUp = {
@@ -53,6 +54,7 @@ const ImageWithLoader = ({ src, alt, className }) => {
 
 const Acceleration = () => {
   // Key features of the acceleration program
+  const state = useSelector((state) => state?.programsForm?.data?.data);
   const features = [
     {
       icon: "🚀",
@@ -116,6 +118,7 @@ const Acceleration = () => {
               <motion.button
                 className="px-8 py-3 bg-red-600 text-white font-bold rounded-lg shadow-md"
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                onClick={() => window.open(state?.acceleration, "_blank")}
               >
                 Apply Now
                 <motion.span 
