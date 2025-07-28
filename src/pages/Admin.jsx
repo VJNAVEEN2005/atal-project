@@ -42,6 +42,11 @@ const Admin = () => {
       icon: "📞", // Changed to phone icon
     },
     {
+      name: "Program Forms Control",
+      link: "/admin/programForms",
+      icon: "📋", // Changed to clipboard icon
+    },
+    {
       name: "Road Map Control",
       link: "/admin/roadmapcontrol",
       icon: "🗺️", // Changed to map icon

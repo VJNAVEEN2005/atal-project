@@ -14,6 +14,7 @@ import tendersReducer from './slice/tendersSlice.js';
 import startupPortfolioReducer from './slice/startupPortfolioSlice.js';
 import ecosystemReducer from './slice/ecosystemSlice.js';
 import contactReducer from './slice/contactSlice.js';
+import programsFormReducer from './slice/programsformSlice.js'; 
 
 export const store = configureStore({
   reducer: {
@@ -31,6 +32,7 @@ export const store = configureStore({
     startupPortfolio: startupPortfolioReducer,
     ecosystem: ecosystemReducer,
     contact: contactReducer,
+    programsForm: programsFormReducer 
   }
 });
 

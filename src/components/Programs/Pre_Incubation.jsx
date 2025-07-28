@@ -3,12 +3,13 @@ import { motion } from "framer-motion";
 import { bridge, wadhwani } from "../../assets/Programs/Pre_Incubation/data";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
+import { useSelector } from "react-redux";
 
 const Pre_Incubation = () => {
   const [loading, setLoading] = useState(true);
   const [bridgeImageLoaded, setBridgeImageLoaded] = useState(false);
   const [wadhwaniImageLoaded, setWadhwaniImageLoaded] = useState(false);
-
+  const state = useSelector((state) => state?.programsForm?.data?.data);
   useEffect(() => {
     // Simulate data loading
     const timer = setTimeout(() => {
@@ -314,6 +315,7 @@ const Pre_Incubation = () => {
               className="px-8 py-3 bg-[#0099cc] text-white font-medium rounded-lg shadow-md"
               whileHover={{ scale: 1.05, backgroundColor: "#00b8e6" }}
               whileTap={{ scale: 0.95 }}
+              onClick={() => window.open(state?.preIncubation, "_blank")}
             >
               Apply Now In Advance
             </motion.button>

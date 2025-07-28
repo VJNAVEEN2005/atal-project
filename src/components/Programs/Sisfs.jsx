@@ -42,6 +42,7 @@ import {
   WARAR_ENERGY,
   WARAR_ENERGY_logo,
 } from "../../assets/Programs/Sisfs/data";
+import { useSelector } from "react-redux";
 
 // Theme colors matching the SISFS logo
 const themeColors = {
@@ -212,7 +213,7 @@ const Sisfs = () => {
   const [selectedBeneficiary, setSelectedBeneficiary] = useState(null);
   const [logoLoaded, setLogoLoaded] = useState(false);
   const [schemeImageLoaded, setSchemeImageLoaded] = useState(false);
-
+  const state = useSelector((state) => state?.programsForm?.data?.data);
   const fadeIn = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },

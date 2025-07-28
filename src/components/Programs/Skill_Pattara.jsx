@@ -10,11 +10,12 @@ import {
 } from "../../assets/Programs/Puduvai_Startup_Sprint/data";
 import { skill_patara } from "../../assets/Programs/SkillPattara/data";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const Skill_Pattara = () => {
   const navigate = useNavigate();
   const [imagesLoaded, setImagesLoaded] = useState(false);
-  
+  const state = useSelector((state) => state?.programsForm?.data?.data);
   useEffect(() => {
     // Simulate image loading
     const timer = setTimeout(() => {
@@ -247,6 +248,7 @@ const Skill_Pattara = () => {
           <motion.button
             whileHover={{ scale: 1.05 }}
             className="bg-yellow-400 text-black px-8 py-3 rounded-md font-medium shadow-lg hover:bg-yellow-500 transition-colors"
+            onClick={() => window.open(state?.droneTechnology, "_blank")}
           >
             Apply Now in Advance
           </motion.button>

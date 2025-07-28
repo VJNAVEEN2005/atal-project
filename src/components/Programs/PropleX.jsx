@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { proplex } from '../../assets/Programs/Proplex/data';
+import { useSelector } from 'react-redux';
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
@@ -43,7 +44,7 @@ const itemVariants = {
 
 export default function PropelX() {
   const [imageLoaded, setImageLoaded] = useState(false);
-
+  const state = useSelector((state) => state?.programsForm?.data?.data);
   return (
     <div className="w-full mx-auto p-6 rounded-xl bg-white shadow-xl mb-10">
       <div className="max-w-6xl mx-auto">
@@ -285,6 +286,7 @@ export default function PropelX() {
             className="bg-gradient-to-r from-purple-500 to-purple-700 px-8 py-3 rounded-full text-white font-bold shadow-lg hover:shadow-xl transition-all"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            onClick={() => window.open(state?.propelX, "_blank")}
           >
             Apply Now in Advance
           </motion.button>

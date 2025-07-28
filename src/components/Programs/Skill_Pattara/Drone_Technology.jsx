@@ -5,6 +5,7 @@ import { drone } from "../../../assets/Focus/image/focus";
 import ScrollToTop from "../../ScrollToTop";
 import Skeleton from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
+import { useSelector } from "react-redux";
 
 
 const ImageWithSkeleton = ({ src, alt, className }) => {
@@ -25,7 +26,7 @@ const ImageWithSkeleton = ({ src, alt, className }) => {
 
 const Drone_Technology = () => {
   const [videoLoaded, setVideoLoaded] = useState(false);
-  
+  const state = useSelector((state) => state?.programsForm?.data?.data);
   const fadeIn = {
     hidden: { opacity: 0, y: 20 },
     visible: { 
@@ -360,6 +361,7 @@ const Drone_Technology = () => {
           whileTap={{ scale: 0.95 }}
           className="px-8 py-3 rounded-lg text-white font-medium shadow-lg"
           style={{ backgroundColor: "#3f6197" }}
+          onClick={() => window.open(state?.droneTechnology, "_blank")}
         >
           Register Now
         </motion.button>

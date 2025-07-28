@@ -4,6 +4,7 @@ import about from "../../assets/Programs/StartupSprouting/about.png";
 import logo from "../../assets/Programs/StartupSprouting/image.png";
 import target from "../../assets/Programs/StartupSprouting/targetStage.png";
 import outcome from "../../assets/Programs/StartupSprouting/outcome.png";
+import { useSelector } from "react-redux";
 
 const implementationPhases = [
   {id: 1, text: "Program Design", borderColor: "border-green-600", textColor: "text-green-600", icon: <FileText className="w-6 h-6" />},
@@ -24,7 +25,7 @@ const startups = [
 
 const Startup_Sprouting = () => {
   const [activeTab, setActiveTab] = useState("overview");
-
+  const state = useSelector((state) => state.programsForm.data.data);
   const tabs = [
     { id: "overview", label: "Overview" },
     { id: "structure", label: "Program Structure" },
@@ -304,7 +305,7 @@ const Startup_Sprouting = () => {
             <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl shadow-md p-6 text-white">
               <h3 className="text-xl font-bold mb-3">Join the Program</h3>
               <p className="mb-4 opacity-90">Applications open for our next cohort. Submit your startup profile today.</p>
-              <button className="w-full py-2 px-4 bg-white text-orange-600 font-medium rounded-lg hover:bg-orange-50 transition-colors duration-300">
+              <button onClick={() => window.open(state?.startupSprouting, "_blank")} className="w-full py-2 px-4 bg-white text-orange-600 font-medium rounded-lg hover:bg-orange-50 transition-colors duration-300">
               Apply Now in Advance
               </button>
             </div>

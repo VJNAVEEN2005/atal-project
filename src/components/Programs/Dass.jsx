@@ -3,10 +3,11 @@ import { motion } from 'framer-motion';
 import { daas } from '../../assets/Programs/Dass/data';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
+import { useSelector } from 'react-redux';
 
 const Dass = () => {
   const [imageLoaded, setImageLoaded] = React.useState(false);
-  
+  const state = useSelector((state) => state?.programsForm?.data?.data);
   // Animation variants
   const fadeIn = {
     initial: { opacity: 0, y: 20 },
@@ -184,6 +185,7 @@ const Dass = () => {
           whileTap={{ scale: 0.95 }}
           className="text-white px-8 py-3 rounded-md font-medium shadow-lg"
           style={{ backgroundColor: primaryOrange }}
+          onClick={() => window.open(state?.Dass, "_blank")}
         >
           Apply Now in Advance
         </motion.button>
