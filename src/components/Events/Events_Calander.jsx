@@ -1,35 +1,33 @@
 import React, { useState, useEffect } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import { motion, AnimatePresence, time } from "framer-motion";
-import axios from "axios";
-import api from "../../Api/api";
-import { fetchEvents } from "../../Redux/slice/eventSlice";
+import { motion, AnimatePresence } from "framer-motion";
 import { useSelector, useDispatch } from "react-redux";
+import { fetchEvents, fetchEventDates } from "../../Redux/slice/eventSlice";
 
 const Events_Calendar = () => {
   const [selectedDates, setSelectedDates] = useState([]);
-  const [filteredDates, setFilteredDates] = useState([]);
-  const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
-
+  const [currentPage, setCurrentPage] = useState(1);
+  const [eventsPerPage] = useState(6);
+  
   const dispatch = useDispatch();
-  const state = useSelector((state) => state);
-
+  const { 
+    events, 
+    loading, 
+    eventDates,
+    totalPages,
+    totalEvents
+  } = useSelector((state) => state.events);
+const state = useSelector((state) => state.events);
   useEffect(() => {
-    if (!state.events.events) {
-      dispatch(fetchEvents());
-    }
-  }, []);
-
-  useEffect(() => {
-    if (state.events.events) {
-      setEvents(state.events.events.events);
-      setLoading(false);
-    } else {
-      setLoading(true);
-    }
-  }, [state]);
+    const params = {
+      page: currentPage,
+      limit: eventsPerPage,
+      dates: selectedDates.join(',')
+    };
+    dispatch(fetchEvents(params));
+    dispatch(fetchEventDates());
+  }, [currentPage, dispatch, eventsPerPage, selectedDates]);
 
   const formatDate = (date) => {
     const year = date.getFullYear();
@@ -38,11 +36,12 @@ const Events_Calendar = () => {
     return `${year}-${month}-${day}`;
   };
 
-  // Handle range selection
+  useEffect(()=>{
+    console.log("Events_Calendar component mounted", events, eventDates);
+  },[])
+
   const handleDateChange = (date) => {
-    // If it's an array (range selection), convert all dates in the range
     if (Array.isArray(date)) {
-      // Create array of all dates in the range
       const allDatesInRange = [];
       const startDate = new Date(date[0]);
       const endDate = new Date(date[1]);
@@ -52,33 +51,60 @@ const Events_Calendar = () => {
         allDatesInRange.push(formatDate(new Date(currentDate)));
         currentDate.setDate(currentDate.getDate() + 1);
       }
-
       setSelectedDates(allDatesInRange);
     } else {
-      // Handle single date selection (toggle)
       const formattedDate = formatDate(date);
-      setSelectedDates((prevDates) =>
-        prevDates.includes(formattedDate)
-          ? prevDates.filter((d) => d !== formattedDate)
-          : [...prevDates, formattedDate]
+      setSelectedDates((prev) =>
+        prev.includes(formattedDate)
+          ? prev.filter(d => d !== formattedDate)
+          : [...prev, formattedDate]
       );
     }
   };
 
   const handleApply = () => {
-    setFilteredDates(selectedDates);
+    setCurrentPage(1);
   };
 
   const handleClear = () => {
     setSelectedDates([]);
-    setFilteredDates([]);
+    setCurrentPage(1);
   };
 
-  const displayedEvents = filteredDates.length
-    ? events.filter((event) => filteredDates.includes(event.date.split("T")[0]))
-    : events;
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
-  // Custom styles for the calendar
+  const tileContent = ({ date, view }) => {
+    if (view === 'month') {
+      const formattedDate = formatDate(date);
+      const hasEvents = eventDates.includes(formattedDate);
+      
+      return hasEvents ? (
+        <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2">
+          <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+        </div>
+      ) : null;
+    }
+    return null;
+  };
+
+  const tileClassName = ({ date }) => {
+    const formattedDate = formatDate(date);
+    const classes = [];
+    
+    if (eventDates.includes(formattedDate)) {
+      classes.push("has-event");
+    }
+    
+    if (selectedDates.includes(formattedDate)) {
+      classes.push("selected-date");
+    }
+    
+    return classes.join(' ');
+  };
+
   const calendarStyles = `
     .react-calendar {
       width: 100%;
@@ -128,16 +154,23 @@ const Events_Calendar = () => {
     .react-calendar__tile {
       padding: 10px;
       font-size: 0.9rem;
+      position: relative;
+    }
+    .has-event {
+      background-color: rgba(99, 153, 255, 0.1);
     }
   `;
 
-  if (loading) {
+  if (loading && currentPage === 1) {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
       </div>
     );
   }
+
+  const displayedEvents = events || [];
+  const paginationArray = Array.from({ length: totalPages }, (_, i) => i + 1);
 
   return (
     <div className="max-w-6xl mx-auto p-4">
@@ -163,14 +196,9 @@ const Events_Calendar = () => {
             <div className="p-4">
               <Calendar
                 onChange={handleDateChange}
-                value={
-                  selectedDates.length > 0 ? new Date(selectedDates[0]) : null
-                }
-                tileClassName={({ date }) =>
-                  selectedDates.includes(formatDate(date))
-                    ? "selected-date"
-                    : ""
-                }
+                value={selectedDates.length > 0 ? new Date(selectedDates[0]) : null}
+                tileContent={tileContent}
+                tileClassName={tileClassName}
                 selectRange={true}
               />
             </div>
@@ -197,139 +225,178 @@ const Events_Calendar = () => {
         </motion.div>
 
         <div className="lg:col-span-2">
-          <AnimatePresence>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {displayedEvents.map((event, index) => {
-                const eventDate = new Date(event.date);
-                const currentDate = new Date();
-                const isExpired = eventDate < currentDate;
-
-                // Create poster URL from base64 data if available
-                const posterUrl =
-                  event.poster && event.poster.data
-                    ? `data:${event.poster.contentType};base64,${event.poster.data}`
-                    : null;
-
-                return (
-                  <motion.div
-                    key={event._id || index}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{
-                      duration: 0.4,
-                      delay: index * 0.1,
-                      type: "spring",
-                      stiffness: 100,
-                    }}
-                    whileHover={{
-                      y: -5,
-                      boxShadow:
-                        "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
-                    }}
-                    className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
-                  >
-                    <div className="relative">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: "100%" }}
-                        transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
-                        className="absolute top-0 left-0 h-1 bg-[#3f6197] z-10"
-                      />
-
-                      <div
-                        className={`absolute top-4 left-0 w-2 h-16 ${
-                          isExpired ? "bg-red-500" : "bg-green-500"
-                        } rounded-r-md`}
-                      />
-
-                      {posterUrl ? (
-                        <img
-                          src={posterUrl}
-                          alt={event.title}
-                          className="w-full h-52 object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-52 bg-gray-200 flex items-center justify-center">
-                          <span className="text-4xl font-bold text-gray-400">
-                            {event.title.charAt(0)}
-                          </span>
-                        </div>
-                      )}
-
-                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent py-6 px-4">
-                        <motion.div
-                          initial={{ y: 20, opacity: 0 }}
-                          animate={{ y: 0, opacity: 1 }}
-                          transition={{ delay: 0.3 + index * 0.1 }}
-                          className="inline-block px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm text-white text-sm font-medium"
-                        >
-                          {new Date(event.date).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                          })}{" "}
-                          • {event.time}
-                        </motion.div>
-                      </div>
-                    </div>
-
-                    <div className="p-5">
-                      <h3 className="text-xl font-bold text-gray-800 mb-2">
-                        {event.title}
-                      </h3>
-
-                      {event.location && (
-                        <p className="text-gray-600 text-sm mb-3">
-                          <span className="inline-block mr-1">📍</span>{" "}
-                          {event.location}
-                        </p>
-                      )}
-
-                      <div className="flex justify-between items-center mt-2">
-                        <span
-                          className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                            isExpired
-                              ? "bg-red-100 text-red-700"
-                              : "bg-green-100 text-green-700"
-                          }`}
-                        >
-                          {isExpired ? "Expired" : "Available"}
-                        </span>
-
-                        {!isExpired && event.registrationLink && (
-                          <motion.a
-                            href={event.registrationLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className="text-white bg-[#3f6197] px-3 py-1 rounded-lg font-medium text-sm flex items-center gap-1 hover:bg-[#355180] transition-colors"
-                          >
-                            Register
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-4 w-4"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M9 5l7 7-7 7"
-                              />
-                            </svg>
-                          </motion.a>
-                        )}
-                      </div>
-                    </div>
-                  </motion.div>
-                );
-              })}
+          <div className="mb-6 flex justify-between items-center">
+            <h2 className="text-2xl font-bold text-gray-800">
+              Upcoming Events
+            </h2>
+            <div className="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
+              Showing {displayedEvents.length} of {totalEvents} events
             </div>
+          </div>
+
+          <AnimatePresence>
+            {loading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {[...Array(eventsPerPage)].map((_, index) => (
+                  <div
+                    key={index}
+                    className="bg-white rounded-xl overflow-hidden shadow-md"
+                  >
+                    <div className="animate-pulse">
+                      <div className="bg-gray-200 h-52 w-full" />
+                      <div className="p-5">
+                        <div className="h-6 bg-gray-200 rounded w-3/4 mb-4"></div>
+                        <div className="h-4 bg-gray-200 rounded w-1/2 mb-3"></div>
+                        <div className="h-4 bg-gray-200 rounded w-full mb-6"></div>
+                        <div className="flex justify-between">
+                          <div className="h-6 bg-gray-200 rounded w-16"></div>
+                          <div className="h-8 bg-gray-200 rounded w-24"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {displayedEvents.map((event, index) => {
+                    const eventDate = new Date(event.date);
+                    const currentDate = new Date();
+                    const isExpired = eventDate < currentDate;
+
+                    const posterUrl =
+                      event.poster && event.poster.data
+                        ? `data:${event.poster.contentType};base64,${event.poster.data}`
+                        : null;
+
+                    return (
+                      <motion.div
+                        key={event._id || index}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{
+                          duration: 0.4,
+                          delay: index * 0.1,
+                          type: "spring",
+                          stiffness: 100,
+                        }}
+                        whileHover={{
+                          y: -5,
+                          boxShadow:
+                            "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+                        }}
+                        className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
+                      >
+                        <div className="relative">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: "100%" }}
+                            transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
+                            className="absolute top-0 left-0 h-1 bg-[#3f6197] z-10"
+                          />
+
+                          <div
+                            className={`absolute top-4 left-0 w-2 h-16 ${
+                              isExpired ? "bg-red-500" : "bg-green-500"
+                            } rounded-r-md`}
+                          />
+
+                          {posterUrl ? (
+                            <img
+                              src={posterUrl}
+                              alt={event.title}
+                              className="w-full h-52 object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-52 bg-gradient-to-r from-blue-50 to-indigo-50 flex items-center justify-center">
+                              <span className="text-4xl font-bold text-gray-400">
+                                {event.title.charAt(0)}
+                              </span>
+                            </div>
+                          )}
+
+                          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent py-6 px-4">
+                            <motion.div
+                              initial={{ y: 20, opacity: 0 }}
+                              animate={{ y: 0, opacity: 1 }}
+                              transition={{ delay: 0.3 + index * 0.1 }}
+                              className="inline-block px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm text-white text-sm font-medium"
+                            >
+                              {new Date(event.date).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                              })}{" "}
+                              • {event.time}
+                            </motion.div>
+                          </div>
+                        </div>
+
+                        <div className="p-5">
+                          <h3 className="text-xl font-bold text-gray-800 mb-2">
+                            {event.title}
+                          </h3>
+
+                          {event.location && (
+                            <p className="text-gray-600 text-sm mb-3">
+                              <span className="inline-block mr-1">📍</span>{" "}
+                              {event.location}
+                            </p>
+                          )}
+
+                          <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                            {event.description}
+                          </p>
+
+                          <div className="flex justify-between items-center mt-2">
+                            <span
+                              className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
+                                isExpired
+                                  ? "bg-red-100 text-red-700"
+                                  : "bg-green-100 text-green-700"
+                              }`}
+                            >
+                              {isExpired ? "Expired" : "Available"}
+                            </span>
+
+                            {!isExpired && event.registrationLink && (
+                              <motion.a
+                                href={event.registrationLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="text-white bg-[#3f6197] px-3 py-1 rounded-lg font-medium text-sm flex items-center gap-1 hover:bg-[#355180] transition-colors"
+                              >
+                                Register
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-4 w-4"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M9 5l7 7-7 7"
+                                  />
+                                </svg>
+                              </motion.a>
+                            )}
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
           </AnimatePresence>
 
-          {displayedEvents.length === 0 && (
+          {displayedEvents.length === 0 && !loading && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -355,6 +422,61 @@ const Events_Calendar = () => {
               <p className="text-gray-500">
                 Try selecting different dates or clearing your filters
               </p>
+            </motion.div>
+          )}
+
+          {totalPages > 1 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="flex justify-center mt-8"
+            >
+              <div className="flex items-center space-x-2">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className={`px-4 py-2 rounded-md ${
+                    currentPage === 1
+                      ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                      : "bg-blue-500 text-white hover:bg-blue-600"
+                  }`}
+                >
+                  Previous
+                </motion.button>
+                
+                {paginationArray.map(page => (
+                  <motion.button
+                    key={page}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => handlePageChange(page)}
+                    className={`w-10 h-10 flex items-center justify-center rounded-full ${
+                      currentPage === page
+                        ? "bg-blue-500 text-white font-bold"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    {page}
+                  </motion.button>
+                ))}
+                
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className={`px-4 py-2 rounded-md ${
+                    currentPage === totalPages
+                      ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                      : "bg-blue-500 text-white hover:bg-blue-600"
+                  }`}
+                >
+                  Next
+                </motion.button>
+              </div>
             </motion.div>
           )}
         </div>
