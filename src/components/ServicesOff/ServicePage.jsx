@@ -1,6 +1,8 @@
-import React, { useState } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import api from "../../Api/api";
 import {
   Picture1,
   Picture2,
@@ -46,14 +48,14 @@ const services = [
     logo: funding,
     details: `Grants , Seed Funding , Soft loans`,
     type: "Startup and MSME",
-    link: "/services/funding",
+    link: { path: "/programs", state: { activeTab: "Sisfs" } },
   },
   {
     title: "IP , TALENT",
     logo: team,
     details: `Technologies , IP management , Faculty expertise, Interns and Research Scholars`,
     type: "Startup and MSME",
-    link: "/services/ip-talent",
+    link: { path: "/partners", state: { activeTab: "IP Partners" } },
   },
   {
     title: "VISIBILITY AND OUTREACH",
@@ -239,10 +241,62 @@ const services = [
   },
 ];
 
+// Generate a unique ID for each equipment based on its title
+const getEquipmentId = (title) => {
+  return title
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, '_') // Replace special chars with underscore
+    .replace(/_{2,}/g, '_')     // Replace multiple underscores with single
+    .replace(/^_+|_+$/g, '');   // Remove leading/trailing underscores
+};
+
 export default function Service() {
   const [filter, setFilter] = useState("Startup and MSME");
   const [expandedSection, setExpandedSection] = useState(null);
+  const [equipmentForms, setEquipmentForms] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [showExpertModal, setShowExpertModal] = useState(false);
   const navigate = useNavigate();
+
+  // Fetch equipment form links
+  useEffect(() => {
+    const fetchEquipmentForms = async () => {
+      try {
+        const response = await axios.get(`${api.web}api/v1/equipmentforms`);
+        if (response.data && response.data.data) {
+          setEquipmentForms(response.data.data);
+        }
+      } catch (error) {
+        console.error('Error fetching equipment forms:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEquipmentForms();
+  }, []);
+
+  // Handle equipment booking
+  const handleBookEquipment = (equipmentTitle, e) => {
+    e.stopPropagation(); // Prevent card click event
+    const equipmentId = getEquipmentId(equipmentTitle);
+    const formUrl = equipmentForms[equipmentId];
+    
+    if (formUrl) {
+      window.open(formUrl, '_blank', 'noopener,noreferrer');
+    } else {
+      // Fallback to inquiry if no form URL is available
+      handleInquiry(equipmentTitle, e);
+    }
+  };
+
+  // Handle equipment inquiry
+  const handleInquiry = (equipmentTitle, e) => {
+    e.stopPropagation(); // Prevent card click event
+    const subject = `Inquiry about ${equipmentTitle}`;
+    const body = `I would like to inquire about the availability and booking process for: ${equipmentTitle}.%0D%0A%0D%0APlease provide the following details:%0D%0A1. Preferred date and time for booking%0D%0A2. Duration of use%0D%0A3. Any specific requirements`;
+    window.location.href = `mailto:contact@example.com?subject=${encodeURIComponent(subject)}&body=${body}`;
+  };
 
   const handleFilter = (filterType) => {
     setFilter(filterType);
@@ -266,6 +320,36 @@ export default function Service() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
+      {/* Expert Advise WhatsApp Modal */}
+      {showExpertModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full relative animate-fade-in">
+            <button
+              className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl font-bold focus:outline-none"
+              onClick={() => setShowExpertModal(false)}
+              aria-label="Close"
+            >
+              &times;
+            </button>
+            <h2 className="text-xl font-semibold mb-4 text-center">Contact for Expert Advise</h2>
+            <p className="mb-6 text-gray-700 text-center">For legal, accounting, IP, regulatory, or finance advice, connect directly with our expert support on WhatsApp.</p>
+            <div className="flex justify-center">
+              <a
+                href="https://wa.me/7397630093" // Replace with actual WhatsApp number
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg flex items-center gap-2 text-lg font-medium shadow-md transition"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 14.487c-.263-.131-1.558-.77-1.799-.858-.241-.088-.417-.131-.593.131-.175.263-.678.858-.831 1.033-.153.175-.306.197-.569.066-.263-.131-1.111-.409-2.117-1.304-.783-.698-1.312-1.561-1.466-1.824-.153-.263-.016-.405.115-.536.118-.117.263-.306.395-.459.132-.153.175-.263.263-.438.087-.175.044-.328-.022-.459-.066-.131-.593-1.434-.813-1.963-.214-.514-.432-.444-.593-.453-.153-.009-.328-.011-.502-.011-.175 0-.459.066-.7.328-.241.263-.922.902-.922 2.197s.945 2.549 1.076 2.724c.131.175 1.86 2.84 4.506 3.87.63.217 1.12.346 1.502.443.63.16 1.204.137 1.658.083.506-.06 1.558-.636 1.778-1.252.219-.616.219-1.144.153-1.252-.065-.109-.241-.175-.504-.306z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 12c0-5.385-4.365-9.75-9.75-9.75S2.25 6.615 2.25 12c0 1.992.584 3.845 1.594 5.4L2.25 21.75l4.477-1.528A9.708 9.708 0 0012 21.75c5.385 0 9.75-4.365 9.75-9.75z" />
+                </svg>
+                Contact in WhatsApp
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
       <h1 className="text-3xl font-bold text-center mb-8">
         AIC-PECF Service & Supports
       </h1>
@@ -297,6 +381,10 @@ export default function Service() {
                 : !!service.link.path);
 
             const handleClick = () => {
+              if (service.title === "EXPERT ADVISE") {
+                setShowExpertModal(true);
+                return;
+              }
               if (!isClickable) return;
               if (typeof service.link === "object") {
                 navigate(service.link.path, { state: service.link.state });
@@ -339,9 +427,20 @@ export default function Service() {
                       </span>
                     )}
                     {filter === "Equipments" && (
-                      <div className=" flex items-center justify-between absolute w-[85%] bottom-4 mt-2 ">
-                        <button className="p-2 rounded-lg bg-[#3f6197] text-white">Book</button>
-                        <button className="p-2 rounded-lg bg-[#3f6197] text-white">Enquiery</button>
+                      <div className="flex items-center justify-between absolute w-[85%] bottom-4 mt-2">
+                        <button 
+                          onClick={(e) => handleBookEquipment(service.title, e)}
+                          className="p-2 rounded-lg bg-[#3f6197] text-white hover:bg-[#2c4a7a] transition-colors flex items-center gap-1"
+                        >
+                          <ExternalLink size={14} />
+                          {equipmentForms[getEquipmentId(service.title)] ? 'Book Now' : 'Check Availability'}
+                        </button>
+                        <button 
+                          onClick={(e) => handleInquiry(service.title, e)}
+                          className="p-2 rounded-lg bg-[#3f6197] text-white hover:bg-[#2c4a7a] transition-colors"
+                        >
+                          Enquire
+                        </button>
                       </div>
                     )}
                   </div>

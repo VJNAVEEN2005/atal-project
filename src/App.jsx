@@ -91,6 +91,7 @@ import ContactControl from "./Admin/ContactControl.jsx";
 import { fetchContactData } from "./Redux/slice/contactSlice.js";
 import { fetchNewsletters } from "./Redux/slice/newslettersSlice.js";
 import ProgramForms from "./Admin/ProgramForms.jsx";
+import EquipmentForms from "./Admin/EquipmentForms.jsx";
 import { fetchProgramsForm } from "./Redux/slice/programsformSlice.js";
 
 // Component to handle scroll to top on route change
@@ -338,6 +339,7 @@ function App() {
               />
 
               <Route path="/admin/programForms" element={<ProgramForms />} />
+              <Route path="/admin/equipmentForms" element={<EquipmentForms />} />
 
               {isAdmin == 1 && (
                 <>

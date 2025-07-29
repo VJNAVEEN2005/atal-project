@@ -47,6 +47,11 @@ const Admin = () => {
       icon: "📋", // Changed to clipboard icon
     },
     {
+      name: "Equipment Forms Control",
+      link: "/admin/equipmentForms",
+      icon: "🔧", // Wrench icon for equipment
+    },
+    {
       name: "Road Map Control",
       link: "/admin/roadmapcontrol",
       icon: "🗺️", // Changed to map icon
