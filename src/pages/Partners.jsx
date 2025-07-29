@@ -16,6 +16,7 @@ import api from "../Api/api";
 import { fetchPartners } from "../Redux/slice/partnerSlice";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
 
 // Configure axios base URL - update this to match your backend
 const API_BASE_URL = `${api.web}api/v1`;
@@ -26,7 +27,8 @@ const Api = axios.create({
 });
 
 function App() {
-  const [activeTab, setActiveTab] = useState('Academic');
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'Academic');
   const [selectedPartner, setSelectedPartner] = useState(null);
   const [partners, setPartners] = useState([]);
   const [loading, setLoading] = useState(false);
