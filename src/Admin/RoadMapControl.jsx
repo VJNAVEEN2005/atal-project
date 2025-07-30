@@ -264,7 +264,11 @@ const RoadMapControl = () => {
     if (window.confirm("Are you sure you want to delete this milestone?")) {
       try {
         setIsSubmitting(true);
-        await axios.delete(`${api.web}api/v1/roadmap/${id}`);
+        await axios.delete(`${api.web}api/v1/roadmap/${id}`,{
+          headers:{
+            token : localStorage.getItem("token")
+          }
+        });
         fetchRoadmapData();
         setMessage({
           text: "Milestone deleted successfully!",
@@ -289,14 +293,22 @@ const RoadMapControl = () => {
 
       if (formData._id) {
         // Update existing milestone
-        await axios.put(`${api.web}api/v1/roadmap/${formData._id}`, formData);
+        await axios.put(`${api.web}api/v1/roadmap/${formData._id}`, formData,{
+           headers:{
+            token : localStorage.getItem("token")
+          }
+        });
         setMessage({
           text: "Milestone updated successfully!",
           type: "success",
         });
       } else {
         // Add new milestone
-        await axios.post(`${api.web}api/v1/roadmap`, formData);
+        await axios.post(`${api.web}api/v1/roadmap`, formData,{
+           headers:{
+            token : localStorage.getItem("token")
+          }
+        });
         setMessage({ text: "Milestone added successfully!", type: "success" });
       }
       setShowForm(false);
@@ -350,6 +362,8 @@ const RoadMapControl = () => {
       // Send the updated order to the server
       await axios.post(`${api.web}api/v1/roadmap/reorder`, {
         roadmapItems: updatedItems,
+      },{
+         headers: { token: localStorage.getItem("token") }
       });
       fetchRoadmapData();
     } catch (error) {

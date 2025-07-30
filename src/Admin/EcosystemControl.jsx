@@ -357,7 +357,10 @@ const EcosystemControl = () => {
     try {
       const response = await axios.post(
         `${api.web}api/v1/ecosystems/updateEcosystemData`,
-        formData
+        formData,
+        {
+          headers: { token: localStorage.getItem("token") },
+        }
       );
 
       if (response.data.success) {

@@ -694,7 +694,11 @@ const StartupDetailsControl = () => {
     if (window.confirm("Are you sure you want to delete this startup?")) {
       try {
         setIsSubmitting(true);
-        await axios.delete(`${api.web}api/v1/startup/${id}`);
+        await axios.delete(`${api.web}api/v1/startup/${id}`,{
+           headers:{
+            token : localStorage.getItem("token")
+          }
+        });
         fetchStartups();
         showNotification({ title: "Success", message: "Startup deleted successfully!", color: "green", icon: <Check className="w-4 h-4" />, autoClose: 3000 });
       } catch (error) {
@@ -715,6 +719,7 @@ const StartupDetailsControl = () => {
         await axios.patch(`${api.web}api/v1/startup/${id}`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
+            token: localStorage.getItem("token"),
           },
         });
         showNotification({ title: "Success", message: "Startup updated successfully!", color: "green", icon: <Check className="w-4 h-4" />, autoClose: 3000 });
@@ -723,6 +728,7 @@ const StartupDetailsControl = () => {
         await axios.post(`${api.web}api/v1/startup`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
+            token: localStorage.getItem("token"),
           },
         });
         showNotification({ title: "Success", message: "Startup added successfully!", color: "green", icon: <Check className="w-4 h-4" />, autoClose: 3000 });
@@ -1012,7 +1018,7 @@ const StartupDetailsControl = () => {
       const promises = selectedData.map(record => {
         const cleanRecord = { ...record };
         delete cleanRecord.hasErrors; delete cleanRecord.errors; delete cleanRecord.id;
-        return axios.post(`${api.web}api/v1/startup`, cleanRecord, { headers: { "Content-Type": "application/json" } });
+        return axios.post(`${api.web}api/v1/startup`, cleanRecord, { headers: { "Content-Type": "application/json", token: localStorage.getItem("token") } });
       });
       const results = await Promise.allSettled(promises);
       const successful = results.filter(r => r.status === 'fulfilled').length;

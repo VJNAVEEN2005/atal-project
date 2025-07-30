@@ -63,6 +63,8 @@ const AdminControl = () => {
       const res = await axios.post(`${api.web}api/v1/updateAdminStatus`, {
         _id: userId,
         admin: adminLevel
+      }, {
+        headers: { token: localStorage.getItem('token') }
       });
       
       if (res.data.success) {

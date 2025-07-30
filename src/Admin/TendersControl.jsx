@@ -200,7 +200,9 @@ const TendersControl = () => {
       data.append("tenderFile", selectedFile);
 
       const res = await axios.post(`${api.web}api/v1/createTender`, data, {
-        headers: { "Content-Type": "multipart/form-data" },
+        headers: { "Content-Type": "multipart/form-data",
+          token: localStorage.getItem('token')
+         },
       });
 
       if (res.data.success) {
@@ -234,7 +236,9 @@ const TendersControl = () => {
 
   const confirmDelete = async () => {
     try {
-      await axios.delete(`${api.web}api/v1/deleteTender/${tenderToDelete}`);
+      await axios.delete(`${api.web}api/v1/deleteTender/${tenderToDelete}`,{
+        headers: { token: localStorage.getItem('token') }
+      });
       fetchTenders();
       setShowDeleteModal(false);
     } catch (err) {

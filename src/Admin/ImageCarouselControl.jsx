@@ -367,7 +367,9 @@ const ImageCarouselControl = () => {
       try {
         setIsSubmitting(true);
         const response = await axios.delete(
-          `${api.web}api/v1/carousel-images/${id}`
+          `${api.web}api/v1/carousel-images/${id}`,{
+            headers: { token: localStorage.getItem("token") }
+          }
         );
 
         if (response.data.success) {
@@ -422,7 +424,9 @@ const ImageCarouselControl = () => {
           `${api.web}api/v1/carousel-images/${formData._id}`,
           formDataToSend,
           {
-            headers: { "Content-Type": "multipart/form-data" },
+            headers: { "Content-Type": "multipart/form-data",
+              token: localStorage.getItem("token")
+             },
           }
         );
       } else {
@@ -431,7 +435,9 @@ const ImageCarouselControl = () => {
           `${api.web}api/v1/carousel-images`,
           formDataToSend,
           {
-            headers: { "Content-Type": "multipart/form-data" },
+            headers: { "Content-Type": "multipart/form-data",
+              token: localStorage.getItem("token") 
+             },
           }
         );
       }
@@ -496,6 +502,10 @@ const ImageCarouselControl = () => {
             _id: item._id,
             order: item.order,
           })),
+        },{
+          headers:{
+            token: localStorage.getItem("token")
+          }
         }
       );
 

@@ -432,7 +432,9 @@ const MessagesControl = () => {
     if (window.confirm("Are you sure you want to delete this message?")) {
       try {
         setIsSubmitting(true);
-        const response = await axios.delete(`${api.web}api/v1/message/${id}`);
+        const response = await axios.delete(`${api.web}api/v1/message/${id}`, {
+          headers: { token: localStorage.getItem("token") },
+        });
 
         if (response.data.success) {
           fetchMessages();
@@ -487,7 +489,10 @@ const MessagesControl = () => {
           `${api.web}api/v1/message/${formData._id}`,
           formDataToSend,
           {
-            headers: { "Content-Type": "multipart/form-data" },
+            headers: {
+              "Content-Type": "multipart/form-data",
+              token: localStorage.getItem("token"),
+            },
           }
         );
       } else {
@@ -495,7 +500,10 @@ const MessagesControl = () => {
           `${api.web}api/v1/message/`,
           formDataToSend,
           {
-            headers: { "Content-Type": "multipart/form-data" },
+            headers: {
+              "Content-Type": "multipart/form-data",
+              token: localStorage.getItem("token"),
+            },
           }
         );
       }
@@ -543,12 +551,18 @@ const MessagesControl = () => {
     setMessages(updatedItems);
 
     try {
-      const response = await axios.post(`${api.web}api/v1/message/reorder`, {
-        messages: updatedItems.map((item) => ({
-          _id: item._id,
-          order: item.order,
-        })),
-      });
+      const response = await axios.post(
+        `${api.web}api/v1/message/reorder`,
+        {
+          messages: updatedItems.map((item) => ({
+            _id: item._id,
+            order: item.order,
+          })),
+        },
+        {
+          headers: { token: localStorage.getItem("token") },
+        }
+      );
 
       if (response.data.success) {
         setMessageAlert({

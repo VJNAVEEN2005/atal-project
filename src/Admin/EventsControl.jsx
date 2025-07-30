@@ -402,7 +402,9 @@ const EventsControl = () => {
       } else {
         // Create new event
         response = await axios.post(`${api.web}api/v1/event/`, formDataToSend, {
-          headers: { "Content-Type": "multipart/form-data" },
+          headers: { "Content-Type": "multipart/form-data",
+            token: localStorage.getItem('token')  // Include token for authentication
+           },
         });
         setMessage({ text: "Event created successfully!", type: "success" });
       }
