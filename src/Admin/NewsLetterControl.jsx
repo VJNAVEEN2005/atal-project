@@ -213,6 +213,7 @@ const NewsLetterControl = () => {
         response = await axios.post(`${api.web}api/v1/newsletter`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
+            token: localStorage.getItem('token')
           },
         });
       }

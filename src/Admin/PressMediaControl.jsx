@@ -14,7 +14,7 @@ const PressMediaControl = () => {
     category: "News",
     date: new Date().toISOString().split("T")[0],
   });
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   // Image state
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
@@ -114,11 +114,19 @@ const PressMediaControl = () => {
     try {
       if (editMode) {
         // Update existing media coverage
-        await axios.put(`${api.web}api/v1/media/${currentId}`, mediaData);
+        await axios.put(`${api.web}api/v1/media/${currentId}`, mediaData, {
+          headers: {
+            token: localStorage.getItem("token"), // Include token for authentication
+          },
+        });
         setSuccess("Media coverage updated successfully!");
       } else {
         // Create new media coverage
-        await axios.post(`${api.web}api/v1/media`, mediaData);
+        await axios.post(`${api.web}api/v1/media`, mediaData, {
+          headers: {
+            token: localStorage.getItem("token"), // Include token for authentication
+          },
+        });
         setSuccess("Media coverage added successfully!");
       }
 
@@ -165,7 +173,11 @@ const PressMediaControl = () => {
 
     setLoading(true);
     try {
-      await axios.delete(`${api.web}api/v1/media/${id}`);
+      await axios.delete(`${api.web}api/v1/media/${id}`, {
+        headers: {
+          token: localStorage.getItem("token"), // Include token for authentication
+        },
+      });
       setSuccess("Media coverage deleted successfully!");
       fetchMediaCoverage();
     } catch (err) {

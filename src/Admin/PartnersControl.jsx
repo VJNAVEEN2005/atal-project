@@ -35,6 +35,7 @@ const Api = {
     return axios.post(`${API_BASE_URL}/partners`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
+        token: localStorage.getItem("token"),
       },
     });
   },
@@ -44,18 +45,27 @@ const Api = {
     return axios.put(`${API_BASE_URL}/partners/${id}`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
+        token: localStorage.getItem("token"),
       },
     });
   },
 
   // Delete partner
   deletePartner: (id) => {
-    return axios.delete(`${API_BASE_URL}/partners/${id}`);
+    return axios.delete(`${API_BASE_URL}/partners/${id}`, {
+      headers: { token: localStorage.getItem("token") },
+    });
   },
 
   // Update partner order
   updatePartnerOrder: (partners) => {
-    return axios.put(`${API_BASE_URL}/partners/order/update`, { partners });
+    return axios.put(
+      `${API_BASE_URL}/partners/order/update`,
+      { partners },
+      {
+        headers: { token: localStorage.getItem("token") },
+      }
+    );
   },
 
   // Get partner image URLs
@@ -594,6 +604,7 @@ const PartnersControl = () => {
     // Update order on server
     try {
       await Api.updatePartnerOrder(updatedItems);
+      fetchPartners();
     } catch (error) {
       console.error("Error updating partner order:", error);
       // Revert on error
