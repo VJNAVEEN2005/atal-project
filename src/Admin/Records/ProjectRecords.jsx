@@ -64,6 +64,9 @@ const PTUProjectForm = () => {
     };
   });
 
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+
   const navigate = useNavigate();
 
   const handleInputChange = (e) => {
@@ -116,6 +119,20 @@ const PTUProjectForm = () => {
       ...prev,
       components: prev.components.map((comp, i) => i === index ? value : comp)
     }));
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    setImageFile(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setImagePreview(null);
+    }
   };
 
   const handleFileUpload = (e) => {
@@ -374,12 +391,27 @@ const PTUProjectForm = () => {
     });
     if (editMode && editRecord && (editRecord._id || editRecord.projectId)) {
       const id = editRecord._id || editRecord.projectId;
-      console.log("Updating project via PUT:", id, formData);
+      let dataToSend;
+      let headers = {
+        token: localStorage.getItem("token"),
+      };
+      if (imageFile) {
+        dataToSend = new FormData();
+        Object.entries(formData).forEach(([key, value]) => {
+          if (key === "projectMembers" || key === "components") {
+            dataToSend.append(key, JSON.stringify(value));
+          } else {
+            dataToSend.append(key, value);
+          }
+        });
+        dataToSend.append("image", imageFile);
+        // Let browser set Content-Type for FormData
+      } else {
+        dataToSend = { ...formData };
+      }
       axios
-        .put(`${api.web}api/v1/project/${id}`, formData, {
-          headers: {
-            token: localStorage.getItem("token"),
-          },
+        .put(`${api.web}api/v1/project/${id}`, dataToSend, {
+          headers,
         })
         .then((response) => {
           updateNotification({
@@ -552,6 +584,24 @@ const PTUProjectForm = () => {
                       e.target.style.boxShadow = "none";
                     }}
                   />
+                </div>
+                {/* Image Upload Field */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <Camera className="inline-block w-4 h-4 mr-2" />
+                    PROJECT IMAGE
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none transition-all duration-200"
+                  />
+                  {imagePreview && (
+                    <div className="mt-2">
+                      <img src={imagePreview} alt="Preview" className="max-h-32 rounded border" />
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
