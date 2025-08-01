@@ -24,6 +24,12 @@ import { Modal } from "@mantine/core";
 import { IoReload } from "react-icons/io5";
 
 const InternshipRecordsData = () => {
+  // Input focus style for consistent styling
+  const inputFocusStyle = {
+    borderColor: "#3f6197",
+    boxShadow: "0 0 0 3px rgba(63, 97, 151, 0.1)"
+  };
+
   // Sample data - replace with your actual data source
   const [records, setRecords] = useState([]);
   const [isEdit, setIsEdit] = useState({
@@ -39,38 +45,79 @@ const InternshipRecordsData = () => {
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
   const [isReload, setIsReload] = useState(false);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
+  const [recordsPerPage, setRecordsPerPage] = useState(10);
+  const [isLoading, setIsLoading] = useState(false);
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+
   const navigate = useNavigate();
 
   const searchInputRef = useRef(null);
   const suggestionsRef = useRef(null);
 
-useEffect(() => {
-  if (!isReload) return;
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500);
 
-  axios
-    .get(`${api.web}api/v1/internships`)
-    .then((response) => {
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    fetchRecords();
+  }, [currentPage, recordsPerPage, debouncedSearchTerm, filterStatus]);
+
+  const fetchRecords = async () => {
+    if (isLoading) return;
+    
+    setIsLoading(true);
+    try {
+      // Build query parameters
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: recordsPerPage.toString()
+      });
+
+      if (filterStatus !== 'all') {
+        params.append('status', filterStatus);
+      }
+
+      if (debouncedSearchTerm.trim()) {
+        params.append('search', debouncedSearchTerm.trim());
+      }
+
+      const response = await axios.get(`${api.web}api/v1/internships?${params.toString()}`);
+      
       if (response.data.success) {
         setRecords(response.data.data);
+        setTotalPages(response.data.pagination.totalPages);
+        setTotalRecords(response.data.pagination.totalInternships);
+        console.log("Internship records fetched successfully:", response.data);
       } else {
         console.error("Failed to fetch internship records");
+        showNotification({
+          title: "Error",
+          message: "Failed to fetch internship records",
+          color: "red"
+        });
       }
-    })
-    .catch((error) => {
+    } catch (error) {
       console.error("Error fetching internship records:", error);
-    })
-    .finally(() => {
-      setIsReload(false); // only runs if isReload was true
-    });
+      showNotification({
+        title: "Error",
+        message: "Error fetching internship records",
+        color: "red"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  console.log("Reloading records:", isReload);
-}, [isReload]);
-
-useEffect(()=>{
-  setIsReload(true);
-},[])
-
-  // Generate suggestions based on search term
+  // Update search suggestions to work with current page data
   useEffect(() => {
     if (searchTerm.length > 0) {
       const searchLower = searchTerm.toLowerCase();
@@ -78,7 +125,7 @@ useEffect(()=>{
 
       records.forEach((record) => {
         // Check name
-        if (record.name.toLowerCase().includes(searchLower)) {
+        if (record.name && record.name.toLowerCase().includes(searchLower)) {
           newSuggestions.push({
             type: "name",
             value: record.name,
@@ -88,7 +135,7 @@ useEffect(()=>{
         }
 
         // Check intern number
-        if (record.internNo.toLowerCase().includes(searchLower)) {
+        if (record.internNo && record.internNo.toLowerCase().includes(searchLower)) {
           newSuggestions.push({
             type: "internNo",
             value: record.internNo,
@@ -98,7 +145,7 @@ useEffect(()=>{
         }
 
         // Check designation
-        if (record.designation.toLowerCase().includes(searchLower)) {
+        if (record.designation && record.designation.toLowerCase().includes(searchLower)) {
           newSuggestions.push({
             type: "designation",
             value: record.designation,
@@ -108,7 +155,7 @@ useEffect(()=>{
         }
 
         // Check email
-        if (record.emailId.toLowerCase().includes(searchLower)) {
+        if (record.emailId && record.emailId.toLowerCase().includes(searchLower)) {
           newSuggestions.push({
             type: "email",
             value: record.emailId,
@@ -194,6 +241,7 @@ useEffect(()=>{
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
+    setCurrentPage(1); // Reset to first page when searching
   };
 
   const handleSearchFocus = () => {
@@ -239,7 +287,7 @@ useEffect(()=>{
             autoClose: 3000,
           });
           handleCloseDetails();
-          setIsReload(true);
+          fetchRecords(); // Refresh current page data
         } else {
           updateNotification({
             id: "status-update",
@@ -267,20 +315,8 @@ useEffect(()=>{
       });
   };
 
-  // Filter records based on search term and status
-  const filteredRecords = records.filter((record) => {
-    const matchesSearch =
-      record.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      record.internNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      record.designation.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      record.emailId.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesStatus =
-      filterStatus === "all" ||
-      record.status.toLowerCase() === filterStatus.toLowerCase();
-
-    return matchesSearch && matchesStatus;
-  });
+  // Since we're using server-side filtering, we display all records from the API
+  const filteredRecords = records;
 
   const handleViewDetails = (record) => {
     setSelectedRecord(record);
@@ -355,63 +391,90 @@ useEffect(()=>{
       });
   };
 
-  const handleExport = () => {
-    // Simple CSV export without external libraries - export all available data
-    const headers = [
-      "Intern No",
-      "Name",
-      "Date of Birth",
-      "Email",
-      "Phone Number",
-      "Father Name",
-      "Blood Group",
-      "Permanent Address",
-      "Communication Address",
-      "Marital Status",
-      "Designation",
-      "Date of Joining",
-      "Date of Expiry",
-      "Status"
-    ].join(",");
+  const handleExport = async () => {
+    try {
+      showNotification({
+        id: 'export-loading',
+        title: 'Exporting',
+        message: 'Generating Excel file...',
+        loading: true,
+        autoClose: false,
+      });
 
-    const rows = filteredRecords
-      .map((record) =>
-        [
-          `"${record.internNo || ''}"`,
-          `"${record.name || ''}"`,
-          `"${record.dateOfBirth ? new Date(record.dateOfBirth).toLocaleDateString() : ''}"`,
-          `"${record.emailId || ''}"`,
-          `"${record.phoneNumber || ''}"`,
-          `"${record.fatherName || ''}"`,
-          `"${record.bloodGroup || ''}"`,
-          `"${record.permanentAddress || ''}"`,
-          `"${record.communicationAddress || ''}"`,
-          `"${record.maritalStatus || ''}"`,
-          `"${record.designation || ''}"`,
-          `"${record.dateOfJoining ? new Date(record.dateOfJoining).toLocaleDateString() : ''}"`,
-          `"${record.dateOfExpiry ? new Date(record.dateOfExpiry).toLocaleDateString() : ''}"`,
-          `"${record.status || ''}"`,
-        ].join(",")
-      )
-      .join("\n");
+      // Build query parameters for export
+      const params = new URLSearchParams();
 
-    const csvContent = `${headers}\n${rows}`;
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `Internship_Records_${
-      new Date().toISOString().split("T")[0]
-    }.csv`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  };
+      if (filterStatus !== 'all') {
+        params.append('status', filterStatus);
+      }
 
-  const inputFocusStyle = {
-    borderColor: "#3f6197",
-    boxShadow: `0 0 0 2px rgba(63, 97, 151, 0.2)`,
+      if (debouncedSearchTerm.trim()) {
+        params.append('search', debouncedSearchTerm.trim());
+      }
+
+      // Use the dedicated Excel export endpoint
+      const response = await axios.get(
+        `${api.web}api/v1/internships/export/excel?${params.toString()}`,
+        {
+          headers: { 
+            token: localStorage.getItem("token") 
+          },
+          responseType: 'blob' // Important for file download
+        }
+      );
+
+      // Create blob URL and trigger download
+      const blob = new Blob([response.data], { 
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      
+      // Extract filename from response headers or use default
+      const contentDisposition = response.headers['content-disposition'];
+      let filename = 'internship_records_export.xlsx';
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+        if (filenameMatch) {
+          filename = filenameMatch[1];
+        }
+      }
+      
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      updateNotification({
+        id: 'export-loading',
+        title: 'Export Complete',
+        message: 'Internship records exported successfully to Excel.',
+        color: 'green',
+        icon: <Check className="w-4 h-4" />,
+        autoClose: 3000,
+      });
+
+    } catch (error) {
+      console.error('Export error:', error);
+      
+      let errorMessage = 'Failed to export records.';
+      if (error.response?.status === 404) {
+        errorMessage = 'No records found to export.';
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
+
+      updateNotification({
+        id: 'export-loading',
+        title: 'Export Failed',
+        message: errorMessage,
+        color: 'red',
+        icon: <X className="w-4 h-4" />,
+        autoClose: 3000,
+      });
+    }
   };
 
   return (
@@ -550,7 +613,10 @@ useEffect(()=>{
                 <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <select
                   value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
+                  onChange={(e) => {
+                    setFilterStatus(e.target.value);
+                    setCurrentPage(1); // Reset to first page when filtering
+                  }}
                   className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none transition-all duration-200"
                   onFocus={(e) =>
                     Object.assign(e.target.style, inputFocusStyle)
@@ -604,127 +670,139 @@ useEffect(()=>{
 
           <div className=" flex items-center justify-between">
             <div className="mt-4 text-sm text-gray-600">
-              Showing {filteredRecords.length} of {records.length} records
+              Showing {filteredRecords.length} of {totalRecords} records (Page {currentPage} of {totalPages})
             </div>
             <button
               className="flex items-center text-sm text-white border hover:shadow-lg  p-2 rounded-lg bg-gray-100 hover:text-gray-800 transition-all mt-4"
               onClick={() => {
-                setIsReload(true);
-               
+                fetchRecords();
               }}
+              disabled={isLoading}
             >
-              <IoReload className="w-5 h-5 text-gray-600 hover:rotate-90 transition-all" />
-              <span className="ml-1 text-sm text-gray-600">Reload</span>
+              <IoReload className={`w-5 h-5 text-gray-600 transition-all ${isLoading ? 'animate-spin' : 'hover:rotate-90'}`} />
+              <span className="ml-1 text-sm text-gray-600">{isLoading ? 'Loading...' : 'Reload'}</span>
             </button>
           </div>
         </div>
 
         {/* Records Table */}
         <div className="bg-white shadow-lg rounded-b-lg overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-[#5478b0]">
-                <tr className="text-white">
-                  <th className="px-6 py-4 text-left text-sm font-semibold">
-                    Intern No
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">
-                    Name
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">
-                    Designation
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">
-                    Date of Joining
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">
-                    Contact
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">
-                    Status
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredRecords.map((record, index) => (
-                  <tr
-                    key={record.id}
-                    className={`border-b border-gray-200 hover:bg-gray-50 ${
-                      index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                    }`}
-                  >
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                      {record.internNo}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      {record.name}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-700">
-                      {record.designation}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-700">
-                      {new Date(record.dateOfJoining).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-700">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-1">
-                          <Phone className="w-3 h-3 text-gray-400" />
-                          <span className="text-xs">{record.phoneNumber}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Mail className="w-3 h-3 text-gray-400" />
-                          <span className="text-xs">{record.emailId}</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          record.status === "active"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-blue-100 text-blue-800"
-                        }`}
-                      >
-                        {record.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm">
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleViewDetails(record)}
-                          className="p-1 text-blue-600 hover:text-blue-800 transition-colors"
-                          title="View Details"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleEdit(record)}
-                          className="p-1 text-yellow-600 hover:text-yellow-800 transition-colors"
-                          title="Edit"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() =>
-                            setIsEdit({ isEdit: true, record: record })
-                          }
-                          className="p-1 text-red-600 hover:text-red-800 transition-colors"
-                          title="Delete"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="flex flex-col items-center">
+                <svg className="animate-spin h-8 w-8 text-[#3f6197] mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                </svg>
+                <span className="text-gray-600">Loading records...</span>
+              </div>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-[#5478b0]">
+                  <tr className="text-white">
+                    <th className="px-6 py-4 text-left text-sm font-semibold">
+                      Intern No
+                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold">
+                      Name
+                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold">
+                      Designation
+                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold">
+                      Date of Joining
+                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold">
+                      Contact
+                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold">
+                      Status
+                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold">
+                      Actions
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {filteredRecords.map((record, index) => (
+                    <tr
+                      key={record.id}
+                      className={`border-b border-gray-200 hover:bg-gray-50 ${
+                        index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                      }`}
+                    >
+                      <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                        {record.internNo}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        {record.name}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-700">
+                        {record.designation}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-700">
+                        {new Date(record.dateOfJoining).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-700">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-1">
+                            <Phone className="w-3 h-3 text-gray-400" />
+                            <span className="text-xs">{record.phoneNumber}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Mail className="w-3 h-3 text-gray-400" />
+                            <span className="text-xs">{record.emailId}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-sm">
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            record.status === "active"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-blue-100 text-blue-800"
+                          }`}
+                        >
+                          {record.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleViewDetails(record)}
+                            className="p-1 text-blue-600 hover:text-blue-800 transition-colors"
+                            title="View Details"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleEdit(record)}
+                            className="p-1 text-yellow-600 hover:text-yellow-800 transition-colors"
+                            title="Edit"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() =>
+                              setIsEdit({ isEdit: true, record: record })
+                            }
+                            className="p-1 text-red-600 hover:text-red-800 transition-colors"
+                            title="Delete"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
 
-          {filteredRecords.length === 0 && (
+          {!isLoading && filteredRecords.length === 0 && (
             <div className="text-center py-8 text-gray-500">
               <Search className="w-12 h-12 mx-auto mb-4 text-gray-300" />
               <p className="text-lg">No records found</p>
@@ -732,6 +810,96 @@ useEffect(()=>{
             </div>
           )}
         </div>
+        
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="bg-white shadow-lg rounded-lg mt-4 p-4">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              {/* Records per page selector */}
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600">Records per page:</span>
+                <select
+                  value={recordsPerPage}
+                  onChange={(e) => {
+                    setRecordsPerPage(parseInt(e.target.value));
+                    setCurrentPage(1); // Reset to first page
+                  }}
+                  className="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                </select>
+              </div>
+
+              {/* Pagination buttons */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setCurrentPage(1)}
+                  disabled={currentPage === 1 || isLoading}
+                  className="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  First
+                </button>
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1 || isLoading}
+                  className="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Previous
+                </button>
+                
+                {/* Page numbers */}
+                <div className="flex items-center gap-1">
+                  {(() => {
+                    const pages = [];
+                    const startPage = Math.max(1, currentPage - 2);
+                    const endPage = Math.min(totalPages, currentPage + 2);
+                    
+                    for (let i = startPage; i <= endPage; i++) {
+                      pages.push(
+                        <button
+                          key={i}
+                          onClick={() => setCurrentPage(i)}
+                          disabled={isLoading}
+                          className={`px-3 py-2 text-sm border rounded-lg transition-colors ${
+                            i === currentPage
+                              ? 'bg-[#3f6197] text-white border-[#3f6197]'
+                              : 'border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed'
+                          }`}
+                        >
+                          {i}
+                        </button>
+                      );
+                    }
+                    return pages;
+                  })()}
+                </div>
+                
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages || isLoading}
+                  className="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Next
+                </button>
+                <button
+                  onClick={() => setCurrentPage(totalPages)}
+                  disabled={currentPage === totalPages || isLoading}
+                  className="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Last
+                </button>
+              </div>
+
+              {/* Page info */}
+              <div className="text-sm text-gray-600">
+                Page {currentPage} of {totalPages}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Details Modal */}

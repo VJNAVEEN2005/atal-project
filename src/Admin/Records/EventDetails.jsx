@@ -133,7 +133,7 @@ const EventDetails = () => {
           message: "Failed to load event details",
           icon: <X size={16} />,
         });
-        navigate("/admin/event-records-data");
+        //navigate("/admin/event-records-data");
       } finally {
         setLoading(false);
       }
@@ -306,7 +306,7 @@ const EventDetails = () => {
         <div className="text-center">
           <p className="text-gray-600">Event not found</p>
           <button
-            onClick={() => navigate("/admin/event-records-data")}
+            onClick={() => navigate("/admin/eventRecordsData")}
             className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
           >
             Go Back

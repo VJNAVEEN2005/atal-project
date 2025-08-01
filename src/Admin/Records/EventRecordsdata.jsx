@@ -31,6 +31,7 @@ const EventRecordsData = () => {
     record: null,
   });
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
@@ -41,11 +42,128 @@ const EventRecordsData = () => {
   const [recordToDelete, setRecordToDelete] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
+  const [recordsPerPage, setRecordsPerPage] = useState(10);
+  const [isLoading, setIsLoading] = useState(false);
+
   const navigate = useNavigate();
   const searchInputRef = useRef(null);
   const suggestionsRef = useRef(null);
   const fileInputRef = useRef(null);
 
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+
+  // Fetch event records with pagination
+  const fetchEventRecords = async () => {
+    setIsLoading(true);
+    try {
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: recordsPerPage.toString()
+      });
+
+      if (debouncedSearchTerm.trim()) {
+        params.append('search', debouncedSearchTerm.trim());
+      }
+
+      const response = await axios.get(`${api.web}api/v1/events/registrations?${params.toString()}`, {
+        headers: {
+          token: localStorage.getItem("token"),
+        },
+      });
+
+      if (response.data.status === 'success') {
+        setRecords(response.data.data.eventRecords || []);
+        setTotalPages(response.data.pagination?.totalPages || 1);
+        setTotalRecords(response.data.pagination?.totalEventRecords || 0);
+      } else {
+        setRecords([]);
+        setTotalPages(1);
+        setTotalRecords(0);
+      }
+    } catch (error) {
+      console.error("Error fetching event records:", error);
+      showNotification({
+        color: 'red',
+        title: 'Error',
+        message: 'Failed to load event records',
+        icon: <X size={16} />,
+      });
+      setRecords([]);
+      setTotalPages(1);
+      setTotalRecords(0);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle Excel export
+  const handleExport = async () => {
+    try {
+      setIsLoading(true);
+      showNotification({
+        id: 'excel-export',
+        loading: true,
+        title: 'Exporting Data',
+        message: 'Please wait while we prepare your Excel file...',
+        autoClose: false,
+        disallowClose: true,
+      });
+
+      const response = await axios.get(`${api.web}api/v1/events/registrations/export-excel`, {
+        headers: {
+          token: localStorage.getItem("token"),
+        },
+        responseType: 'blob', // Important for file download
+      });
+
+      // Create blob and download
+      const blob = new Blob([response.data], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      });
+      
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `event_records_${new Date().toISOString().split('T')[0]}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      updateNotification({
+        id: 'excel-export',
+        color: 'teal',
+        title: 'Export Successful',
+        message: 'Event records have been exported to Excel successfully!',
+        icon: <Check size={16} />,
+        autoClose: 3000,
+      });
+    } catch (error) {
+      console.error('Error exporting to Excel:', error);
+      updateNotification({
+        id: 'excel-export',
+        color: 'red',
+        title: 'Export Failed',
+        message: error.response?.data?.message || 'Failed to export event records',
+        icon: <X size={16} />,
+        autoClose: 5000,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Fetch event summary and overview with loading
   const fetchData = async () => {
@@ -77,6 +195,18 @@ const EventRecordsData = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  // Load event records when pagination or search changes
+  useEffect(() => {
+    fetchEventRecords();
+  }, [currentPage, recordsPerPage, debouncedSearchTerm]);
+
+  // Handle records per page change
+  useEffect(() => {
+    if (currentPage !== 1) {
+      setCurrentPage(1);
+    }
+  }, [recordsPerPage, debouncedSearchTerm]);
 
   // Generate suggestions based on search term
   useEffect(() => {
@@ -254,73 +384,6 @@ const EventRecordsData = () => {
     setCurrentPage(1);
   };
 
-  // Filter records based on search term and status
-  const filteredRecords = Array.isArray(records) ? records.filter(record => {
-    const searchLower = searchTerm.toLowerCase();
-    
-    // Basic record field search
-    const matchesRecordFields = 
-      record.name?.toLowerCase().includes(searchLower) ||
-      record.email?.toLowerCase().includes(searchLower) ||
-      record.phone?.toLowerCase().includes(searchLower) ||
-      record.eventName?.toLowerCase().includes(searchLower);
-    
-    // Enhanced search: also check if search term matches event summary data
-    let matchesEventSummary = false;
-    if (Array.isArray(eventSummary)) {
-      const eventData = eventSummary.find(event => 
-        event.eventName?.toLowerCase() === record.eventName?.toLowerCase()
-      );
-      
-      if (eventData) {
-        matchesEventSummary = 
-          eventData.totalMembers?.toString().includes(searchTerm) ||
-          eventData.totalAmountPaid?.toString().includes(searchTerm) ||
-          formatCurrency(eventData.totalAmountPaid).toLowerCase().includes(searchLower) ||
-          formatCurrency(eventData.avgAmountPerMember).toLowerCase().includes(searchLower);
-      }
-    }
-    
-    return matchesRecordFields || matchesEventSummary;
-  }) : [];
-
-  // Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const [recordsPerPage] = useState(10);
-  const indexOfLastRecord = currentPage * recordsPerPage;
-  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-  const currentRecords = filteredRecords.slice(indexOfFirstRecord, indexOfLastRecord);
-  const totalPages = Math.ceil(filteredRecords.length / recordsPerPage);
-
-  // Export to Excel
-  const exportToExcel = () => {
-    const dataToExport = filteredRecords.map(record => ({
-      'Name': record.name || '',
-      'Email': record.email || '',
-      'Phone': record.phone || '',
-      'Event Name': record.eventName || '',
-      'Amount Paid': record.amountPaid || '',
-      'Date of Registration': formatDate(record.dateOfRegistration) || '',
-    }));
-
-    const ws = XLSX.utils.json_to_sheet(dataToExport);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Event Registrations');
-    
-    // Auto-size columns
-    const colWidths = [
-      { wch: 25 }, // Name
-      { wch: 30 }, // Email
-      { wch: 15 }, // Phone
-      { wch: 30 }, // Event Name
-      { wch: 15 }, // Amount Paid
-      { wch: 20 }, // Date of Registration
-    ];
-    ws['!cols'] = colWidths;
-    
-    XLSX.writeFile(wb, 'event_registrations.xlsx');
-  };
-
   // Import from Excel
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
@@ -391,7 +454,7 @@ const EventRecordsData = () => {
 
         // Import records
         const response = await axios.post(
-          `${api.web}api/v1/events/registrations/import`,
+          `${api.web}api/v1/events/registrations/bulk`,
           { records: recordsToImport },
           {
             headers: {
@@ -402,6 +465,8 @@ const EventRecordsData = () => {
         );
 
         // Update UI with new data
+        fetchEventRecords();
+        fetchData(); // Also refresh summary data
         
         updateNotification({
           id: 'import-excel',
@@ -451,7 +516,10 @@ const EventRecordsData = () => {
           token: localStorage.getItem("token"),
         },
       });
-      setRecords(Array.isArray(records) ? records.filter(record => record._id !== recordToDelete._id) : []);
+      
+      // Refresh the event records
+      fetchEventRecords();
+      fetchData(); // Also refresh summary data
       setDeleteModalOpen(false);
       
       showNotification({
@@ -529,6 +597,34 @@ const EventRecordsData = () => {
             >
               <Plus className="mr-2 h-4 w-4" />
               Add New
+            </button>
+            <button
+              onClick={handleExport}
+              disabled={isLoading}
+              className="flex items-center justify-center px-4 py-2 text-sm text-white bg-green-600 border border-transparent rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Download className="mr-2 h-4 w-4" />
+              {isLoading ? 'Exporting...' : 'Export Excel'}
+            </button>
+            {/* <button
+              onClick={handleImportClick}
+              disabled={isLoading}
+              className="flex items-center justify-center px-4 py-2 text-sm text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 mr-2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+              </svg>
+              Import Excel
+            </button> */}
+            <button
+              onClick={fetchEventRecords}
+              disabled={isLoading}
+              className="flex items-center justify-center px-4 py-2 text-sm text-[#3f6197] bg-white border border-[#3f6197]/30 rounded-md shadow-sm hover:bg-[#3f6197]/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3f6197] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+              </svg>
+              {isLoading ? 'Loading...' : 'Refresh'}
             </button>
           </div>
         </div>
@@ -611,6 +707,67 @@ const EventRecordsData = () => {
             </button> */}
           </div>
         </div>
+
+        {/* Pagination Info */}
+        <div className="flex justify-between items-center mb-6">
+          <p className="text-gray-600">
+            Showing {records.length > 0 ? ((currentPage - 1) * recordsPerPage) + 1 : 0} to{" "}
+            {Math.min(currentPage * recordsPerPage, totalRecords)} of {totalRecords} entries
+          </p>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600">Records per page:</span>
+            <select
+              value={recordsPerPage}
+              onChange={(e) => {
+                setRecordsPerPage(Number(e.target.value));
+                setCurrentPage(1); // Reset to first page when changing records per page
+              }}
+              className="border border-gray-300 rounded px-2 py-1 text-sm"
+            >
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center gap-2 mb-6">
+            <button
+              onClick={() => setCurrentPage(1)}
+              disabled={currentPage === 1 || isLoading}
+              className="px-3 py-2 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              First
+            </button>
+            <button
+              onClick={() => setCurrentPage(prev => prev - 1)}
+              disabled={currentPage === 1 || isLoading}
+              className="px-3 py-2 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Previous
+            </button>
+            <span className="px-4 py-2 text-gray-600">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={() => setCurrentPage(prev => prev + 1)}
+              disabled={currentPage === totalPages || isLoading}
+              className="px-3 py-2 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
+            <button
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages || isLoading}
+              className="px-3 py-2 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Last
+            </button>
+          </div>
+        )}
 
         {/* Events Overview Dashboard */}
         {eventsOverview && (
@@ -713,7 +870,172 @@ const EventRecordsData = () => {
             )}
           </div>
         )}
+
+        {/* Event Records Table */}
+        <div className="bg-white rounded-lg shadow-sm border">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-900">Event Registration Records</h3>
+            <p className="text-sm text-gray-500 mt-1">
+              {totalRecords} total registrations found
+            </p>
+          </div>
+          
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="flex flex-col items-center">
+                <svg className="animate-spin h-8 w-8 text-[#3f6197] mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                </svg>
+                <span className="text-[#3f6197] font-semibold">Loading records...</span>
+              </div>
+            </div>
+          ) : records.length === 0 ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <User className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No Records Found</h3>
+                <p className="text-gray-500">
+                  {debouncedSearchTerm ? 'No records match your search criteria.' : 'No event registrations have been recorded yet.'}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Participant
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Contact Info
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Event Details
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Payment
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Registration Date
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {records.map((record, index) => (
+                    <tr key={record._id || index} className="hover:bg-gray-50 cursor-pointer" onClick={() => navigate(`/admin/event-details/${record.eventName}`)}>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="w-10 h-10 bg-[#3f6197]/10 rounded-full flex items-center justify-center">
+                            <User className="w-5 h-5 text-[#3f6197]" />
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">{record.name}</div>
+                            <div className="text-sm text-gray-500">ID: {record.userId || 'N/A'}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900 flex items-center">
+                          <Mail className="w-4 h-4 text-gray-400 mr-2" />
+                          {record.email}
+                        </div>
+                        <div className="text-sm text-gray-500 flex items-center mt-1">
+                          <Phone className="w-4 h-4 text-gray-400 mr-2" />
+                          {record.phone}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">{record.eventName}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          {formatCurrency(record.amountPaid)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {formatDate(record.dateOfRegistration)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => {
+                              setSelectedRecord(record);
+                              setShowDetails(true);
+                            }}
+                            className="text-[#3f6197] hover:text-[#2d4a7a] p-1 rounded"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => {
+                              setRecordToDelete(record);
+                              setDeleteModalOpen(true);
+                            }}
+                            className="text-red-600 hover:text-red-900 p-1 rounded"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {/* Bottom Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center gap-2 mt-6">
+            <button
+              onClick={() => setCurrentPage(1)}
+              disabled={currentPage === 1 || isLoading}
+              className="px-3 py-2 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              First
+            </button>
+            <button
+              onClick={() => setCurrentPage(prev => prev - 1)}
+              disabled={currentPage === 1 || isLoading}
+              className="px-3 py-2 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Previous
+            </button>
+            <span className="px-4 py-2 text-gray-600">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={() => setCurrentPage(prev => prev + 1)}
+              disabled={currentPage === totalPages || isLoading}
+              className="px-3 py-2 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
+            <button
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages || isLoading}
+              className="px-3 py-2 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Last
+            </button>
+          </div>
+        )}
       </div>
+
+      {/* Hidden file input for Excel import */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        style={{ display: 'none' }}
+        accept=".xlsx,.xls"
+        onChange={handleFileUpload}
+      />
 
       {/* View Details Modal */}
       <Modal

@@ -21,10 +21,15 @@ import axios from "axios";
 import api from "../../Api/api";
 import { showNotification, updateNotification } from "@mantine/notifications";
 import { Modal } from "@mantine/core";
-import * as XLSX from "xlsx";
 import { IoReload } from "react-icons/io5";
 
 const ProjectRecordsData = () => {
+  // Input focus style for consistent styling
+  const inputFocusStyle = {
+    borderColor: "#3f6197",
+    boxShadow: "0 0 0 3px rgba(63, 97, 151, 0.1)"
+  };
+
   const [records, setRecords] = useState([]);
   const [isEdit, setIsEdit] = useState({ isEdit: false, record: null });
   const [searchTerm, setSearchTerm] = useState("");
@@ -35,35 +40,83 @@ const ProjectRecordsData = () => {
   const [suggestions, setSuggestions] = useState([]);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
   const [isReload, setIsReload] = useState(false);
+  const [projectImage, setProjectImage] = useState(null);
+  const [imageLoading, setImageLoading] = useState(false);
+  const [imageError, setImageError] = useState(null);
+  const [showImageModal, setShowImageModal] = useState(false);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
+  const [recordsPerPage, setRecordsPerPage] = useState(10);
+  const [isLoading, setIsLoading] = useState(false);
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
 
   const navigate = useNavigate();
   const searchInputRef = useRef(null);
   const suggestionsRef = useRef(null);
 
+  // Debounce search term
   useEffect(() => {
-    if (!isReload) return;
-    axios
-      .get(`${api.web}api/v1/projects`)
-      .then((response) => {
-        if (response.data.success) {
-          setRecords(response.data.data);
-        } else {
-          console.error("Failed to fetch project records");
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching project records:", error);
-      })
-      .finally(() => {
-        setIsReload(false);
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    fetchRecords();
+  }, [currentPage, recordsPerPage, debouncedSearchTerm, filterStatus]);
+
+  const fetchRecords = async () => {
+    if (isLoading) return;
+    
+    setIsLoading(true);
+    try {
+      // Build query parameters
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: recordsPerPage.toString()
       });
-    console.log("Reloading records:", isReload);
-  }, [isReload]);
 
-  useEffect(() => {
-    setIsReload(true);
-  }, []);
+      if (filterStatus !== 'all') {
+        params.append('status', filterStatus);
+      }
 
+      if (debouncedSearchTerm.trim()) {
+        params.append('search', debouncedSearchTerm.trim());
+      }
+
+      const response = await axios.get(`${api.web}api/v1/projects?${params.toString()}`);
+      
+      if (response.data.success) {
+        setRecords(response.data.data);
+        setTotalPages(response.data.pagination.totalPages);
+        setTotalRecords(response.data.pagination.totalProjects);
+        console.log("Project records fetched successfully:", response.data);
+      } else {
+        console.error("Failed to fetch project records");
+        showNotification({
+          title: "Error",
+          message: "Failed to fetch project records",
+          color: "red"
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching project records:", error);
+      showNotification({
+        title: "Error",
+        message: "Error fetching project records",
+        color: "red"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Update search suggestions to work with current page data
   useEffect(() => {
     if (searchTerm.length > 0) {
       const searchLower = searchTerm.toLowerCase();
@@ -198,6 +251,15 @@ const ProjectRecordsData = () => {
     };
   }, []);
 
+  // Cleanup image URL on component unmount
+  useEffect(() => {
+    return () => {
+      if (projectImage) {
+        URL.revokeObjectURL(projectImage);
+      }
+    };
+  }, [projectImage]);
+
   // Handle keyboard navigation
   const handleKeyDown = (e) => {
     if (!showSuggestions) return;
@@ -236,6 +298,7 @@ const ProjectRecordsData = () => {
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
+    setCurrentPage(1); // Reset to first page when searching
   };
 
   const handleSearchFocus = () => {
@@ -244,35 +307,52 @@ const ProjectRecordsData = () => {
     }
   };
 
-  // Filter records based on search term and status
-  const filteredRecords = records.filter((record) => {
-    const search = searchTerm.toLowerCase();
-    const matchesSearch =
-      (record.emailId && record.emailId.toLowerCase().includes(search)) ||
-      (record.name && record.name.toLowerCase().includes(search)) ||
-      (record.registerNumber && record.registerNumber.toLowerCase().includes(search)) ||
-      (record.department && record.department.toLowerCase().includes(search)) ||
-      (record.yearOfStudy && record.yearOfStudy.toLowerCase().includes(search)) ||
-      (record.instituteName && record.instituteName.toLowerCase().includes(search)) ||
-      (record.projectTitle && record.projectTitle.toLowerCase().includes(search)) ||
-      (record.projectGuideName && record.projectGuideName.toLowerCase().includes(search)) ||
-      (record.projectName && record.projectName.toLowerCase().includes(search)) ||
-      (record.projectId && record.projectId.toLowerCase().includes(search)) ||
-      (record.status && record.status.toLowerCase().includes(search)) ||
-      (record.description && record.description.toLowerCase().includes(search));
-    const matchesStatus =
-      filterStatus === "all" || (record.status && record.status.toLowerCase() === filterStatus.toLowerCase());
-    return matchesSearch && matchesStatus;
-  });
+  // Since we're using server-side filtering, we display all records from the API
+  const filteredRecords = records;
 
   const handleViewDetails = (record) => {
     setSelectedRecord(record);
     setShowDetails(true);
+    fetchProjectImage(record);
+  };
+
+  const fetchProjectImage = async (record) => {
+    const projectId = record._id || record.projectId;
+    if (!projectId) return;
+
+    setImageLoading(true);
+    setImageError(null);
+    setProjectImage(null);
+
+    try {
+      const response = await axios.get(`${api.web}api/v1/project/${projectId}/image`, {
+        headers: { 
+          token: localStorage.getItem("token") 
+        },
+        responseType: 'blob'
+      });
+
+      // Create blob URL for the image
+      const imageBlob = new Blob([response.data], { type: response.headers['content-type'] || 'image/jpeg' });
+      const imageUrl = URL.createObjectURL(imageBlob);
+      setProjectImage(imageUrl);
+    } catch (error) {
+      console.error('Error fetching project image:', error);
+      setImageError('Failed to load project image');
+    } finally {
+      setImageLoading(false);
+    }
   };
 
   const handleCloseDetails = () => {
     setShowDetails(false);
     setSelectedRecord(null);
+    // Clean up image URL to prevent memory leaks
+    if (projectImage) {
+      URL.revokeObjectURL(projectImage);
+      setProjectImage(null);
+    }
+    setImageError(null);
   };
 
   const handleEdit = (record) => {
@@ -303,27 +383,90 @@ const ProjectRecordsData = () => {
       });
   };
 
-  const handleExport = () => {
-    if (!records || records.length === 0) {
-      showNotification({ title: "Export", message: "No records to export." });
-      return;
+  const handleExport = async () => {
+    try {
+      showNotification({
+        id: 'export-loading',
+        title: 'Exporting',
+        message: 'Generating Excel file...',
+        loading: true,
+        autoClose: false,
+      });
+
+      // Build query parameters for export
+      const params = new URLSearchParams();
+
+      if (filterStatus !== 'all') {
+        params.append('status', filterStatus);
+      }
+
+      if (debouncedSearchTerm.trim()) {
+        params.append('search', debouncedSearchTerm.trim());
+      }
+
+      // Use the dedicated Excel export endpoint
+      const response = await axios.get(
+        `${api.web}api/v1/projects/export/excel?${params.toString()}`,
+        {
+          headers: { 
+            token: localStorage.getItem("token") 
+          },
+          responseType: 'blob' // Important for file download
+        }
+      );
+
+      // Create blob URL and trigger download
+      const blob = new Blob([response.data], { 
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      
+      // Extract filename from response headers or use default
+      const contentDisposition = response.headers['content-disposition'];
+      let filename = 'project_records_export.xlsx';
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+        if (filenameMatch) {
+          filename = filenameMatch[1];
+        }
+      }
+      
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      updateNotification({
+        id: 'export-loading',
+        title: 'Export Complete',
+        message: 'Project records exported successfully to Excel.',
+        color: 'green',
+        icon: <Check className="w-4 h-4" />,
+        autoClose: 3000,
+      });
+
+    } catch (error) {
+      console.error('Export error:', error);
+      
+      let errorMessage = 'Failed to export records.';
+      if (error.response?.status === 404) {
+        errorMessage = 'No records found to export.';
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
+
+      updateNotification({
+        id: 'export-loading',
+        title: 'Export Failed',
+        message: errorMessage,
+        color: 'red',
+        icon: <X className="w-4 h-4" />,
+        autoClose: 3000,
+      });
     }
-    // Prepare data for export (remove unnecessary fields if needed)
-    const exportData = records.map(({ __v, ...rest }) => rest);
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Projects");
-    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
-    const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `Project_Records_${new Date().toISOString().split("T")[0]}.xlsx`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    showNotification({ title: "Export", message: "Project records exported as Excel." });
   };
 
 
@@ -459,7 +602,10 @@ const ProjectRecordsData = () => {
                 <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <select
                   value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
+                  onChange={(e) => {
+                    setFilterStatus(e.target.value);
+                    setCurrentPage(1); // Reset to first page when filtering
+                  }}
                   className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none transition-all duration-200"
                   onFocus={(e) =>
                     Object.assign(e.target.style, inputFocusStyle)
@@ -512,78 +658,91 @@ const ProjectRecordsData = () => {
           {/* Show count and reload below the bar */}
           <div className="flex items-center justify-between mt-4">
             <div className="text-sm text-gray-600">
-              Showing {filteredRecords.length} of {records.length} records
+              Showing {filteredRecords.length} of {totalRecords} records (Page {currentPage} of {totalPages})
             </div>
             <button
               className="flex items-center text-sm text-white border hover:shadow-lg p-2 rounded-lg bg-gray-100 hover:text-gray-800 transition-all"
               onClick={() => {
-                setIsReload(true);
+                fetchRecords();
               }}
+              disabled={isLoading}
             >
-              <IoReload className="w-5 h-5 text-gray-600 hover:rotate-90 transition-all" />
-              <span className="ml-1 text-sm text-gray-600">Reload</span>
+              <IoReload className={`w-5 h-5 text-gray-600 transition-all ${isLoading ? 'animate-spin' : 'hover:rotate-90'}`} />
+              <span className="ml-1 text-sm text-gray-600">{isLoading ? 'Loading...' : 'Reload'}</span>
             </button>
           </div>
         </div>
         {/* Records Table */}
         <div className="bg-white shadow-lg rounded-b-lg overflow-hidden mt-4">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-[#5478b0]">
-                <tr className="text-white">
-                  <th className="px-6 py-4 text-left text-sm font-semibold">Name</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">Email</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">Register No</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">Department</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">Year</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">Institute</th>
-                  {/* <th className="px-6 py-4 text-left text-sm font-semibold">Project Type</th> */}
-                  <th className="px-6 py-4 text-left text-sm font-semibold">Project Title</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">Guide</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">Status</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredRecords.map((record, idx) => (
-                  <tr key={idx} className={`border-b border-gray-200 hover:bg-gray-50 ${idx % 2 === 0 ? "bg-white" : "bg-gray-50"}`}>
-                    <td className="px-6 py-4 text-sm text-gray-900">{record.name}</td>
-                    <td className="px-6 py-4 text-sm text-gray-900">{record.emailId}</td>
-                    <td className="px-6 py-4 text-sm text-gray-900">{record.registerNumber}</td>
-                    <td className="px-6 py-4 text-sm text-gray-700">{record.department}</td>
-                    <td className="px-6 py-4 text-sm text-gray-700">{record.yearOfStudy}</td>
-                    <td className="px-6 py-4 text-sm text-gray-700">{record.instituteName}</td>
-                    {/* <td className="px-6 py-4 text-sm text-gray-700">{record.projectType}</td> */}
-                    <td className="px-6 py-4 text-sm text-gray-700">{record.projectTitle}</td>
-                    <td className="px-6 py-4 text-sm text-gray-700">{record.projectGuideName}</td>
-                    <td className="px-6 py-4 text-sm">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        record.status === "active"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-blue-100 text-blue-800"
-                      }`}>
-                        {record.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm">
-                      <div className="flex gap-2">
-                        <button onClick={() => handleViewDetails(record)} className="p-1 text-blue-600 hover:text-blue-800 transition-colors" title="View Details">
-                          <Eye className="w-4 h-4" />
-                        </button>
-                        <button onClick={() => navigate("/admin/projectRecords", { state: { record, isEdit: true } })} className="p-1 text-green-600 hover:text-green-800 transition-colors" title="Edit">
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button onClick={() => setIsEdit({ isEdit: true, record })} className="p-1 text-red-600 hover:text-red-800 transition-colors" title="Delete">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="flex flex-col items-center">
+                <svg className="animate-spin h-8 w-8 text-[#3f6197] mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                </svg>
+                <span className="text-gray-600">Loading records...</span>
+              </div>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-[#5478b0]">
+                  <tr className="text-white">
+                    <th className="px-6 py-4 text-left text-sm font-semibold">Name</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold">Email</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold">Register No</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold">Department</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold">Year</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold">Institute</th>
+                    {/* <th className="px-6 py-4 text-left text-sm font-semibold">Project Type</th> */}
+                    <th className="px-6 py-4 text-left text-sm font-semibold">Project Title</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold">Guide</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold">Status</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          {filteredRecords.length === 0 && (
+                </thead>
+                <tbody>
+                  {filteredRecords.map((record, idx) => (
+                    <tr key={idx} className={`border-b border-gray-200 hover:bg-gray-50 ${idx % 2 === 0 ? "bg-white" : "bg-gray-50"}`}>
+                      <td className="px-6 py-4 text-sm text-gray-900">{record.name}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{record.emailId}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{record.registerNumber}</td>
+                      <td className="px-6 py-4 text-sm text-gray-700">{record.department}</td>
+                      <td className="px-6 py-4 text-sm text-gray-700">{record.yearOfStudy}</td>
+                      <td className="px-6 py-4 text-sm text-gray-700">{record.instituteName}</td>
+                      {/* <td className="px-6 py-4 text-sm text-gray-700">{record.projectType}</td> */}
+                      <td className="px-6 py-4 text-sm text-gray-700">{record.projectTitle}</td>
+                      <td className="px-6 py-4 text-sm text-gray-700">{record.projectGuideName}</td>
+                      <td className="px-6 py-4 text-sm">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          record.status === "active"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-blue-100 text-blue-800"
+                        }`}>
+                          {record.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm">
+                        <div className="flex gap-2">
+                          <button onClick={() => handleViewDetails(record)} className="p-1 text-blue-600 hover:text-blue-800 transition-colors" title="View Details">
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          <button onClick={() => navigate("/admin/projectRecords", { state: { record, isEdit: true } })} className="p-1 text-green-600 hover:text-green-800 transition-colors" title="Edit">
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button onClick={() => setIsEdit({ isEdit: true, record })} className="p-1 text-red-600 hover:text-red-800 transition-colors" title="Delete">
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          {!isLoading && filteredRecords.length === 0 && (
             <div className="text-center py-8 text-gray-500">
               <Search className="w-12 h-12 mx-auto mb-4 text-gray-300" />
               <p className="text-lg">No records found</p>
@@ -591,11 +750,101 @@ const ProjectRecordsData = () => {
             </div>
           )}
         </div>
+        
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="bg-white shadow-lg rounded-lg mt-4 p-4">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              {/* Records per page selector */}
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600">Records per page:</span>
+                <select
+                  value={recordsPerPage}
+                  onChange={(e) => {
+                    setRecordsPerPage(parseInt(e.target.value));
+                    setCurrentPage(1); // Reset to first page
+                  }}
+                  className="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                </select>
+              </div>
+
+              {/* Pagination buttons */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setCurrentPage(1)}
+                  disabled={currentPage === 1 || isLoading}
+                  className="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  First
+                </button>
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1 || isLoading}
+                  className="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Previous
+                </button>
+                
+                {/* Page numbers */}
+                <div className="flex items-center gap-1">
+                  {(() => {
+                    const pages = [];
+                    const startPage = Math.max(1, currentPage - 2);
+                    const endPage = Math.min(totalPages, currentPage + 2);
+                    
+                    for (let i = startPage; i <= endPage; i++) {
+                      pages.push(
+                        <button
+                          key={i}
+                          onClick={() => setCurrentPage(i)}
+                          disabled={isLoading}
+                          className={`px-3 py-2 text-sm border rounded-lg transition-colors ${
+                            i === currentPage
+                              ? 'bg-[#3f6197] text-white border-[#3f6197]'
+                              : 'border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed'
+                          }`}
+                        >
+                          {i}
+                        </button>
+                      );
+                    }
+                    return pages;
+                  })()}
+                </div>
+                
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages || isLoading}
+                  className="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Next
+                </button>
+                <button
+                  onClick={() => setCurrentPage(totalPages)}
+                  disabled={currentPage === totalPages || isLoading}
+                  className="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Last
+                </button>
+              </div>
+
+              {/* Page info */}
+              <div className="text-sm text-gray-600">
+                Page {currentPage} of {totalPages}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
       {/* Details Modal */}
       {showDetails && selectedRecord && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={handleCloseDetails}>
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="text-white p-6" style={{ background: "linear-gradient(135deg, #3f6197 0%, #2f4d7a 100%)" }}>
               <h2 className="text-2xl font-bold">Project Details</h2>
               <p className="opacity-90">{selectedRecord.projectTitle}</p>
@@ -629,6 +878,57 @@ const ProjectRecordsData = () => {
                     <p><span className="font-medium">Project Title:</span> {selectedRecord.projectTitle}</p>
                     <p><span className="font-medium">Guide Name:</span> {selectedRecord.projectGuideName}</p>
                     <p><span className="font-medium">Duration:</span> {selectedRecord.projectDuration}</p>
+                  </div>
+                </div>
+                <div className="md:col-span-2">
+                  <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                    <FileText className="w-5 h-5" style={{ color: "#3f6197" }} />
+                    Project Image
+                  </h3>
+                  <div className="space-y-2">
+                    {imageLoading && (
+                      <div className="flex items-center justify-center p-8 bg-gray-50 rounded-lg">
+                        <div className="flex flex-col items-center">
+                          <svg className="animate-spin h-8 w-8 text-[#3f6197] mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                          </svg>
+                          <span className="text-sm text-gray-600">Loading image...</span>
+                        </div>
+                      </div>
+                    )}
+                    {imageError && (
+                      <div className="flex items-center justify-center p-8 bg-red-50 rounded-lg">
+                        <div className="flex flex-col items-center">
+                          <X className="h-8 w-8 text-red-400 mb-2" />
+                          <span className="text-sm text-red-600">{imageError}</span>
+                        </div>
+                      </div>
+                    )}
+                    {projectImage && !imageLoading && !imageError && (
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <img 
+                          src={projectImage} 
+                          alt="Project Image" 
+                          className="max-w-full h-auto rounded-lg shadow-md mx-auto cursor-pointer hover:opacity-80 transition-opacity"
+                          style={{ maxHeight: '400px' }}
+                          onClick={() => setShowImageModal(true)}
+                          onError={() => {
+                            setImageError('Failed to display image');
+                            setProjectImage(null);
+                          }}
+                        />
+                        <p className="text-xs text-gray-500 text-center mt-2">Click to view full size</p>
+                      </div>
+                    )}
+                    {!imageLoading && !imageError && !projectImage && (
+                      <div className="flex items-center justify-center p-8 bg-gray-50 rounded-lg">
+                        <div className="flex flex-col items-center">
+                          <FileText className="h-8 w-8 text-gray-400 mb-2" />
+                          <span className="text-sm text-gray-600">No image available</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="md:col-span-2">
@@ -749,6 +1049,26 @@ const ProjectRecordsData = () => {
           </div>
         </div>
       </Modal>
+
+      {/* Image Modal */}
+      {showImageModal && projectImage && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50" onClick={() => setShowImageModal(false)}>
+          <div className="relative max-w-4xl max-h-full">
+            <button
+              onClick={() => setShowImageModal(false)}
+              className="absolute -top-10 right-0 text-white hover:text-gray-300 transition-colors"
+            >
+              <X className="w-8 h-8" />
+            </button>
+            <img 
+              src={projectImage} 
+              alt="Project Image - Full Size" 
+              className="max-w-full max-h-full rounded-lg"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

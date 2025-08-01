@@ -34,6 +34,15 @@ const StocksData = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [stockToDelete, setStockToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
+  const [recordsPerPage, setRecordsPerPage] = useState(12);
+  const [isLoading, setIsLoading] = useState(false);
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+  
   const navigate = useNavigate();
   const stockTypes = [
     { value: "All", label: "All Types", icon: Package },
@@ -41,26 +50,72 @@ const StocksData = () => {
     { value: "Consumables", label: "Consumables", icon: Archive },
   ];
   const state = useSelector((state) => state);
+
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    fetchStocks();
+  }, [currentPage, recordsPerPage, debouncedSearchTerm, selectedType]);
   
-  // Fetch stocks data
+  // Fetch stocks data with pagination
   const fetchStocks = async () => {
+    if (isLoading) return;
+    
+    setIsLoading(true);
     try {
-      setLoading(true);
       setError(null);
 
-      const response = await axios.get(`${api.web}api/v1/stock`, {
+      // Build query parameters
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: recordsPerPage.toString()
+      });
+
+      if (selectedType !== 'All') {
+        params.append('stockType', selectedType);
+      }
+
+      if (debouncedSearchTerm.trim()) {
+        params.append('search', debouncedSearchTerm.trim());
+      }
+
+      if (sortBy) {
+        params.append('sortBy', sortBy);
+        params.append('sortOrder', sortOrder);
+      }
+
+      const response = await axios.get(`${api.web}api/v1/stock?${params.toString()}`, {
         headers: {
           token: localStorage.getItem("token"),
         },
       });
 
-      setStocks(response.data.data || []);
-      setFilteredStocks(response.data.data || []);
+      if (response.data.status === 'success') {
+        setStocks(response.data.data || []);
+        setFilteredStocks(response.data.data || []);
+        setTotalPages(response.data.pagination?.totalPages || 1);
+        setTotalRecords(response.data.pagination?.totalStockDetails || 0);
+      } else {
+        setStocks([]);
+        setFilteredStocks([]);
+        setTotalPages(1);
+        setTotalRecords(0);
+      }
     } catch (err) {
       console.error("Error fetching stocks:", err);
       setError("Failed to fetch stocks data. Please try again.");
+      setStocks([]);
+      setFilteredStocks([]);
     } finally {
       setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -78,10 +133,10 @@ const StocksData = () => {
     const uniqueSuggestions = new Set();
     
     stocks.forEach((stock) => {
-      if (stock.stockName.toLowerCase().includes(queryLower)) {
+      if (stock.stockName && stock.stockName.toLowerCase().includes(queryLower)) {
         uniqueSuggestions.add(stock.stockName);
       }
-      if (stock.stockId.toLowerCase().includes(queryLower)) {
+      if (stock.stockId && stock.stockId.toLowerCase().includes(queryLower)) {
         uniqueSuggestions.add(stock.stockId);
       }
     });
@@ -91,6 +146,69 @@ const StocksData = () => {
     setSuggestions(suggestionsArray);
   };
 
+  // Handle export to Excel
+  const handleExport = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Build query parameters for export
+      const params = new URLSearchParams();
+
+      if (selectedType !== 'All') {
+        params.append('stockType', selectedType);
+      }
+
+      if (debouncedSearchTerm.trim()) {
+        params.append('search', debouncedSearchTerm.trim());
+      }
+
+      // Use the dedicated Excel export endpoint
+      const response = await axios.get(
+        `${api.web}api/v1/stock/export/excel?${params.toString()}`,
+        {
+          headers: { 
+            token: localStorage.getItem("token") 
+          },
+          responseType: 'blob' // Important for file download
+        }
+      );
+
+      // Create blob URL and trigger download
+      const blob = new Blob([response.data], { 
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      
+      // Extract filename from response headers or use default
+      const contentDisposition = response.headers['content-disposition'];
+      let filename = 'stock_details_export.xlsx';
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+        if (filenameMatch) {
+          filename = filenameMatch[1];
+        }
+      }
+      
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+    } catch (error) {
+      console.error('Export error:', error);
+      if (error.response?.status === 404) {
+        setError('No stock records found to export.');
+      } else {
+        setError('Failed to export stock records. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Handle search input change
   const handleSearchChange = (e) => {
     const value = e.target.value;
@@ -98,6 +216,7 @@ const StocksData = () => {
     generateSuggestions(value);
     setShowSuggestions(true);
     setSelectedSuggestionIndex(-1); // Reset selection when typing
+    setCurrentPage(1); // Reset to first page when searching
   };
 
   // Handle suggestion click
@@ -166,48 +285,17 @@ const StocksData = () => {
     window.scrollTo(0, 0);
   }, [loading]);
 
-  // Filter and sort stocks
-  useEffect(() => {
-    let filtered = stocks;
-
-    // Filter by search term
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (stock) =>
-          stock.stockName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          stock.stockId.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // Filter by type
-    if (selectedType !== "All") {
-      filtered = filtered.filter((stock) => stock.stockType === selectedType);
-    }
-
-    // Sort
-    filtered.sort((a, b) => {
-      let aValue = a[sortBy];
-      let bValue = b[sortBy];
-
-      if (typeof aValue === "string") {
-        aValue = aValue.toLowerCase();
-        bValue = bValue.toLowerCase();
-      }
-
-      if (sortOrder === "asc") {
-        return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
-      } else {
-        return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
-      }
-    });
-
-    setFilteredStocks(filtered);
-  }, [stocks, searchTerm, selectedType, sortBy, sortOrder]);
-
-  // Load data on component mount
+  // Load data on component mount and when filters change
   useEffect(() => {
     fetchStocks();
-  }, []);
+  }, [currentPage, recordsPerPage, debouncedSearchTerm, selectedType, sortBy, sortOrder]);
+
+  // Handle records per page change
+  useEffect(() => {
+    if (currentPage !== 1) {
+      setCurrentPage(1);
+    }
+  }, [recordsPerPage, debouncedSearchTerm, selectedType, sortBy, sortOrder]);
 
   // Get icon for stock type
   const getStockTypeIcon = (type) => {
@@ -382,7 +470,10 @@ const StocksData = () => {
               <Filter className="text-gray-500 w-5 h-5" />
               <select
                 value={selectedType}
-                onChange={(e) => setSelectedType(e.target.value)}
+                onChange={(e) => {
+                  setSelectedType(e.target.value);
+                  setCurrentPage(1); // Reset to first page when filtering
+                }}
                 className="px-4 py-3 border-2 border-gray-200 rounded-xl bg-white focus:ring-4 focus:ring-[#3f6197]/30 focus:border-[#3f6197] transition-all duration-300"
               >
                 {stockTypes.map((type) => (
@@ -398,7 +489,10 @@ const StocksData = () => {
               <span className="text-gray-500 text-sm">Sort by:</span>
               <select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
+                onChange={(e) => {
+                  setSortBy(e.target.value);
+                  setCurrentPage(1); // Reset to first page when sorting
+                }}
                 className="px-4 py-3 border-2 border-gray-200 rounded-xl bg-white focus:ring-4 focus:ring-[#3f6197]/30 focus:border-[#3f6197] transition-all duration-300"
               >
                 <option value="stockName">Name</option>
@@ -407,9 +501,10 @@ const StocksData = () => {
                 <option value="count">Count</option>
               </select>
               <button
-                onClick={() =>
-                  setSortOrder(sortOrder === "asc" ? "desc" : "asc")
-                }
+                onClick={() => {
+                  setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                  setCurrentPage(1); // Reset to first page when changing sort order
+                }}
                 className="px-4 py-3 bg-gradient-to-r from-[#3f6197] to-[#5a7fb8] text-white rounded-xl hover:from-[#2d4a7a] hover:to-[#4a6ea6] transition-all duration-300"
               >
                 {sortOrder === "asc" ? "↑" : "↓"}
@@ -425,13 +520,24 @@ const StocksData = () => {
               <span>Add Stock</span>
             </button>
 
+            {/* Export Button */}
+            <button
+              onClick={handleExport}
+              disabled={isLoading}
+              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Package className="w-5 h-5" />
+              <span>{isLoading ? 'Exporting...' : 'Export Excel'}</span>
+            </button>
+
             {/* Refresh Button */}
             <button
               onClick={fetchStocks}
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#3f6197] to-[#5a7fb8] text-white rounded-xl hover:from-[#2d4a7a] hover:to-[#4a6ea6] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              disabled={isLoading}
+              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#3f6197] to-[#5a7fb8] text-white rounded-xl hover:from-[#2d4a7a] hover:to-[#4a6ea6] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <RefreshCw className="w-5 h-5" />
-              <span>Refresh</span>
+              <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
+              <span>{isLoading ? 'Loading...' : 'Refresh'}</span>
             </button>
           </div>
         </div>
@@ -452,7 +558,7 @@ const StocksData = () => {
           <div className="bg-gray-50 rounded-2xl p-6 shadow-lg border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 text-sm">Total Items</p>
+                <p className="text-gray-600 text-sm">Current Page Items</p>
                 <p className="text-2xl font-bold text-[#3f6197]">
                   {filteredStocks.length}
                 </p>
@@ -461,26 +567,65 @@ const StocksData = () => {
             </div>
           </div>
 
-          {stockTypes.slice(1).map((type) => {
-            const count = filteredStocks.filter(
-              (stock) => stock.stockType === type.value
-            ).length;
-            const IconComponent = type.icon;
-            return (
-              <div
-                key={type.value}
-                className="bg-gray-50 rounded-2xl p-6 shadow-lg border border-gray-200"
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-600 text-sm">{type.label}</p>
-                    <p className="text-2xl font-bold text-[#3f6197]">{count}</p>
-                  </div>
-                  <IconComponent className="w-8 h-8 text-[#3f6197]" />
-                </div>
+          <div className="bg-gray-50 rounded-2xl p-6 shadow-lg border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-600 text-sm">Total Items</p>
+                <p className="text-2xl font-bold text-[#3f6197]">
+                  {totalRecords}
+                </p>
               </div>
-            );
-          })}
+              <Package className="w-8 h-8 text-[#3f6197]" />
+            </div>
+          </div>
+
+          <div className="bg-gray-50 rounded-2xl p-6 shadow-lg border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-600 text-sm">Current Page</p>
+                <p className="text-2xl font-bold text-[#3f6197]">
+                  {currentPage} of {totalPages}
+                </p>
+              </div>
+              <Package className="w-8 h-8 text-[#3f6197]" />
+            </div>
+          </div>
+
+          <div className="bg-gray-50 rounded-2xl p-6 shadow-lg border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-600 text-sm">Items Per Page</p>
+                <p className="text-2xl font-bold text-[#3f6197]">
+                  {recordsPerPage}
+                </p>
+              </div>
+              <Package className="w-8 h-8 text-[#3f6197]" />
+            </div>
+          </div>
+        </div>
+
+        {/* Pagination Info */}
+        <div className="flex justify-between items-center mb-4">
+          <p className="text-gray-600">
+            Showing {filteredStocks.length > 0 ? ((currentPage - 1) * recordsPerPage) + 1 : 0} to{" "}
+            {Math.min(currentPage * recordsPerPage, totalRecords)} of {totalRecords} entries
+          </p>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600">Records per page:</span>
+            <select
+              value={recordsPerPage}
+              onChange={(e) => {
+                setRecordsPerPage(Number(e.target.value));
+                setCurrentPage(1); // Reset to first page when changing records per page
+              }}
+              className="border border-gray-300 rounded px-2 py-1 text-sm"
+            >
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+          </div>
         </div>
 
         {/* Stocks Grid */}
@@ -567,6 +712,43 @@ const StocksData = () => {
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center gap-2 mt-8">
+            <button
+              onClick={() => setCurrentPage(1)}
+              disabled={currentPage === 1 || isLoading}
+              className="px-3 py-2 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              First
+            </button>
+            <button
+              onClick={() => setCurrentPage(prev => prev - 1)}
+              disabled={currentPage === 1 || isLoading}
+              className="px-3 py-2 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Previous
+            </button>
+            <span className="px-4 py-2 text-gray-600">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={() => setCurrentPage(prev => prev + 1)}
+              disabled={currentPage === totalPages || isLoading}
+              className="px-3 py-2 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
+            <button
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages || isLoading}
+              className="px-3 py-2 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Last
+            </button>
           </div>
         )}
 
