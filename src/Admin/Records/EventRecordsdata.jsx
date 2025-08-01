@@ -587,7 +587,7 @@ const EventRecordsData = () => {
                 </div>
               )}
             </div>
-            <div className="flex items-center">
+            {/* <div className="flex items-center">
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
@@ -598,8 +598,8 @@ const EventRecordsData = () => {
                 <option value="paid">Paid</option>
                 <option value="unpaid">Unpaid</option>
               </select>
-            </div>
-            <button
+            </div> */}
+            {/* <button
               onClick={() => {
                 setSearchTerm('');
                 setFilterStatus('all');
@@ -608,7 +608,7 @@ const EventRecordsData = () => {
             >
               <X className="mr-2 h-4 w-4" />
               Clear Filters
-            </button>
+            </button> */}
           </div>
         </div>
 
@@ -670,33 +670,44 @@ const EventRecordsData = () => {
               <div className="bg-white rounded-lg shadow-sm border p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Events Summary</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {eventSummary.map((event, index) => (
-                    <div 
-                      key={index} 
-                      className="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
-                      onClick={() => navigate(`/admin/event-details/${encodeURIComponent(event.eventName)}`)}
-                    >
-                      <h4 className="font-semibold text-gray-900 mb-2">{event.eventName}</h4>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-gray-500">Members:</span>
-                          <span className="font-medium">{event.totalMembers}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-500">Revenue:</span>
-                          <span className="font-medium text-green-600">{formatCurrency(event.totalAmountPaid)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-500">Avg/Member:</span>
-                          <span className="font-medium">{formatCurrency(event.avgAmountPerMember)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-500">Date:</span>
-                          <span className="font-medium">{formatDate(event.eventDate)}</span>
+                  {eventSummary
+                    .filter(event => {
+                      const searchLower = searchTerm.toLowerCase();
+                      return (
+                        searchTerm === "" ||
+                        (event.eventName && event.eventName.toLowerCase().includes(searchLower)) ||
+                        (event.totalMembers && event.totalMembers.toString().includes(searchTerm)) ||
+                        (event.totalAmountPaid && formatCurrency(event.totalAmountPaid).toLowerCase().includes(searchLower)) ||
+                        (event.avgAmountPerMember && formatCurrency(event.avgAmountPerMember).toLowerCase().includes(searchLower))
+                      );
+                    })
+                    .map((event, index) => (
+                      <div 
+                        key={index} 
+                        className="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                        onClick={() => navigate(`/admin/event-details/${encodeURIComponent(event.eventName)}`)}
+                      >
+                        <h4 className="font-semibold text-gray-900 mb-2">{event.eventName}</h4>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-gray-500">Members:</span>
+                            <span className="font-medium">{event.totalMembers}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-500">Revenue:</span>
+                            <span className="font-medium text-green-600">{formatCurrency(event.totalAmountPaid)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-500">Avg/Member:</span>
+                            <span className="font-medium">{formatCurrency(event.avgAmountPerMember)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-500">Date:</span>
+                            <span className="font-medium">{formatDate(event.eventDate)}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
               </div>
             )}

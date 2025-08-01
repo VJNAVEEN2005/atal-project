@@ -42,6 +42,66 @@ const EventDetails = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [recordToDelete, setRecordToDelete] = useState(null);
 
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
+  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
+  const searchInputRef = React.useRef(null);
+
+  useEffect(() => {
+    if (!searchTerm || !eventSummary?.registrations) {
+      setSuggestions([]);
+      return;
+    }
+    const searchLower = searchTerm.toLowerCase();
+    const newSuggestions = [];
+    eventSummary.registrations.forEach(reg => {
+      if (reg.name && reg.name.toLowerCase().includes(searchLower)) {
+        newSuggestions.push({ type: 'name', value: reg.name, label: reg.name, record: reg });
+      }
+      if (reg.email && reg.email.toLowerCase().includes(searchLower)) {
+        newSuggestions.push({ type: 'email', value: reg.email, label: reg.email, record: reg });
+      }
+      if (reg.phone && reg.phone.toLowerCase().includes(searchLower)) {
+        newSuggestions.push({ type: 'phone', value: reg.phone, label: reg.phone, record: reg });
+      }
+    });
+    setSuggestions(newSuggestions.slice(0, 8));
+    setSelectedSuggestionIndex(-1);
+  }, [searchTerm, eventSummary]);
+
+  const handleKeyDown = (e) => {
+    if (!showSuggestions || suggestions.length === 0) return;
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setSelectedSuggestionIndex((prev) => (prev < suggestions.length - 1 ? prev + 1 : 0));
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setSelectedSuggestionIndex((prev) => (prev > 0 ? prev - 1 : suggestions.length - 1));
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (selectedSuggestionIndex >= 0) {
+          handleSuggestionClick(suggestions[selectedSuggestionIndex]);
+        }
+        break;
+      case 'Escape':
+        setShowSuggestions(false);
+        setSelectedSuggestionIndex(-1);
+        break;
+      default:
+        break;
+    }
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    setSearchTerm(suggestion.value);
+    setShowSuggestions(false);
+    setSelectedSuggestionIndex(-1);
+    searchInputRef.current?.focus();
+  };
+
   // Update Event Date Modal
   const [updateDateModalOpen, setUpdateDateModalOpen] = useState(false);
   const [newEventDate, setNewEventDate] = useState(null);
@@ -355,15 +415,36 @@ const EventDetails = () => {
         {/* Search and Filters */}
         <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col md:flex-row md:items-center gap-4 border border-[#3f6197]/20">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[#3f6197]" />
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-3 py-2 border border-[#3f6197]/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3f6197] bg-[#3f6197]/5 placeholder-[#3f6197]/60"
-              placeholder="Search registrations by name, email, or phone..."
-            />
-          </div>
+  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[#3f6197]" />
+  <input
+    type="text"
+    value={searchTerm}
+    ref={searchInputRef}
+    onChange={e => {
+      setSearchTerm(e.target.value);
+      setShowSuggestions(true);
+    }}
+    onKeyDown={handleKeyDown}
+    onFocus={() => searchTerm && suggestions.length > 0 && setShowSuggestions(true)}
+    onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+    className="w-full pl-10 pr-3 py-2 border border-[#3f6197]/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3f6197] bg-[#3f6197]/5 placeholder-[#3f6197]/60"
+    placeholder="Search registrations by name, email, or phone..."
+  />
+  {showSuggestions && suggestions.length > 0 && (
+    <div className="absolute z-50 w-full mt-1 bg-white border border-[#3f6197]/20 rounded-md shadow-lg max-h-64 overflow-y-auto">
+      {suggestions.map((suggestion, index) => (
+        <div
+          key={`${suggestion.type}-${suggestion.value}-${index}`}
+          className={`px-4 py-2 text-sm cursor-pointer hover:bg-[#3f6197]/10 ${selectedSuggestionIndex === index ? 'bg-[#3f6197]/10' : ''}`}
+          onMouseDown={() => handleSuggestionClick(suggestion)}
+        >
+          <div className="font-medium">{suggestion.label}</div>
+          <div className="text-xs text-[#3f6197]">{suggestion.type}</div>
+        </div>
+      ))}
+    </div>
+  )}
+</div>
           <div className="flex gap-2">
             <select
               value={sortBy}
