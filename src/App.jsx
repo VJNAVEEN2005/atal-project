@@ -179,14 +179,13 @@ function App() {
   }, [isLoading, state.imageCarousel.loading]);
 
   useEffect(() => {
-    if (state.imageCarousel.images?.images?.length > 0) {
-      // Complete the progress quickly when data is loaded
+    // Complete loading if fetch is successful (success true), regardless of images length
+    if (state.imageCarousel.images && state.imageCarousel.images.success) {
       setLoadingProgress(100);
       setTimeout(() => {
         setIsLoading(false);
-      }, 300); // Small delay to show 100% before hiding
+      }, 300);
     } else if (state.imageCarousel.error) {
-      // Handle error case
       setLoadingProgress(100);
       setTimeout(() => {
         setIsLoading(false);
