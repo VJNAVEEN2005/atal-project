@@ -63,7 +63,6 @@ const EventRecordsData = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-
   // Fetch event records with pagination
   const fetchEventRecords = async () => {
     setIsLoading(true);
@@ -166,6 +165,8 @@ const EventRecordsData = () => {
   };
 
   // Fetch event summary and overview with loading
+  // Commented out as not used in EventRecords
+/*
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -180,21 +181,25 @@ const EventRecordsData = () => {
       setEventSummary(summaryRes.data.data.eventSummary || []);
       setEventsOverview(overviewRes.data.data.overview || null);
     } catch (error) {
-      showNotification({
-        color: 'red',
-        title: 'Error',
-        message: 'Failed to load event data',
-        icon: <X size={16} />,
-      });
+      // Notification for error intentionally commented out
+      // showNotification({
+      //   color: 'red',
+      //   title: 'Error',
+      //   message: 'Failed to load event data',
+      //   icon: <X size={16} />,
+      // });
     } finally {
       setLoading(false);
     }
   };
+*/
 
   // Initial load
+/*
   useEffect(() => {
     fetchData();
   }, []);
+*/
 
   // Load event records when pagination or search changes
   useEffect(() => {
@@ -466,7 +471,7 @@ const EventRecordsData = () => {
 
         // Update UI with new data
         fetchEventRecords();
-        fetchData(); // Also refresh summary data
+        // fetchData(); // Also refresh summary data (commented out)
         
         updateNotification({
           id: 'import-excel',
@@ -519,7 +524,7 @@ const EventRecordsData = () => {
       
       // Refresh the event records
       fetchEventRecords();
-      fetchData(); // Also refresh summary data
+      // fetchData(); // Also refresh summary data (commented out)
       setDeleteModalOpen(false);
       
       showNotification({
@@ -612,7 +617,7 @@ const EventRecordsData = () => {
               className="flex items-center justify-center px-4 py-2 text-sm text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 mr-2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v-4.992A2.25 2.25 0 005.25 9h13.5A2.25 2.25 0 0021 11.508V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
               </svg>
               Import Excel
             </button> */}
