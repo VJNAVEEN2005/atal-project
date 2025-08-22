@@ -87,7 +87,7 @@ const EventRecordsData = () => {
         setTotalPages(response.data.pagination?.totalPages || 1);
         setTotalRecords(response.data.pagination?.totalEventRecords || 0);
       } else {
-        setRecords([]);
+        setIsLoading(true);
         setTotalPages(1);
         setTotalRecords(0);
       }
@@ -107,6 +107,7 @@ const EventRecordsData = () => {
     }
   };
 
+// ...existing code...
   // Handle Excel export
   const handleExport = async () => {
     try {
@@ -115,9 +116,9 @@ const EventRecordsData = () => {
         id: 'excel-export',
         loading: true,
         title: 'Exporting Data',
-        message: 'Please wait while we prepare your Excel file...',
-        autoClose: false,
-        disallowClose: true,
+  message: 'Please wait while we prepare your Excel file...',
+  autoClose: false,
+  disallowClose: true,
       });
 
       const response = await axios.get(`${api.web}api/v1/events/registrations/export-excel`, {
@@ -566,18 +567,7 @@ const EventRecordsData = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f6f8fb] p-6">
-      {loading && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-70">
-          <div className="flex flex-col items-center">
-            <svg className="animate-spin h-10 w-10 text-[#3f6197] mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-            </svg>
-            <span className="text-[#3f6197] font-semibold">Loading...</span>
-          </div>
-        </div>
-      )}
+  <div className="min-h-screen bg-[#f6f8fb] p-6">
       <div className="max-w-7xl mx-auto">
         {/* Back Button */}
         <div className="mb-4">
