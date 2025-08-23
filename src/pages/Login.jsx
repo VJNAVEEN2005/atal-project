@@ -18,27 +18,21 @@ const Login = () => {
 
   const navigate = useNavigate();
 
-  // Load remembered user data on component mount
+  // Load remembered user email on component mount
   useEffect(() => {
     const loadRememberedUser = () => {
       try {
-        const rememberedEmail = localStorage.getItem("rememberUser");
-        const rememberedUserData = localStorage.getItem("rememberedUserData");
-        
-        if (rememberedEmail && rememberedUserData) {
-          const userData = JSON.parse(rememberedUserData);
+        const rememberedEmail = localStorage.getItem("rememberedEmail");
+        if (rememberedEmail) {
           setFormData(prev => ({
             ...prev,
             email: rememberedEmail,
             rememberMe: true,
-            password: userData.password || "", // Pre-fill password from stored data
           }));
         }
       } catch (error) {
-        console.error("Error loading remembered user:", error);
-        // Clear corrupted data
-        localStorage.removeItem("rememberUser");
-        localStorage.removeItem("rememberedUserData");
+        console.error("Error loading remembered email:", error);
+        localStorage.removeItem("rememberedEmail");
       }
     };
 
@@ -66,77 +60,26 @@ const Login = () => {
     return hashHex;
   };
 
-  // Save user data for remember me functionality
-  const saveRememberedUser = (userData, email, password, rememberMe) => {
+  // Handle remember me functionality
+  const handleRememberMe = (email, rememberMe) => {
     if (rememberMe) {
-      try {
-        // Store email for auto-fill
-        localStorage.setItem("rememberUser", email);
-        
-        // Store additional user data including password
-        const dataToRemember = {
-          email: email,
-          password: password, // Store the original password (not hashed)
-          userId: userData._id,
-          userName: userData.email,
-          lastLogin: new Date().toISOString(),
-        };
-        
-        localStorage.setItem("rememberedUserData", JSON.stringify(dataToRemember));
-        
-        // Set expiry for remember me (optional - 30 days)
-        const expiryDate = new Date();
-        expiryDate.setDate(expiryDate.getDate() + 30);
-        localStorage.setItem("rememberMeExpiry", expiryDate.toISOString());
-        
-        console.log("User data saved for remember me:", {
-          ...dataToRemember,
-          password: "***hidden***" // Don't log the actual password
-        });
-      } catch (error) {
-        console.error("Error saving remembered user:", error);
-      }
+      localStorage.setItem("rememberedEmail", email);
     } else {
-      // Clear remembered data if remember me is unchecked
-      localStorage.removeItem("rememberUser");
-      localStorage.removeItem("rememberedUserData");
-      localStorage.removeItem("rememberMeExpiry");
+      localStorage.removeItem("rememberedEmail");
     }
-  };
-
-  // Check if remember me data has expired
-  const checkRememberMeExpiry = () => {
-    const expiryDate = localStorage.getItem("rememberMeExpiry");
-    if (expiryDate) {
-      const expiry = new Date(expiryDate);
-      const now = new Date();
-      
-      if (now > expiry) {
-        // Data has expired, clear it
-        localStorage.removeItem("rememberUser");
-        localStorage.removeItem("rememberedUserData");
-        localStorage.removeItem("rememberMeExpiry");
-        return false;
-      }
-      return true;
-    }
-    return false;
   };
 
   // Handle form submission
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
-      console.log("Login form submitted");
+      
       // Form validation
       if (!formData.email || !formData.password) {
         setError("Please fill in all required fields");
         return;
       }
-      // Check remember me expiry
-      if (formData.rememberMe) {
-        checkRememberMeExpiry();
-      }
+      
       notifications.show({
         id: "login-processing",
         title: "Processing Login",
@@ -145,8 +88,10 @@ const Login = () => {
         loading: true,
         icon: <Link size={20} />,
       });
+      
       setIsLoading(true);
       setError("");
+      
       try {
         // Hash the password before sending
         const hashedPassword = await hashPassword(formData.password);
@@ -155,6 +100,7 @@ const Login = () => {
           password: hashedPassword,
           isHashed: true,
         });
+        
         const { data } = response;
         if (data.success) {
           // Store authentication token
@@ -171,10 +117,8 @@ const Login = () => {
 
           localStorage.setItem("userData", JSON.stringify(userDataForStorage));
 
-          console.log("User data stored in localStorage:", userDataForStorage);
-
           // Handle remember me functionality
-          saveRememberedUser(data.user, formData.email, formData.password, formData.rememberMe);
+          handleRememberMe(formData.email, formData.rememberMe);
 
           notifications.update({
             id: "login-processing",
@@ -184,13 +128,6 @@ const Login = () => {
             loading: false,
             icon: <Link size={20} />,
           });
-
-          // Admin check (uncomment if needed)
-          // if (data.user.admin === 1) {
-          //   localStorage.setItem("isAuthenticated", 1);
-          // } else if (data.user.admin === 2) {
-          //   localStorage.setItem("isAuthenticated", 2);
-          // }
 
           // Redirect to homepage
           window.location.href = "/";
@@ -207,35 +144,29 @@ const Login = () => {
         }
       } catch (err) {
         console.error("Login error:", err);
+        const errorMessage = err.response?.data?.message || "An error occurred. Please try again.";
+        
         notifications.update({
           id: "login-processing",
           title: "Login Error",
-          message:
-            err.response?.data?.message ||
-            "An error occurred. Please try again.",
+          message: errorMessage,
           color: "red",
           loading: false,
           icon: <Link size={20} />,
         });
-        setError(err.response?.data?.message || "Invalid credentials");
+        
+        setError(errorMessage);
       } finally {
         setIsLoading(false);
       }
     },
-    [formData, navigate]
+    [formData]
   );
 
   // Navigate to signup page
   const navigateToSignup = useCallback(() => {
     navigate("/signup");
   }, [navigate]);
-
-  // Clear remembered data function (optional - for logout)
-  const clearRememberedData = () => {
-    localStorage.removeItem("rememberUser");
-    localStorage.removeItem("rememberedUserData");
-    localStorage.removeItem("rememberMeExpiry");
-  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -287,11 +218,11 @@ const Login = () => {
               placeholder="Enter your password"
               required
             />
-          <button
-        type="button"
-        onClick={() => setShowPassword((prev) => !prev)}
-        className="absolute right-3 top-1/2 transform translate-y-1/2 text-gray-600 focus:outline-none"
-      >
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-3 top-1/2 transform translate-y-1/2 text-gray-600 focus:outline-none"
+            >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
