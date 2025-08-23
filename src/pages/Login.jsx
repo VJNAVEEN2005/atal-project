@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 import api from "../Api/api";
 import { Link } from "lucide-react";
 import { notifications } from "@mantine/notifications";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Bug, X } from "lucide-react";
+import { sha256 } from 'js-sha256';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -15,8 +16,24 @@ const Login = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [debugInfo, setDebugInfo] = useState("");
+  const [showDebug, setShowDebug] = useState(false);
 
   const navigate = useNavigate();
+
+  // Enhanced debugging - Log API endpoint on component mount
+  useEffect(() => {
+    const debugData = {
+      apiEndpoint: `${api.web}api/v1/login`,
+      environment: process.env.NODE_ENV,
+      timestamp: new Date().toISOString(),
+      userAgent: navigator.userAgent,
+      apiWebValue: api.web,
+    };
+    
+    setDebugInfo(JSON.stringify(debugData, null, 2));
+    console.log("Login Debug Info:", debugData);
+  }, []);
 
   // Load remembered user email on component mount
   useEffect(() => {
@@ -48,16 +65,9 @@ const Login = () => {
     }));
   }, []);
 
-  // Password hashing function using browser's Web Crypto API
-  const hashPassword = async (password) => {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(password);
-    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray
-      .map((byte) => byte.toString(16).padStart(2, "0"))
-      .join("");
-    return hashHex;
+  // Consistent password hashing function using js-sha256
+  const hashPassword = (password) => {
+    return sha256(password);
   };
 
   // Handle remember me functionality
@@ -80,6 +90,29 @@ const Login = () => {
         return;
       }
       
+      // Email format validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        setError("Please enter a valid email address");
+        return;
+      }
+      
+      setIsLoading(true);
+      setError("");
+      
+      // Update debug info with request details
+      const requestDebugInfo = {
+        apiEndpoint: `${api.web}api/v1/login`,
+        requestData: {
+          email: formData.email,
+          password: "••••••••", // Masked for security
+          isHashed: true,
+        },
+        timestamp: new Date().toISOString(),
+      };
+      
+      setDebugInfo(prev => prev + "\n\nRequest: " + JSON.stringify(requestDebugInfo, null, 2));
+      
       notifications.show({
         id: "login-processing",
         title: "Processing Login",
@@ -87,18 +120,27 @@ const Login = () => {
         color: "blue",
         loading: true,
         icon: <Link size={20} />,
+        autoClose: false,
       });
       
-      setIsLoading(true);
-      setError("");
-      
       try {
-        // Hash the password before sending
-        const hashedPassword = await hashPassword(formData.password);
+        // Hash the password before sending - using consistent method
+        const hashedPassword = hashPassword(formData.password);
+        
+        console.log("Making login request to:", `${api.web}api/v1/login`);
+        
+        // Add debug info about the hash
+        setDebugInfo(prev => prev + `\nPassword hash: ${hashedPassword.substring(0, 10)}...`);
+        
         const response = await axios.post(`${api.web}api/v1/login`, {
           email: formData.email,
           password: hashedPassword,
           isHashed: true,
+        }, {
+          timeout: 10000, // 10 second timeout
+          headers: {
+            'Content-Type': 'application/json',
+          }
         });
         
         const { data } = response;
@@ -120,31 +162,72 @@ const Login = () => {
           // Handle remember me functionality
           handleRememberMe(formData.email, formData.rememberMe);
 
+          // Update debug info with response
+          setDebugInfo(prev => prev + "\n\nResponse: " + JSON.stringify({
+            success: data.success,
+            userId: data.user._id,
+            timestamp: new Date().toISOString(),
+          }, null, 2));
+
           notifications.update({
             id: "login-processing",
             title: "Login Successful",
             message: "You have successfully logged in.",
             color: "green",
             loading: false,
+            autoClose: 3000,
             icon: <Link size={20} />,
           });
 
-          // Redirect to homepage
-          window.location.href = "/";
+          // Redirect to homepage after a brief delay
+          setTimeout(() => {
+            window.location.href = "/";
+          }, 1000);
         } else {
           setError(data.message || "Login failed");
+          
+          // Update debug info with error
+          setDebugInfo(prev => prev + "\n\nError: " + JSON.stringify({
+            message: data.message,
+            success: data.success,
+            timestamp: new Date().toISOString(),
+          }, null, 2));
+          
           notifications.update({
             id: "login-processing",
             title: "Login Failed",
             message: data.message || "Invalid credentials. Please try again.",
             color: "red",
             loading: false,
+            autoClose: 5000,
             icon: <Link size={20} />,
           });
         }
       } catch (err) {
-        console.error("Login error:", err);
-        const errorMessage = err.response?.data?.message || "An error occurred. Please try again.";
+        console.error("Login error details:", err);
+        
+        let errorMessage = "An error occurred. Please try again.";
+        
+        if (err.code === 'ECONNABORTED') {
+          errorMessage = "Request timeout. Please check your connection.";
+        } else if (err.response) {
+          // Server responded with error status
+          errorMessage = err.response.data?.message || `Server error: ${err.response.status}`;
+        } else if (err.request) {
+          // Request was made but no response received
+          errorMessage = "Network error. Please check your connection.";
+        }
+        
+        // Update debug info with error details
+        setDebugInfo(prev => prev + "\n\nError: " + JSON.stringify({
+          message: errorMessage,
+          code: err.code,
+          response: err.response ? {
+            status: err.response.status,
+            data: err.response.data
+          } : undefined,
+          timestamp: new Date().toISOString(),
+        }, null, 2));
         
         notifications.update({
           id: "login-processing",
@@ -152,6 +235,7 @@ const Login = () => {
           message: errorMessage,
           color: "red",
           loading: false,
+          autoClose: 5000,
           icon: <Link size={20} />,
         });
         
@@ -168,15 +252,39 @@ const Login = () => {
     navigate("/signup");
   }, [navigate]);
 
+  // Toggle debug panel
+  const toggleDebug = () => {
+    setShowDebug(!showDebug);
+  };
+
+  // Copy debug info to clipboard
+  const copyDebugInfo = () => {
+    navigator.clipboard.writeText(debugInfo);
+    notifications.show({
+      title: "Debug Info Copied",
+      message: "Debug information has been copied to clipboard.",
+      color: "green",
+      autoClose: 2000,
+    });
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="bg-white shadow-lg rounded-xl p-8 w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="bg-white shadow-lg rounded-xl p-8 w-full max-w-md relative">
+        <button
+          onClick={toggleDebug}
+          className="absolute top-2 right-2 p-2 text-gray-500 hover:text-blue-500"
+          title="Toggle debug info"
+        >
+          <Bug size={20} />
+        </button>
+        
         <h1 className="text-3xl font-bold text-center text-[#3f6197] mb-6">
           Login
         </h1>
 
         {error && (
-          <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-4">
+          <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-4 text-sm">
             {error}
           </div>
         )}
@@ -198,6 +306,7 @@ const Login = () => {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3f6197] text-gray-700"
               placeholder="Enter your email"
               required
+              disabled={isLoading}
             />
           </div>
 
@@ -217,11 +326,13 @@ const Login = () => {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3f6197] text-gray-700 pr-10"
               placeholder="Enter your password"
               required
+              disabled={isLoading}
             />
             <button
               type="button"
               onClick={() => setShowPassword((prev) => !prev)}
-              className="absolute right-3 top-1/2 transform translate-y-1/2 text-gray-600 focus:outline-none"
+              className="absolute right-3 top-9 text-gray-600 focus:outline-none"
+              disabled={isLoading}
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
@@ -235,17 +346,20 @@ const Login = () => {
               checked={formData.rememberMe}
               onChange={handleChange}
               className="w-4 h-4 accent-[#3f6197]"
+              disabled={isLoading}
             />
             <label htmlFor="rememberMe" className="ml-2 text-gray-600">
               Remember me
             </label>
 
-            <p
+            <button
+              type="button"
               onClick={() => navigate("/forgot-password")}
-              className="ml-auto text-[#3f6197] font-medium hover:underline focus:outline-none cursor-pointer"
+              className="ml-auto text-[#3f6197] font-medium hover:underline focus:outline-none"
+              disabled={isLoading}
             >
               Forgot Password?
-            </p>
+            </button>
           </div>
 
           <button
@@ -266,10 +380,37 @@ const Login = () => {
           <button
             onClick={navigateToSignup}
             className="text-[#3f6197] font-medium hover:underline focus:outline-none"
+            disabled={isLoading}
           >
             Sign up
           </button>
         </p>
+
+        {/* Debug Panel */}
+        {showDebug && (
+          <div className="mt-6 p-4 bg-gray-100 rounded-lg">
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="font-bold text-gray-700">Debug Information</h3>
+              <div className="flex space-x-2">
+                <button
+                  onClick={copyDebugInfo}
+                  className="text-xs bg-blue-500 text-white px-2 py-1 rounded"
+                >
+                  Copy
+                </button>
+                <button
+                  onClick={toggleDebug}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            </div>
+            <pre className="text-xs bg-white p-2 rounded overflow-auto max-h-40">
+              {debugInfo}
+            </pre>
+          </div>
+        )}
       </div>
     </div>
   );
