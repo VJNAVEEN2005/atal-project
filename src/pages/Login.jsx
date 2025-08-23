@@ -3,7 +3,6 @@ import React, { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../Api/api";
 import { Link } from "lucide-react";
-import { Button } from "bootstrap";
 import { notifications } from "@mantine/notifications";
 import { Eye, EyeOff } from "lucide-react";
 
@@ -128,18 +127,16 @@ const Login = () => {
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
-
+      console.log("Login form submitted");
       // Form validation
       if (!formData.email || !formData.password) {
         setError("Please fill in all required fields");
         return;
       }
-
       // Check remember me expiry
       if (formData.rememberMe) {
         checkRememberMeExpiry();
       }
-
       notifications.show({
         id: "login-processing",
         title: "Processing Login",
@@ -148,22 +145,17 @@ const Login = () => {
         loading: true,
         icon: <Link size={20} />,
       });
-
       setIsLoading(true);
       setError("");
-
       try {
         // Hash the password before sending
         const hashedPassword = await hashPassword(formData.password);
-
         const response = await axios.post(`${api.web}api/v1/login`, {
           email: formData.email,
           password: hashedPassword,
           isHashed: true,
         });
-
         const { data } = response;
-
         if (data.success) {
           // Store authentication token
           localStorage.setItem("token", data.token);
