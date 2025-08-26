@@ -331,7 +331,7 @@ const Login = () => {
             <button
               type="button"
               onClick={() => setShowPassword((prev) => !prev)}
-              className="absolute right-3 top-9 text-gray-600 focus:outline-none"
+              className="absolute right-3 top-11 text-gray-600 focus:outline-none"
               disabled={isLoading}
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}

@@ -1,8 +1,10 @@
 import React, { useState } from "react";
+import { showNotification } from '@mantine/notifications';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 import { sha256 } from "js-sha256";
+import api from "../Api/api";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -217,17 +219,25 @@ const SignUp = () => {
 
         console.log("Submitting with hashed password");
 
-        // For demonstration purposes, we'll simulate API call
-        console.log("API call would be made with:", submissionData);
-        
-        // Simulate successful registration
-        setTimeout(() => {
-          localStorage.setItem("user_id", userId);
-          localStorage.setItem("user_name", formData.email);
-          localStorage.setItem("user_isLogin", true);
-          navigate("/login");
-        }, 1000);
-        
+        // Make API call to backend
+        try {
+          const response = await axios.post(`${api.web}api/v1/register`, submissionData);
+          if (response.data.success) {
+            showNotification({
+              title: 'Sign Up Successful',
+              message: 'Your account has been created successfully!',
+              color: 'green',
+            });
+            localStorage.setItem("user_id", userId);
+            localStorage.setItem("user_name", formData.email);
+            localStorage.setItem("user_isLogin", true);
+            navigate("/login");
+          } else {
+            setError(response.data.message || "Registration failed");
+          }
+        } catch (err) {
+          setError(err.response?.data?.message || "Registration failed");
+        }
       } catch (err) {
         console.log(err.response?.data);
         setError(err.response?.data?.message || "Registration failed");
