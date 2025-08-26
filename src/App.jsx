@@ -5,6 +5,7 @@ import {
   Routes,
   useLocation,
 } from "react-router-dom";
+import { Helmet } from "react-helmet";
 
 // Pages
 import Home from "./pages/Homepage";
@@ -113,6 +114,15 @@ function App() {
   const dispatch = useDispatch();
   const state = useSelector((state) => state);
 
+  // Default SEO configuration
+  const defaultSEO = {
+    title: "AIC PECF - Atal Incubation Centre | PEC Foundation",
+    description: "AIC PECF is a state-of-the-art incubation center fostering innovation and entrepreneurship, supported by AIM, NITI Aayog, Govt. of India.",
+    keywords: "AIC PECF, incubation center, startups, innovation, entrepreneurship, PEC Foundation",
+    author: "AIC PECF",
+    ogImage: "/AIC.png",
+  };
+
   useEffect(() => {
     dispatch(authenticateUser());
   }, [dispatch]);
@@ -200,6 +210,29 @@ function App() {
       <ScrollToTop />
       <NewNav />
       <MoveToTop />
+      <Helmet>
+        <title>{defaultSEO.title}</title>
+        <meta name="description" content={defaultSEO.description} />
+        <meta name="keywords" content={defaultSEO.keywords} />
+        <meta name="author" content={defaultSEO.author} />
+       
+        
+        {/* Open Graph Meta Tags */}
+        <meta property="og:title" content={defaultSEO.title} />
+        <meta property="og:description" content={defaultSEO.description} />
+        <meta property="og:image" content={defaultSEO.ogImage} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://aicpecf.org" />
+        
+        {/* Twitter Card Meta Tags */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={defaultSEO.title} />
+        <meta name="twitter:description" content={defaultSEO.description} />
+        <meta name="twitter:image" content={defaultSEO.ogImage} />
+        
+        {/* Canonical URL */}
+        <link rel="canonical" href="https://aicpecf.org" />
+      </Helmet>
       {isLoading ? (
         <LoadingPage progress={Math.round(loadingProgress)} />
       ) : (

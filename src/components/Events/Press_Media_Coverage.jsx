@@ -257,9 +257,9 @@ const Press_Media_Coverage = () => {
   );
 
   return (
-    <div className="max-w-6xl mx-auto my-16 px-4">
+  <div className="max-w-6xl mx-auto my-8 px-2 sm:my-16 sm:px-4">
       {/* Modern Header with Subtle Animation */}
-      <div className="bg-gradient-to-r from-[#3f6197] to-[#5478b0] rounded-3xl shadow-2xl p-8 mb-12 relative overflow-hidden">
+  <div className="bg-gradient-to-r from-[#3f6197] to-[#5478b0] rounded-2xl shadow-2xl p-4 mb-8 sm:p-8 sm:mb-12 relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full opacity-10">
           <div className="absolute right-0 top-0 w-64 h-64 bg-white rounded-full -mr-32 -mt-32 opacity-20"></div>
           <div className="absolute left-0 bottom-0 w-96 h-96 bg-white rounded-full -ml-48 -mb-48 opacity-20"></div>
@@ -276,8 +276,8 @@ const Press_Media_Coverage = () => {
       </div>
 
       {/* Search and Filter Controls with improved styling */}
-      <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 mb-10 border border-gray-100">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6 md:p-8 mb-8 border border-gray-100">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           {/* Search with improved UX */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -405,7 +405,7 @@ const Press_Media_Coverage = () => {
 
       {/* Active Filters with improved visual appearance */}
       {(filters.source !== "All" || filters.searchTerm) && (
-        <div className="flex flex-wrap gap-2 mb-8">
+        <div className="flex flex-wrap gap-2 mb-6 sm:mb-8">
           <div className="bg-blue-50 rounded-xl p-3 shadow-sm border border-blue-100 flex items-center gap-3">
             <span className="text-sm font-medium text-[#3f6197]">
               Active filters:
@@ -489,7 +489,7 @@ const Press_Media_Coverage = () => {
 
       {/* Loading State with improved animation */}
       {loading && (
-        <div className="flex justify-center items-center py-16">
+        <div className="flex justify-center items-center py-12 sm:py-16">
           <div className="relative">
             <div className="h-12 w-12 rounded-full border-t-2 border-r-2 border-[#5478b0] animate-spin"></div>
           </div>
@@ -498,7 +498,7 @@ const Press_Media_Coverage = () => {
 
       {/* Error State with improved visuals */}
       {error && !loading && (
-        <div className="bg-red-50 p-8 rounded-2xl border border-red-100 text-center shadow-lg mb-8">
+        <div className="bg-red-50 p-6 sm:p-8 rounded-2xl border border-red-100 text-center shadow-lg mb-8">
           <div className="rounded-full bg-red-100 w-20 h-20 flex items-center justify-center mx-auto mb-4">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -544,7 +544,7 @@ const Press_Media_Coverage = () => {
 
       {/* Media Coverage Cards */}
       {!loading && !error && (
-        <div className="space-y-10">
+        <div className="space-y-6 sm:space-y-10">
           {mediaCoverage.map((item) => (
             <MediaCard key={item._id} item={item} />
           ))}
@@ -553,7 +553,7 @@ const Press_Media_Coverage = () => {
 
       {/* Empty state with improved visuals */}
       {!loading && !error && mediaCoverage.length === 0 && (
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-10 rounded-2xl border border-blue-100 text-center shadow-lg">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 sm:p-10 rounded-2xl border border-blue-100 text-center shadow-lg">
           <div className="bg-white/70 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -605,8 +605,8 @@ const Press_Media_Coverage = () => {
         !error &&
         mediaCoverage.length > 0 &&
         pagination.totalPages > 1 && (
-          <div className="flex justify-center mt-12">
-            <nav className="inline-flex rounded-xl shadow-lg overflow-hidden border border-gray-100">
+          <div className="flex justify-center mt-8 sm:mt-12">
+            <nav className="inline-flex rounded-xl shadow-lg overflow-hidden border border-gray-100 text-xs sm:text-base">
               <button
                 onClick={() =>
                   handlePageChange(Math.max(1, filters.currentPage - 1))
@@ -724,31 +724,31 @@ const Press_Media_Coverage = () => {
 
       {/* Results count with improved styling */}
       {!loading && !error && mediaCoverage.length > 0 && (
-        <div className="mt-8 text-center">
-          <span className="bg-blue-50 px-4 py-2 rounded-lg text-[#3f6197] font-medium inline-block">
+        <div className="mt-6 sm:mt-8 text-center">
+          <span className="bg-blue-50 px-3 py-2 rounded-lg text-[#3f6197] font-medium inline-block text-sm sm:text-base">
             Showing {mediaCoverage.length} of {pagination.totalItems} articles
           </span>
         </div>
       )}
 
       {/* Newsletter signup section - Added feature */}
-      <div className="mt-16 bg-gradient-to-br from-[#3f6197] to-[#2c4b79] rounded-2xl p-8 shadow-xl">
-        <div className="md:flex items-center justify-between">
-          <div className="md:w-3/5 mb-6 md:mb-0">
+      <div className="mt-10 sm:mt-16 bg-gradient-to-br from-[#3f6197] to-[#2c4b79] rounded-2xl p-4 sm:p-8 shadow-xl">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="w-full md:w-3/5 mb-4 md:mb-0">
             <h3 className="text-white text-2xl font-bold mb-2">Stay Updated</h3>
             <p className="text-blue-100">
               Subscribe to our newsletter to receive the latest press coverage
               and announcements directly in your inbox.
             </p>
           </div>
-          <div className="md:w-2/5">
-            <div className="flex">
+          <div className="w-full md:w-2/5">
+            <div className="flex flex-col sm:flex-row gap-2">
               <input
                 type="email"
                 placeholder="Your email address"
-                className="flex-1 px-4 py-3 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
+                className="flex-1 px-4 py-3 rounded-lg sm:rounded-l-lg sm:rounded-r-none focus:outline-none focus:ring-2 focus:ring-blue-300"
               />
-              <button className="bg-white text-[#3f6197] px-5 py-3 rounded-r-lg font-medium hover:bg-blue-50 transition-colors">
+              <button className="bg-white text-[#3f6197] px-5 py-3 rounded-lg sm:rounded-l-none sm:rounded-r-lg font-medium hover:bg-blue-50 transition-colors">
                 Subscribe
               </button>
             </div>
@@ -757,8 +757,8 @@ const Press_Media_Coverage = () => {
       </div>
 
       {/* Footer card with stats - Added feature */}
-      <div className="mt-16 bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl p-8 border border-blue-100 shadow-md">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="mt-10 sm:mt-16 bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl p-4 sm:p-8 border border-blue-100 shadow-md">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           <div className="text-center">
             <div className="bg-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3 shadow-md">
               <svg
