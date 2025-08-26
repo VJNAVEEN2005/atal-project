@@ -1,5 +1,5 @@
 const api = {
-    web:"http://31.97.237.106:8000/",
+    web:import.meta.env.VITE_API_URL,
 
     local:"http://localhost:8000/",
     versel:"https://atal-project-backend.vercel.app/",

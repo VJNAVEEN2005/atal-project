@@ -271,13 +271,13 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="bg-white shadow-lg rounded-xl p-8 w-full max-w-md relative">
-        <button
+        {/* <button
           onClick={toggleDebug}
           className="absolute top-2 right-2 p-2 text-gray-500 hover:text-blue-500"
           title="Toggle debug info"
         >
           <Bug size={20} />
-        </button>
+        </button> */}
         
         <h1 className="text-3xl font-bold text-center text-[#3f6197] mb-6">
           Login
