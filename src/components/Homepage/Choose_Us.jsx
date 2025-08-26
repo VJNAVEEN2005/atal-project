@@ -7,7 +7,7 @@ const Choose_Us = () => {
     {
         title: 'For Startups & Innovators',
         details: 'AIC-PECF offer a variety of services which enable startups, innovators, industries, academic institutes, teachers and students to  collaborate with us for their growth. We welcome ​all the stake holders to productively engage and collaborate with us for taking your innovation to the next level.',
-        link: 'http://www.aicpecf.org/incubation.html',
+        link: 'https://docs.google.com/forms/d/e/1FAIpQLScAJvEDHS8BRXgoXXFaXjVCNJM04Gpbz3LdD8S5WPcugGTJnA/viewform',
         button:'Apply for Incubation'
     },
     {
